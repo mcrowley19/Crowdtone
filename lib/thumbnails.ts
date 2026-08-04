@@ -85,7 +85,9 @@ export function buildOverlaySvg(text: string, style: OverlayStyle, w = THUMB_W, 
     const size = 76;
     const lineHeight = size * 1.2;
     const widest = Math.max(...lines.map((l) => l.length));
-    const boxW = Math.min(w - 96, widest * size * 0.62 + 80);
+    // 0.72em ≈ the average advance of DejaVu Sans Bold uppercase, which is what we
+    // ship; a narrower estimate lets long lines spill past the box border.
+    const boxW = Math.min(w - 96, widest * size * 0.72 + 80);
     const boxH = lines.length * lineHeight + 56;
     const tspans = lines
       .map((l, i) => `<tspan x="88" y="${88 + (i + 1) * lineHeight - 24}">${escapeXml(l)}</tspan>`)
