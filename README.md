@@ -88,7 +88,7 @@ Design choices worth noting:
 npm test
 ```
 
-24 vitest smoke tests cover URL/ID parsing, YouTube API response mapping, LLM JSON
+30 vitest smoke tests cover URL/ID parsing, YouTube API response mapping, LLM JSON
 parsing + schema validation, heuristic clustering, comment caching (incl. path-traversal
 guard), SVG overlay generation, and the markdown exporter.
 
