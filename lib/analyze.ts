@@ -105,16 +105,28 @@ export async function runAnalysis(comments: Comment[], videoTitle: string): Prom
       await chatJSON(config, SYSTEM_PROMPT, clusteringPrompt(comments, videoTitle))
     );
     const topComplaint = deriveTopComplaint(clusters);
-    const [rawIdeas, rawFixes, rawTexts] = await Promise.all([
-      chatJSON(config, SYSTEM_PROMPT, nextVideoPrompt(clusters, videoTitle)),
-      chatJSON(config, SYSTEM_PROMPT, fixVideoPrompt(clusters, videoTitle)),
-      chatJSON(config, SYSTEM_PROMPT, thumbnailTextPrompt(topComplaint, videoTitle)),
+    // Each section degrades on its own. Free-tier models are slow and flaky enough
+    // that one timed-out call used to discard perfectly good clustering and drop the
+    // whole report to heuristics; now only the section that failed falls back.
+    const section = async <T,>(p: Promise<any>, validate: (raw: any) => T, name: string): Promise<T | null> => {
+      try {
+        return validate(await p);
+      } catch (err) {
+        console.error(`LLM section "${name}" failed, falling back for that section:`, err);
+        return null;
+      }
+    };
+
+    const [ideasRes, fixesRes, textsRes] = await Promise.all([
+      section(chatJSON(config, SYSTEM_PROMPT, nextVideoPrompt(clusters, videoTitle)), validateIdeas, "ideas"),
+      section(chatJSON(config, SYSTEM_PROMPT, fixVideoPrompt(clusters, videoTitle)), validateFixes, "fixes"),
+      section(chatJSON(config, SYSTEM_PROMPT, thumbnailTextPrompt(topComplaint, videoTitle)), validateThumbnailTexts, "thumbnailTexts"),
     ]);
 
     const fallback = heuristicAnalysis(comments, videoTitle);
-    const ideas = validateIdeas(rawIdeas);
-    const fixes = validateFixes(rawFixes);
-    const texts = validateThumbnailTexts(rawTexts);
+    const ideas = ideasRes ?? [];
+    const fixes = fixesRes ?? [];
+    const texts = textsRes ?? [];
     return {
       clusters,
       ideas: ideas.length > 0 ? ideas : fallback.ideas,

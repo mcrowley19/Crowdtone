@@ -45,11 +45,16 @@ export function parseLLMJson(text: string): any {
   return JSON.parse(cleaned.slice(start, end + 1));
 }
 
+// Free-tier models queue behind paid traffic and regularly take 60s+ on a
+// 50-comment clustering prompt, so the old 45s ceiling meant the LLM path
+// timed out and silently degraded to heuristics. Override with LLM_TIMEOUT_MS.
+export const DEFAULT_LLM_TIMEOUT_MS = Number(process.env.LLM_TIMEOUT_MS) || 90000;
+
 export async function chatJSON(
   config: LLMConfig,
   system: string,
   user: string,
-  timeoutMs = 45000
+  timeoutMs = DEFAULT_LLM_TIMEOUT_MS
 ): Promise<any> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

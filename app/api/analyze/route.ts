@@ -4,7 +4,9 @@ import type { Comment } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+// Clustering runs first, then three calls in parallel: worst case is two
+// sequential LLM timeouts (90s each) plus overhead. Vercel allows 300s.
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
