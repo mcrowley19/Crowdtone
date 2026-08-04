@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# env & secrets — never commit keys
+.env
+.env.local
+.env.*.local
+*.key
+credentials.json
+
+# runtime cache of fetched comments
+data/cache/*
+!data/cache/.gitkeep
+
+# misc
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
