@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AudienceSignal — comments in, next video out",
+  title: "AudienceSignal",
   description:
-    "Pull real YouTube comments, cluster them into themes, and get a ranked next-video brief, concrete fixes, and regenerated thumbnails.",
+    "Reads the comments on a public YouTube video and writes back a plan: what to make next, what to fix, and a clearer thumbnail.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

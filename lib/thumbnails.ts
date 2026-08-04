@@ -112,18 +112,14 @@ export function buildOverlaySvg(text: string, style: OverlayStyle, w = THUMB_W, 
 /** Backdrop used when a real frame can't be fetched (demo mode / offline). */
 export function fallbackBackgroundSvg(variant: number, w = THUMB_W, h = THUMB_H): string {
   const palettes = [
-    ["#1e1b4b", "#7c3aed"],
-    ["#082f49", "#0ea5e9"],
-    ["#3f0d12", "#f43f5e"],
+    ["#22303c", "#1a252f"],
+    ["#5d1f1f", "#491717"],
+    ["#1f3a5f", "#162c49"],
   ];
-  const [from, to] = palettes[variant % palettes.length];
+  const [base, band] = palettes[variant % palettes.length];
   return `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>
-  </linearGradient></defs>
-  <rect width="${w}" height="${h}" fill="url(#bg)"/>
-  <circle cx="${w * 0.82}" cy="${h * 0.24}" r="190" fill="#ffffff" opacity="0.08"/>
-  <circle cx="${w * 0.12}" cy="${h * 0.85}" r="240" fill="#000000" opacity="0.18"/>
+  <rect width="${w}" height="${h}" fill="${base}"/>
+  <polygon points="0,${h} ${w * 0.42},0 ${w},0 ${w},${h}" fill="${band}"/>
 </svg>`;
 }
 

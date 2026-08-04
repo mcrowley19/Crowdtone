@@ -1,12 +1,5 @@
 import type { ClusterResult, ThemeName } from "@/lib/types";
 
-const COLORS: Record<ThemeName, string> = {
-  praise: "var(--green)",
-  complaint: "var(--red)",
-  request: "var(--blue)",
-  confusion: "var(--amber)",
-};
-
 const LABELS: Record<ThemeName, string> = {
   praise: "Praise",
   complaint: "Complaints",
@@ -15,36 +8,48 @@ const LABELS: Record<ThemeName, string> = {
 };
 
 export function ThemeGrid({ clusters, source }: { clusters: ClusterResult; source: string }) {
+  const total = clusters.themes.reduce((n, t) => n + t.count, 0);
+
   return (
-    <div className="card">
-      <div className="cardhead">
-        <h2>
-          Comment themes
-          <span className="sub">
-            clustered by {source === "llm" ? "LLM" : "keyword heuristic (add an LLM key for deeper analysis)"}
-          </span>
-        </h2>
-      </div>
-      <div className="summarybox">{clusters.summary}</div>
-      <div className="themes">
-        {clusters.themes.map((t) => (
-          <div className="theme" key={t.name}>
-            <div className="thead">
-              <span className="tname">
-                <span className="tdot" style={{ background: COLORS[t.name] }} />
-                {LABELS[t.name]}
-              </span>
-              <span className="tcount">{t.count}</span>
-            </div>
-            {t.top_quotes.slice(0, 5).map((q, i) => (
-              <div className="quote" key={i}>
-                “{q}”
-              </div>
-            ))}
-            {t.top_quotes.length === 0 && <div className="quote">No notable quotes.</div>}
-          </div>
-        ))}
-      </div>
-    </div>
+    <section className="report">
+      <h2>What the comments say</h2>
+      <p className="deck">
+        {source === "llm"
+          ? "Comments clustered by language model."
+          : "Comments matched by keyword scan; add an LLM key in .env.local for deeper clustering."}
+      </p>
+      <p>{clusters.summary}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Theme</th>
+            <th>Comments</th>
+            <th>Most-liked quotes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {clusters.themes.map((t) => (
+            <tr key={t.name}>
+              <td className="label">{LABELS[t.name]}</td>
+              <td className="num">
+                {t.count}
+                {total > 0 && ` (${Math.round((t.count / total) * 100)}%)`}
+              </td>
+              <td>
+                {t.top_quotes.length > 0 ? (
+                  <ul className="quotelist">
+                    {t.top_quotes.slice(0, 5).map((q, i) => (
+                      <li key={i}>&ldquo;{q}&rdquo;</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span className="note">No notable quotes.</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   );
 }

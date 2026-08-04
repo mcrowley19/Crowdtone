@@ -75,13 +75,13 @@ export function heuristicAnalysis(comments: Comment[], videoTitle: string): Anal
   const ideas: VideoIdea[] = [
     {
       title: `Answering your top requests after "${videoTitle}"`,
-      hook: "You asked, I listened — here's the video the comment section demanded.",
+      hook: "You asked, I listened. This is the video the comment section demanded.",
       evidence_quotes: requests.slice(0, 3),
       estimated_interest: requests.length > 3 ? "high" : "medium",
     },
     {
       title: `The follow-up: what I didn't explain in "${videoTitle}"`,
-      hook: "A lot of you were confused by one thing in my last video — let's clear it up.",
+      hook: "A lot of you were confused by one thing in my last video, so let's clear it up.",
       evidence_quotes: confusion.slice(0, 3),
       estimated_interest: confusion.length > 2 ? "high" : "medium",
     },

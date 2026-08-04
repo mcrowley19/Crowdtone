@@ -16,12 +16,11 @@ interface Health {
   llm: string | null;
 }
 
-const STEPS: Array<{ key: Stage; label: string }> = [
-  { key: "video", label: "Fetch video" },
-  { key: "comments", label: "Pull comments" },
-  { key: "analyzing", label: "Cluster & plan" },
-  { key: "done", label: "Ready" },
-];
+const STATUS_TEXT: Partial<Record<Stage, string>> = {
+  video: "Looking up the video on YouTube.",
+  comments: "Pulling up to 200 top-level comments.",
+  analyzing: "Reading the comments and drafting the plan. This takes a moment.",
+};
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -144,85 +143,65 @@ export default function Home() {
     setTimeout(() => setCopied(false), 1600);
   }, [video, analysis, comments]);
 
-  const stepState = (key: Stage): string => {
-    const order: Stage[] = ["video", "comments", "analyzing", "done"];
-    if (stage === "idle") return "";
-    const cur = order.indexOf(stage);
-    const mine = order.indexOf(key);
-    if (stage === "done") return "done";
-    if (mine < cur) return "done";
-    if (mine === cur) return "active";
-    return "";
-  };
+  const keyline = health
+    ? `YouTube API key: ${health.youtube ? "configured" : "not set"}. ` +
+      `Language model: ${health.llm ? `${health.llm} (${health.llm === "openrouter" ? "OpenRouter" : "OpenAI"})` : "not set"}. ` +
+      (!health.youtube || !health.llm ? "The demo dataset works without either." : "")
+    : "Checking configured keys.";
 
   return (
-    <main className="shell">
-      <div className="topbar">
-        <div className="brand">
-          <div className="brand-dot">▲</div>
-          AudienceSignal
-        </div>
-        <div className="keychips">
-          <span className={`chip ${health?.youtube ? "on" : ""}`}>
-            YouTube API {health?.youtube ? "connected" : "not set"}
-          </span>
-          <span className={`chip ${health?.llm ? "on" : ""}`}>
-            LLM {health?.llm ? `(${health.llm})` : "not set"}
-          </span>
-        </div>
-      </div>
+    <main className="sheet">
+      <header className="masthead">
+        <h1>AudienceSignal</h1>
+        <div className="slug">Comment-section analysis for YouTube creators</div>
+      </header>
+      <div className="keyline">{keyline}</div>
 
-      <section className="hero">
-        <h1>Comments in. Next video out.</h1>
-        <p>
-          Paste a public YouTube video. AudienceSignal pulls real comments, clusters what viewers
-          are saying, and hands you a ranked next-video brief, concrete fixes, and thumbnail
-          variants that answer the top complaint.
-        </p>
-        <form
-          className="inputrow"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (input.trim()) analyze(input);
-          }}
-        >
+      <p className="intro">
+        Paste the address of any public YouTube video. AudienceSignal reads its comments and
+        writes back a short report: what viewers praised, complained about, asked for, and
+        found confusing, followed by three ideas for the next video, a list of fixes for this
+        one, and redrawn thumbnails that answer the loudest complaint.
+      </p>
+
+      <form
+        className="queryform"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (input.trim()) analyze(input);
+        }}
+      >
+        <label htmlFor="video-input">Video address or ID</label>
+        <div className="queryrow">
           <input
+            id="video-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v=…  or a video ID"
+            placeholder="https://www.youtube.com/watch?v="
             spellCheck={false}
             disabled={busy}
           />
-          <button className="btn primary" type="submit" disabled={busy || !input.trim()}>
-            {busy ? "Working…" : "Analyze"}
+          <button type="submit" disabled={busy || !input.trim()}>
+            {busy ? "Working" : "Analyze"}
           </button>
-        </form>
-        <button className="demolink" onClick={() => analyze("DEMO")} disabled={busy}>
-          No API key? Run the built-in demo dataset →
-        </button>
+        </div>
+      </form>
+      <button className="textlink" onClick={() => analyze("DEMO")} disabled={busy}>
+        No keys yet? Run the report on the bundled demo dataset.
+      </button>
 
-        {stage !== "idle" && (
-          <div className="progress">
-            {STEPS.map((s) => (
-              <div className={`step ${stepState(s.key)}`} key={s.key}>
-                <span className="dot" />
-                {s.label}
-              </div>
-            ))}
-          </div>
-        )}
+      {busy && <p className="statusline">{STATUS_TEXT[stage]}</p>}
 
-        {error && (
-          <div className="error">
-            <span>{error}</span>
-            {offerDemo && (
-              <button className="btn small" onClick={() => analyze("DEMO")}>
-                Try demo data
-              </button>
-            )}
-          </div>
-        )}
-      </section>
+      {error && (
+        <p className="errorline">
+          {error}{" "}
+          {offerDemo && (
+            <button className="textlink" onClick={() => analyze("DEMO")}>
+              Run the demo dataset instead.
+            </button>
+          )}
+        </p>
+      )}
 
       {video && (
         <VideoCard
@@ -244,20 +223,20 @@ export default function Home() {
             loading={thumbsLoading}
             onGenerate={generateThumbs}
           />
-          <div className="exportrow">
-            <button className="btn small" onClick={downloadJson}>
-              Download JSON
-            </button>
-            <button className="btn small" onClick={copyMarkdown}>
-              {copied ? "Copied!" : "Copy markdown summary"}
+          <div className="exports">
+            <button onClick={downloadJson}>Save report as JSON</button>
+            <button onClick={copyMarkdown}>
+              {copied ? "Copied to clipboard" : "Copy report as markdown"}
             </button>
           </div>
         </>
       )}
 
-      <div className="footer">
-        AudienceSignal · YouTube Data API v3 · comments cached locally in <code>data/cache/</code>
-      </div>
+      <footer className="colophon">
+        AudienceSignal reads public data through the YouTube Data API and keeps fetched
+        comments in a local cache (data/cache) to spare your quota. No keys or comments leave
+        your machine except to YouTube and your chosen model provider.
+      </footer>
     </main>
   );
 }

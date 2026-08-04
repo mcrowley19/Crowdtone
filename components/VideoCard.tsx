@@ -11,26 +11,30 @@ export function VideoCard({
   commentCount: number | null;
   commentSource: string | null;
 }) {
+  const sourceNote =
+    commentSource === "cache"
+      ? "served from local cache"
+      : commentSource === "api"
+        ? "fetched live from the YouTube API"
+        : commentSource === "demo"
+          ? "bundled demo dataset"
+          : null;
+
   return (
-    <div className="card videocard">
+    <div className="videohead">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={video.thumbnailUrl} alt="Current thumbnail" />
       <div>
-        <div className="vtitle">
-          {video.title}
-          {video.source === "demo" && <span className="badge">demo data</span>}
-        </div>
-        <div className="vmeta">
-          {video.channelTitle} · {fmt.format(video.viewCount)} views ·{" "}
+        <div className="vtitle">{video.title}</div>
+        <div className="byline">
+          {video.channelTitle} &middot; {fmt.format(video.viewCount)} views &middot;{" "}
           {fmt.format(video.commentCount)} comments on YouTube
+          {video.source === "demo" && " [demo data]"}
         </div>
         {commentCount !== null && (
-          <div className="vmeta" style={{ marginTop: 6 }}>
-            <span className="badge neutral">
-              {fmt.format(commentCount)} comments analyzed
-              {commentSource === "cache" && " (from cache)"}
-              {commentSource === "api" && " (live fetch)"}
-            </span>
+          <div className="byline">
+            Analyzed {fmt.format(commentCount)} top-level comments
+            {sourceNote ? `, ${sourceNote}.` : "."}
           </div>
         )}
       </div>
