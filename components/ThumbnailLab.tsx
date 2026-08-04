@@ -15,18 +15,18 @@ export function ThumbnailLab({
 }) {
   return (
     <section className="report">
-      <h2>Thumbnail variants</h2>
-      <p className="deck">Three redrawn thumbnails that answer the most-liked complaint.</p>
-      <p>
+      <h2>Thumbnail rematch</h2>
+      <p className="deck">Current thumbnail vs three redraws that answer the top complaint</p>
+      <p className="lede">
         Complaint being addressed: &ldquo;{topComplaint}&rdquo;
       </p>
       <div className="thumbactions">
-        <button onClick={onGenerate} disabled={loading}>
+        <button className="go" onClick={onGenerate} disabled={loading}>
           {loading
-            ? "Drawing variants, one moment"
+            ? "Drawing…"
             : variants.length
-              ? "Redraw the three variants"
-              : "Draw three variants from video frames"}
+              ? "Redraw variants"
+              : "Draw 3 variants from video frames"}
         </button>
       </div>
       <div className="thumbrow">
@@ -34,7 +34,7 @@ export function ThumbnailLab({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={video.thumbnailUrl} alt="Current thumbnail" />
           <figcaption>
-            <b>Current thumbnail</b> as published on YouTube
+            <b>Current.</b> As published on YouTube
           </figcaption>
         </figure>
         {variants.map((v, i) => (
@@ -43,9 +43,7 @@ export function ThumbnailLab({
             <img src={v.dataUrl} alt={`Variant ${i + 1}: ${v.text}`} />
             <figcaption>
               <b>Variant {i + 1}.</b> &ldquo;{v.text}&rdquo; &middot;{" "}
-              {v.frameSource === "video-frame"
-                ? `set on frame ${i + 1} of the video`
-                : "set on a drawn background"}
+              {v.frameSource === "video-frame" ? `real frame ${i + 1}` : "drawn background"}
             </figcaption>
           </figure>
         ))}

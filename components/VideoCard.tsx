@@ -25,11 +25,13 @@ export function VideoCard({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={video.thumbnailUrl} alt="Current thumbnail" />
       <div>
-        <div className="vtitle">{video.title}</div>
+        <div className="vtitle">
+          {video.title}
+          {video.source === "demo" && <span className="stamp">Demo data</span>}
+        </div>
         <div className="byline">
           {video.channelTitle} &middot; {fmt.format(video.viewCount)} views &middot;{" "}
           {fmt.format(video.commentCount)} comments on YouTube
-          {video.source === "demo" && " [demo data]"}
         </div>
         {commentCount !== null && (
           <div className="byline">

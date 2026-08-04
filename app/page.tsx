@@ -17,9 +17,9 @@ interface Health {
 }
 
 const STATUS_TEXT: Partial<Record<Stage, string>> = {
-  video: "Looking up the video on YouTube.",
-  comments: "Pulling up to 200 top-level comments.",
-  analyzing: "Reading the comments and drafting the plan. This takes a moment.",
+  video: "Step 1 of 3 · Looking up the video",
+  comments: "Step 2 of 3 · Pulling up to 200 comments",
+  analyzing: "Step 3 of 3 · Reading comments, drafting the plan",
 };
 
 export default function Home() {
@@ -143,25 +143,37 @@ export default function Home() {
     setTimeout(() => setCopied(false), 1600);
   }, [video, analysis, comments]);
 
-  const keyline = health
-    ? `YouTube API key: ${health.youtube ? "configured" : "not set"}. ` +
-      `Language model: ${health.llm ? `${health.llm} (${health.llm === "openrouter" ? "OpenRouter" : "OpenAI"})` : "not set"}. ` +
-      (!health.youtube || !health.llm ? "The demo dataset works without either." : "")
-    : "Checking configured keys.";
-
   return (
     <main className="sheet">
       <header className="masthead">
-        <h1>AudienceSignal</h1>
-        <div className="slug">Comment-section analysis for YouTube creators</div>
+        <h1>
+          Audience
+          <br />
+          <span>Signal</span>
+        </h1>
+        <div className="mastnote">
+          {health ? (
+            <>
+              <div className={health.youtube ? "ok" : "off"}>
+                YouTube key: {health.youtube ? "set" : "not set"}
+              </div>
+              <div className={health.llm ? "ok" : "off"}>
+                LLM key: {health.llm ? health.llm : "not set"}
+              </div>
+              <div>Demo works without keys</div>
+            </>
+          ) : (
+            <div>Checking keys</div>
+          )}
+        </div>
       </header>
-      <div className="keyline">{keyline}</div>
+      <div className="kicker">The comment section already wrote your next video</div>
 
       <p className="intro">
         Paste the address of any public YouTube video. AudienceSignal reads its comments and
-        writes back a short report: what viewers praised, complained about, asked for, and
-        found confusing, followed by three ideas for the next video, a list of fixes for this
-        one, and redrawn thumbnails that answer the loudest complaint.
+        writes back a plan: what viewers praised, complained about, asked for, and found
+        confusing, then three ideas for the next video, a fix list for this one, and redrawn
+        thumbnails that answer the loudest complaint.
       </p>
 
       <form
@@ -181,7 +193,7 @@ export default function Home() {
             spellCheck={false}
             disabled={busy}
           />
-          <button type="submit" disabled={busy || !input.trim()}>
+          <button type="submit" className="go" disabled={busy || !input.trim()}>
             {busy ? "Working" : "Analyze"}
           </button>
         </div>
@@ -193,14 +205,14 @@ export default function Home() {
       {busy && <p className="statusline">{STATUS_TEXT[stage]}</p>}
 
       {error && (
-        <p className="errorline">
+        <div className="errorline">
           {error}{" "}
           {offerDemo && (
             <button className="textlink" onClick={() => analyze("DEMO")}>
               Run the demo dataset instead.
             </button>
           )}
-        </p>
+        </div>
       )}
 
       {video && (
@@ -233,9 +245,11 @@ export default function Home() {
       )}
 
       <footer className="colophon">
-        AudienceSignal reads public data through the YouTube Data API and keeps fetched
-        comments in a local cache (data/cache) to spare your quota. No keys or comments leave
-        your machine except to YouTube and your chosen model provider.
+        <div className="inner">
+          AudienceSignal reads public data through the YouTube Data API and keeps fetched
+          comments in a local cache (data/cache) to spare your quota. No keys or comments
+          leave your machine except to YouTube and your chosen model provider.
+        </div>
       </footer>
     </main>
   );
