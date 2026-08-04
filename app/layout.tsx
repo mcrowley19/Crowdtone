@@ -9,7 +9,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="no-js">
+      <head>
+        {/* Drop the no-js guard as early as possible so reveals can animate. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.remove('no-js')",
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

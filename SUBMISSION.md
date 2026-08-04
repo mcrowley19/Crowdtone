@@ -1,6 +1,7 @@
 # AudienceSignal — hackathon submission
 
 **Live deployment:** https://youtube-automation-sandy.vercel.app
+**Straight to the tool:** https://youtube-automation-sandy.vercel.app/app
 
 ## Write-up
 

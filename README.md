@@ -2,8 +2,9 @@
 
 **Turn a YouTube comment section into your next video — and a better thumbnail.**
 
-**Live:** https://youtube-automation-sandy.vercel.app — the bundled demo runs without any
-keys. Live video analysis needs the deployment's own keys (see *Deployment* below).
+**Live:** https://youtube-automation-sandy.vercel.app — landing page.
+**The tool:** https://youtube-automation-sandy.vercel.app/app — the bundled demo runs with no
+keys and no account.
 
 Creators get hundreds of comments and no actionable plan. AudienceSignal pulls real comments
 from any public YouTube video, clusters what viewers are actually saying, and closes the
@@ -65,7 +66,8 @@ produces output. Secrets stay in `.env.local` (gitignored) — never commit keys
 Next.js 14 (App Router) + TypeScript, one process for UI and API:
 
 ```
-app/page.tsx            dashboard (client)
+app/page.tsx            landing page (static)
+app/app/page.tsx        dashboard (client)
 app/api/video           videos.list → metadata + current thumbnail
 app/api/comments        commentThreads.list (≤200, paginated) + disk cache
 app/api/analyze         LLM pipeline: cluster → (ideas ∥ fixes ∥ thumbnail texts)
