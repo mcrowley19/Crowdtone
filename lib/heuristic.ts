@@ -58,7 +58,7 @@ export function clusterHeuristically(comments: Comment[]): ClusterResult {
     summary:
       `Keyword scan of ${total} comments matched ${matched} to a theme; ` +
       `the loudest signal is ${top.name} (${top.count} comments). ` +
-      `Add an LLM key in .env.local for deeper clustering.`,
+      `Configure an LLM key for deeper clustering.`,
   };
 }
 

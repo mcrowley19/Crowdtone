@@ -246,9 +246,10 @@ export default function Home() {
 
       <footer className="colophon">
         <div className="inner">
-          AudienceSignal reads public data through the YouTube Data API and keeps fetched
-          comments in a local cache (data/cache) to spare your quota. No keys or comments
-          leave your machine except to YouTube and your chosen model provider.
+          AudienceSignal reads public data through the YouTube Data API and briefly caches
+          fetched comments to spare your quota. Comments are sent only to YouTube and the
+          model provider configured on this deployment; nothing is stored permanently and
+          no viewer accounts or private data are ever read.
         </div>
       </footer>
     </main>

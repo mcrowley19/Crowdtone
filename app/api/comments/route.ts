@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "No YOUTUBE_API_KEY configured. Add one to .env.local, or try the demo.", code: "no_api_key" },
+      { error: "No YouTube API key configured on this deployment — try the demo instead.", code: "no_api_key" },
       { status: 400 }
     );
   }
