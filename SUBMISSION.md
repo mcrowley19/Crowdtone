@@ -1,5 +1,7 @@
 # AudienceSignal — hackathon submission
 
+**Live deployment:** https://youtube-automation-sandy.vercel.app
+
 ## Write-up
 
 **The problem.** A video lands, hundreds of comments arrive, and the creator is left

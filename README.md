@@ -2,6 +2,9 @@
 
 **Turn a YouTube comment section into your next video — and a better thumbnail.**
 
+**Live:** https://youtube-automation-sandy.vercel.app — the bundled demo runs without any
+keys. Live video analysis needs the deployment's own keys (see *Deployment* below).
+
 Creators get hundreds of comments and no actionable plan. AudienceSignal pulls real comments
 from any public YouTube video, clusters what viewers are actually saying, and closes the
 feedback loop:
@@ -93,3 +96,33 @@ guard), SVG overlay generation, and the markdown exporter.
 
 A comment analysis costs ~3 units of YouTube's 10,000/day free quota (1 per
 `videos.list`, 1 per 100 comments). Caching keeps repeat demos free.
+
+## Deployment
+
+Hosted on Vercel (Next.js, Node runtime, Fluid Compute).
+
+```bash
+npm i -g vercel
+vercel --prod
+```
+
+Two notes specific to running this serverlessly:
+
+- **Comment cache** — `lib/cache.ts` writes to `/tmp` when `VERCEL` is set, since the rest
+  of the filesystem is read-only. The cache survives warm invocations, which is the
+  repeat-run case it exists for; a cold start simply refetches.
+- **Thumbnail fonts** — serverless containers ship no fonts, so librsvg rendered every
+  overlay glyph as tofu. `assets/fonts/DejaVuSans-Bold.ttf` is bundled and registered with
+  fontconfig at runtime (`lib/fonts.ts`), and `next.config.mjs` force-includes it in the
+  `/api/thumbnails` trace because it's loaded by path, not by import.
+
+To enable live video analysis on a deployment, set the keys as environment variables:
+
+```bash
+vercel env add YOUTUBE_API_KEY production
+vercel env add OPENROUTER_API_KEY production   # or OPENAI_API_KEY
+vercel --prod                                  # redeploy to pick them up
+```
+
+Without them the deployment still serves the full demo dataset, and without an LLM key it
+falls back to the keyword-heuristic analyzer.
