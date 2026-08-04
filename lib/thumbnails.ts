@@ -1,4 +1,5 @@
 import type { ThumbnailVariant } from "./types";
+import { ensureFontsConfigured } from "./fonts";
 
 export const THUMB_W = 1280;
 export const THUMB_H = 720;
@@ -48,7 +49,9 @@ export function wrapText(text: string, maxCharsPerLine = 14, maxLines = 3): stri
   return lines;
 }
 
-const FONT = `Arial, Helvetica, 'DejaVu Sans', sans-serif`;
+// 'DejaVu Sans' leads because it is the one font we ship ourselves (assets/fonts);
+// the rest are there for systems that have them. See lib/fonts.ts.
+const FONT = `'DejaVu Sans', Arial, Helvetica, sans-serif`;
 
 export const OVERLAY_STYLES = ["gradient-bar", "callout-box", "big-center"] as const;
 export type OverlayStyle = (typeof OVERLAY_STYLES)[number];
@@ -140,6 +143,8 @@ async function fetchFrame(videoId: string, frame: 1 | 2 | 3): Promise<Buffer | n
 }
 
 export async function generateVariants(videoId: string, texts: string[]): Promise<ThumbnailVariant[]> {
+  // Must happen before librsvg first resolves a font, i.e. before sharp loads.
+  await ensureFontsConfigured();
   const sharp = (await import("sharp")).default;
   const variants: ThumbnailVariant[] = [];
   for (let i = 0; i < 3; i++) {
