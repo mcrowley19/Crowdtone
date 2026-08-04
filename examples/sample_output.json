@@ -1,0 +1,119 @@
+{
+  "generatedAt": "2026-08-04T10:00:00.000Z",
+  "video": {
+    "videoId": "DEMO",
+    "title": "I used the M4 MacBook Pro for 30 days — honest review",
+    "channelTitle": "TechScope",
+    "thumbnailUrl": "/demo-thumb.svg",
+    "viewCount": 482113,
+    "commentCount": 1874,
+    "publishedAt": "2026-07-12T16:00:00Z",
+    "source": "demo"
+  },
+  "commentsAnalyzed": 50,
+  "analysis": {
+    "clusters": {
+      "themes": [
+        {
+          "name": "praise",
+          "count": 15,
+          "top_quotes": [
+            "Great review as always, love the b-roll quality on this channel.",
+            "Best tech reviewer on YouTube, no contest. The thermal testing section was incredible.",
+            "This was so helpful, thank you! Bought one after watching and no regrets.",
+            "Awesome video. The 30-day format is so much better than day-one reviews, keep doing these.",
+            "The honesty in this review is refreshing. Subscribed and hit the bell."
+          ]
+        },
+        {
+          "name": "complaint",
+          "count": 13,
+          "top_quotes": [
+            "The title says 30 days but half the video is unboxing and specs we already know. Kind of misleading honestly.",
+            "Clickbait thumbnail. The 'shocking problem' you teased is just the notch, which every Mac has had for years.",
+            "Audio is way too quiet in the outdoor segments, had to max my volume and still couldn't hear you.",
+            "Too long. This could have been 12 minutes but it's 34. So much rambling in the middle section.",
+            "The thumbnail shows a cracked screen?? That's never mentioned in the video. Pure clickbait and I'm tired of it."
+          ]
+        },
+        {
+          "name": "request",
+          "count": 14,
+          "top_quotes": [
+            "Please do a comparison with the M3 Air! I can't decide which one to buy for programming.",
+            "Would love a video on whether the base 16GB model is enough for video editing. Nobody covers the base model!",
+            "Can you test Premiere Pro export times? Everyone tests Final Cut but most of us are on Adobe.",
+            "Please test music production workloads! Logic with 100+ tracks, heavy Kontakt libraries. We never get covered.",
+            "Part 2 with the gaming benchmarks please! You promised Cyberpunk numbers and they never came."
+          ]
+        },
+        {
+          "name": "confusion",
+          "count": 8,
+          "top_quotes": [
+            "I'm confused, at 8:14 you said battery lasted 14 hours but the chart on screen shows 11? Which is it?",
+            "What does 'memory bandwidth' actually mean for normal users? You kept saying it matters but never explained why.",
+            "Wait, I don't get it. Is the 14 inch and 16 inch the same chip? You switched between them without saying which one you were testing.",
+            "I don't understand the difference between unified memory and regular RAM. Can someone explain?",
+            "You mention a discount code but there's nothing in the description? I'm confused where to find it."
+          ]
+        }
+      ],
+      "summary": "The audience trusts this channel and loves the 30-day format, but a loud minority feels the title and thumbnail overpromised. There is heavy, specific demand for comparison videos (M3 Air, base model, Adobe workflows) and recurring confusion about battery numbers and which machine was actually tested."
+    },
+    "ideas": [
+      {
+        "title": "M4 MacBook Pro vs M3 Air: which should YOU actually buy?",
+        "hook": "Half my comment section is asking the same question — so I bought both and settled it.",
+        "evidence_quotes": [
+          "Please do a comparison with the M3 Air! I can't decide which one to buy for programming.",
+          "How does this compare for students? Please make a budget laptop video for people who can't spend $2000."
+        ],
+        "estimated_interest": "high"
+      },
+      {
+        "title": "Is the base 16GB MacBook Pro enough? I edited 4K video for a week to find out",
+        "hook": "Nobody reviews the config people actually buy — so I did.",
+        "evidence_quotes": [
+          "Would love a video on whether the base 16GB model is enough for video editing. Nobody covers the base model!",
+          "Can you test Premiere Pro export times? Everyone tests Final Cut but most of us are on Adobe."
+        ],
+        "estimated_interest": "high"
+      },
+      {
+        "title": "The gaming benchmarks I owed you: Cyberpunk on the M4 MacBook Pro",
+        "hook": "I promised Cyberpunk numbers and never delivered. Today I pay my debt.",
+        "evidence_quotes": [
+          "Part 2 with the gaming benchmarks please! You promised Cyberpunk numbers and they never came."
+        ],
+        "estimated_interest": "medium"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title promises '30 days' but viewers feel the content doesn't deliver on it",
+        "fix": "Retitle to 'M4 MacBook Pro review: what 2 weeks of real work taught me' and cut or clearly label the unboxing chapter.",
+        "evidence_quote": "The title says 30 days but half the video is unboxing and specs we already know. Kind of misleading honestly."
+      },
+      {
+        "issue": "Thumbnail shows a cracked screen that never appears in the video",
+        "fix": "Swap the thumbnail for an honest variant (see Thumbnail Lab) and pin a comment acknowledging the switch.",
+        "evidence_quote": "The thumbnail shows a cracked screen?? That's never mentioned in the video. Pure clickbait and I'm tired of it."
+      },
+      {
+        "issue": "Battery claims contradict the on-screen chart",
+        "fix": "Pin a comment clarifying the 14h (video playback) vs 11h (mixed use) numbers and add a correction card at 8:14.",
+        "evidence_quote": "I'm confused, at 8:14 you said battery lasted 14 hours but the chart on screen shows 11? Which is it?"
+      },
+      {
+        "issue": "No chapters on a 34-minute video",
+        "fix": "Add timestamps to the description so viewers can jump straight to benchmarks.",
+        "evidence_quote": "Great video but the chapters are missing! Please add timestamps so we can skip to the benchmarks."
+      }
+    ],
+    "thumbnailTexts": ["NO CLICKBAIT. 30 REAL DAYS.", "THE HONEST VERDICT", "WHAT APPLE WON'T SHOW YOU"],
+    "topComplaint": "The title says 30 days but half the video is unboxing and specs we already know. Kind of misleading honestly.",
+    "source": "llm",
+    "model": "openai/gpt-4o-mini"
+  }
+}

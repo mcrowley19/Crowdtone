@@ -1,0 +1,6 @@
+# Public videos with rich comment sections — good live-demo candidates.
+# Any public YouTube video with comments enabled works; these are safe bets.
+
+https://www.youtube.com/watch?v=dQw4w9WgXcQ   # Rick Astley — Never Gonna Give You Up (millions of comments)
+https://www.youtube.com/watch?v=9bZkp7q19f0   # PSY — Gangnam Style (huge, varied comment section)
+https://www.youtube.com/watch?v=lkIFF4maKMU   # Fireship — 100+ JavaScript Concepts (tech audience: requests + confusion galore)
