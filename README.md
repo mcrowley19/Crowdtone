@@ -212,9 +212,13 @@ Design choices worth noting:
   moments. No yt-dlp/ffmpeg, just HTTPS + sharp, and the overlay scrim is weighted by the
   measured luminance under the text so type holds contrast on any frame.
 - **Chapters come from viewers, not guesses**: no transcript is available, but viewers
-  timestamp the moments that mattered. `lib/chapters.ts` mines those timestamps, clusters
-  ones within 20s of each other, and the model only labels moments it was given. The same
-  mined moments power the Shorts cut list and explain retention dips.
+  timestamp the moments that mattered. The chapters engine mines those timestamps,
+  clusters ones within 20s of each other, and the model only labels moments it was given.
+  The same mined moments power the Shorts cut list and explain retention dips. The engine
+  is now maintained as its own open-source package,
+  [`youtube-chapter-kit`](https://github.com/mcrowley19/youtube-chapter-kit) (zero
+  dependencies, MIT, its own test suite and CI) — extracted from this project, and this
+  project is its first consumer via `lib/chapters.ts`.
 - **Retention dips get explained, not just found**: `lib/analytics.ts` finds where the
   audience actually leaves (drops 3× steeper than the curve's own typical decay, skipping
   the universal opening drop-off), then joins each dip against the comment-mined
@@ -229,7 +233,9 @@ Design choices worth noting:
   the channel's own median, cadence and runtime are calculated in `lib/channel.ts` and
   passed into the prompt as facts, so the plan can't invent a statistic.
 - **No auth dependencies**: OAuth, token refresh and the session cookie are ~200 lines of
-  `fetch` and `node:crypto`. The dependency list is still next, react, and sharp.
+  `fetch` and `node:crypto`. The dependency list is still next, react, and sharp — plus
+  `youtube-chapter-kit`, which is this project's own chapters engine published as a
+  zero-dependency package.
 
 ## Tests
 
@@ -311,6 +317,9 @@ Dependency posture as of 2026-08-06 (`npm audit`):
 - **Fixed by upgrade**: `sharp` → 0.35.x (libvips CVEs — it processes fetched images, so
   this one mattered), `vitest` → 4.x (cleared a dev-only critical in the vitest UI server
   chain plus the esbuild/vite advisories).
+- **Fixed by override**: `postcss` (transitive, via `next@14`) is pinned to a patched
+  8.5.x via npm `overrides` — the sourceMappingURL/stringify advisories are cleared
+  without waiting on the Next major.
 - **Known, documented**: `next@14` carries advisories whose fixed versions are the 15/16
   majors. Reviewed individually against this app: it uses no `next/image` optimizer (plain
   `<img>`), no middleware, no rewrites, no i18n Pages Router, no WebSocket upgrades, no
@@ -327,3 +336,8 @@ Dependency posture as of 2026-08-06 (`npm audit`):
 MIT — see [LICENSE](LICENSE). Contributions welcome; [CONTRIBUTING.md](CONTRIBUTING.md)
 explains the ground rules (pure `lib/`, validated LLM output, sacred write path, degrade
 don't die).
+
+The chapters engine is published separately as
+[`youtube-chapter-kit`](https://github.com/mcrowley19/youtube-chapter-kit) (MIT, zero
+dependencies) so any creator tool can mine viewer-comment timestamps into chapters
+YouTube will actually render.

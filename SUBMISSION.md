@@ -59,8 +59,9 @@ channel's own cadence — with computed (never generated) statistics underneath.
 ## How we built it
 
 Next.js 14 (App Router) + TypeScript, one process for UI and API; the runtime dependency
-list is `next`, `react`, and `sharp` — OAuth, token refresh, session cookies, the
-YouTube clients, and the LLM client are hand-rolled on `fetch` and `node:crypto`.
+list is `next`, `react`, `sharp`, and our own `youtube-chapter-kit` — OAuth, token
+refresh, session cookies, the YouTube clients, and the LLM client are hand-rolled on
+`fetch` and `node:crypto`.
 
 - **YouTube Data API v3**, both directions: `videos.list`, `commentThreads.list`,
   `channels.list`, `playlistItems.list` to read; `videos.update` (snippet *and*
@@ -76,6 +77,14 @@ YouTube clients, and the LLM client are hand-rolled on `fetch` and `node:crypto`
 - **`sharp`** composites overlay text onto the preview stills YouTube publishes at
   predictable URLs — real imagery, YouTube's three picks — with the scrim weighted by
   the measured luminance under the text. No yt-dlp, no ffmpeg, no video download.
+- **Open-source contribution**: the chapters engine — extract viewer-comment timestamps,
+  cluster them into moments, validate against YouTube's actual rendering rules (0:00
+  start, 3+ chapters, 10-second minimum), merge into descriptions idempotently — proved
+  useful beyond this app, so we extracted it as
+  [`youtube-chapter-kit`](https://github.com/mcrowley19/youtube-chapter-kit): a
+  zero-dependency MIT package with its own 27-test suite and CI, and AudienceSignal is
+  its first consumer. Any creator tool can now use it instead of shipping chapter lists
+  YouTube silently refuses to render.
 - **145 vitest tests** — 134 unit plus 11 route-level integration tests that call the
   real handlers with the network mocked at the fetch layer (ownership refusal, dry-run
   no-op, simulated demo publish, verified-live re-read, duplicate-publish 409, exact undo)
@@ -108,6 +117,11 @@ has a quote explaining it, the thumbnail is redrawn on the video's own preview s
 scams are gone, the packaging exists in four languages — and every single claim on
 screen carries the comment that justifies it. Zero-key demo mode means a judge sees all
 of it in the first minute without creating anything.
+
+And one piece outlived the hackathon before the hackathon even ended: the comment-mined
+chapters engine is now [`youtube-chapter-kit`](https://github.com/mcrowley19/youtube-chapter-kit),
+an open-source, zero-dependency package any creator tool can use — with AudienceSignal
+as its first production consumer.
 
 ## What we learned
 
@@ -167,6 +181,8 @@ plainly that pinning is one click in Studio.
 
 - Code: https://github.com/mcrowley19/youtube-automation (branch:
   `claude/audiencesignal-youtube-hackathon-cpyayr`)
+- Open-source package extracted from this project:
+  https://github.com/mcrowley19/youtube-chapter-kit
 - Setup, environment variables, and architecture notes: [README.md](README.md)
 
 ## Demo video script (~2:45)
