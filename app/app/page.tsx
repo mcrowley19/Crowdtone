@@ -15,6 +15,7 @@ import { NextVideoPanel } from "@/components/NextVideoPanel";
 import { PatrolPanel } from "@/components/PatrolPanel";
 import { AnalyticsCard } from "@/components/AnalyticsCard";
 import { LocalizePanel } from "@/components/LocalizePanel";
+import { ClipFinder } from "@/components/ClipFinder";
 import type { VideoAnalytics } from "@/lib/analytics";
 import { DEMO_DURATION_SECONDS, isDemoId } from "@/lib/demo";
 
@@ -329,6 +330,13 @@ export default function Home() {
               {analyticsNote && <p className="statusline">{analyticsNote}</p>}
               <BriefCard ideas={analysis.ideas} />
               <FixList fixes={analysis.fixes} />
+              <ClipFinder
+                video={video}
+                comments={comments}
+                durationSeconds={
+                  isDemoId(video.videoId) ? DEMO_DURATION_SECONDS : (video.durationSeconds ?? 0)
+                }
+              />
               <ThumbnailLab
                 video={video}
                 topComplaint={analysis.topComplaint}

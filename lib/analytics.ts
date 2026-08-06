@@ -124,7 +124,10 @@ export function findRetentionDips(
   return picked
     .sort((a, b) => a.index - b.index)
     .map(({ index, drop }) => {
-      const seconds = Math.round(curve[index].ratio * durationSeconds);
+      // The drop is measured across [index - window, index], so the cliff
+      // itself sits mid-window — report that, not the window's trailing edge.
+      const ratio = (curve[index - window].ratio + curve[index].ratio) / 2;
+      const seconds = Math.round(ratio * durationSeconds);
       return {
         seconds,
         timestamp: formatTimestamp(seconds),

@@ -1664,3 +1664,44 @@ button.go.danger {
   font-variant-numeric: tabular-nums;
   color: var(--grey);
 }
+
+/* ------------------------------- clips ------------------------------- */
+
+.clipgrid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.cliprow {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px;
+  border-top: 2px solid var(--ink);
+  padding-top: 12px;
+}
+
+.cliprange {
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.clipbody {
+  font-size: 14px;
+  max-width: 720px;
+}
+
+.clipactions {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+@media (max-width: 640px) {
+  .cliprow {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
