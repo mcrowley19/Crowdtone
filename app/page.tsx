@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { RevealObserver } from "@/components/Reveal";
+import { SignalBurst } from "@/components/SignalBurst";
 
 /*
  * Concept: "The Front Page" — the tool reads comment sections, so its landing
@@ -134,6 +135,7 @@ export default function Landing() {
 
       <main className="lp">
         <section className="lp-hero">
+          <SignalBurst />
           <div className="lp-hero-text">
             <h1>
               <span className="mline">
@@ -215,6 +217,9 @@ export default function Landing() {
 
         <section className="lp-band" data-scrollwords>
           <BandWords />
+          <span className="lp-credit">
+            NYT composing room, 1942 · Library of Congress
+          </span>
         </section>
 
         <section id="outputs" className="lp-sec">
