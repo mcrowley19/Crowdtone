@@ -1,6 +1,9 @@
 export interface Comment {
   id: string;
   author: string;
+  /** The commenter's channel id, when the API returned one — how impersonators
+   * are told apart from the actual creator replying in their own thread. */
+  authorChannelId?: string;
   text: string;
   likeCount: number;
   publishedAt: string;

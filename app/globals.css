@@ -1495,3 +1495,26 @@ button.go.danger {
   color: var(--grey);
   padding: 0 4px;
 }
+
+/* ------------------------------ patrol ------------------------------ */
+
+.deckhead .kind.scam {
+  background: var(--red);
+}
+
+.reasonrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px 27px;
+}
+
+.reasonrow .tag {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 2px solid var(--grey);
+  color: var(--grey);
+  padding: 0 5px;
+}

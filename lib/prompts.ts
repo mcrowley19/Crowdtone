@@ -152,6 +152,38 @@ export function actionPlanPrompt(
   );
 }
 
+/**
+ * The patrol's second opinion. The heuristics have already flagged these; the
+ * model's job is to read each in context and clear the false positives — a
+ * legitimate viewer linking a source, a fan whose name resembles the channel.
+ * Verdicts come back by list index, never by comment id.
+ */
+export function moderationPrompt(
+  channelTitle: string,
+  candidates: { comment: Comment; videoTitle: string; reasons: string[] }[]
+): string {
+  const block = candidates
+    .map(
+      (c, i) =>
+        `${i + 1}. author: "${c.comment.author}" | on video: "${c.videoTitle}" | flagged for: ${c.reasons.join(", ")}\n` +
+        `   text: ${c.comment.text.replace(/\s+/g, " ").slice(0, 400)}`
+    )
+    .join("\n");
+  return (
+    `These comments on the YouTube channel "${channelTitle}" were flagged by pattern-matching as likely ` +
+    `scams or spam. Judge each one: is it really a scam (impersonation, investment bait, luring viewers ` +
+    `to WhatsApp/Telegram/phone numbers, fake giveaways), ordinary spam (link dumping, copy-paste ` +
+    `self-promotion), or a clean comment wrongly flagged?\n\n` +
+    `Return JSON: {"verdicts": [{"index": number, "verdict": "scam"|"spam"|"clean", "reason": string}]}\n\n` +
+    `Rules:\n` +
+    `- "index" is the number from the list below. Return a verdict for every item.\n` +
+    `- Be conservative with "clean": a real viewer linking a relevant source is clean; anything asking to ` +
+    `be contacted off-platform about money never is.\n` +
+    `- "reason" is one sentence a creator can read before clicking Hide.\n\n` +
+    `Flagged comments:\n${block}`
+  );
+}
+
 export function thumbnailTextPrompt(topComplaint: string, videoTitle: string): string {
   return (
     `Given top complaint about title/thumbnail, suggest 3 short overlay texts (max 6 words each) ` +

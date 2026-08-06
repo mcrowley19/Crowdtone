@@ -12,10 +12,11 @@ import { ThumbnailLab } from "@/components/ThumbnailLab";
 import { ActionDeck } from "@/components/ActionDeck";
 import { ConnectBar, type Connection } from "@/components/ConnectBar";
 import { NextVideoPanel } from "@/components/NextVideoPanel";
+import { PatrolPanel } from "@/components/PatrolPanel";
 import { isDemoId } from "@/lib/demo";
 
 type Stage = "idle" | "video" | "comments" | "analyzing" | "done";
-type Mode = "video" | "channel";
+type Mode = "video" | "channel" | "patrol";
 
 interface Health {
   youtube: boolean;
@@ -215,9 +216,19 @@ export default function Home() {
         >
           Plan the next one
         </button>
+        <button
+          role="tab"
+          aria-selected={mode === "patrol"}
+          className={mode === "patrol" ? "on" : ""}
+          onClick={() => setMode("patrol")}
+        >
+          Patrol the comments
+        </button>
       </div>
 
-      {mode === "channel" ? (
+      {mode === "patrol" ? (
+        <PatrolPanel connected={Boolean(connection?.connected)} />
+      ) : mode === "channel" ? (
         <NextVideoPanel connected={Boolean(connection?.connected)} />
       ) : (
         <>

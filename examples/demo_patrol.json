@@ -1,0 +1,43 @@
+{
+  "channel": {
+    "channelId": "UCdemo000000000000000000",
+    "title": "Tech World",
+    "handle": "@techworld"
+  },
+  "videos": [
+    {
+      "videoId": "DEMOPATROL1",
+      "videoTitle": "I Tested 5 Budget Laptops So You Don't Have To",
+      "comments": [
+        { "id": "p1", "author": "𝐓𝐞𝐜𝐡 𝐖𝐨𝐫𝐥𝐝✅", "authorChannelId": "UCscam111111111111111111", "text": "Congratulations you have been selected among my shortlisted winners!! Text me on WhatsApp +1 (804) 555-0127 to claim your prize 🎁", "likeCount": 0, "publishedAt": "2026-08-01T10:12:00Z" },
+        { "id": "p2", "author": "Marcus Vale", "authorChannelId": "UCviewer1111111111111111", "text": "The Acer at 8:41 is the one I ended up buying — the screen is way better than you'd expect at this price.", "likeCount": 214, "publishedAt": "2026-08-01T11:03:00Z" },
+        { "id": "p3", "author": "Sofia Lindqvist", "authorChannelId": "UCviewer2222222222222222", "text": "Can you do a follow-up on which of these survive a year of daily use? That's the video nobody makes.", "likeCount": 158, "publishedAt": "2026-08-01T12:44:00Z" },
+        { "id": "p4", "author": "Evelyn_fx_trader", "authorChannelId": "UCscam222222222222222222", "text": "I made $17,400 weekly profit trading forex with expert Mrs Camilla. Reach out to her on Telegram @camillafx_signals and thank me later", "likeCount": 2, "publishedAt": "2026-08-01T13:20:00Z" },
+        { "id": "p5", "author": "Dev Prakash", "authorChannelId": "UCviewer3333333333333333", "text": "Honestly disagree on the keyboard take — I've had the Lenovo for six months and it's fine? Curious what broke for you.", "likeCount": 47, "publishedAt": "2026-08-01T14:05:00Z" },
+        { "id": "p6", "author": "BestDealsDaily", "authorChannelId": "UCspam111111111111111111", "text": "We list refurbished laptops even cheaper, check https://best-dealz-daily.example.com before you buy anything", "likeCount": 1, "publishedAt": "2026-08-01T15:30:00Z" },
+        { "id": "p7", "author": "Tech World", "authorChannelId": "UCdemo000000000000000000", "text": "Pinning this: the Acer's price dropped again since filming — link in the description is updated.", "likeCount": 891, "publishedAt": "2026-08-01T09:00:00Z" }
+      ]
+    },
+    {
+      "videoId": "DEMOPATROL2",
+      "videoTitle": "Why Your Wi-Fi Is Slow (and the 10-Minute Fix)",
+      "comments": [
+        { "id": "p8", "author": "𝗧𝗲𝗰𝗵 𝗪𝗼𝗿𝗹𝗱 ✔", "authorChannelId": "UCscam333333333333333333", "text": "Thanks for watching❤️ Expect more videos soon. For guidance and investment tips message me on WhatsApp ‪+44 7700 900123‬", "likeCount": 0, "publishedAt": "2026-08-03T08:15:00Z" },
+        { "id": "p9", "author": "Hannah Reyes", "authorChannelId": "UCviewer4444444444444444", "text": "The channel-switching tip at 4:12 legitimately doubled my speed. I've been blaming my ISP for a year.", "likeCount": 312, "publishedAt": "2026-08-03T09:40:00Z" },
+        { "id": "p10", "author": "Evelyn_fx_trader", "authorChannelId": "UCscam222222222222222222", "text": "I made $17,400 weekly profit trading forex with expert Mrs Camilla. Reach out to her on Telegram @camillafx_signals and thank me later", "likeCount": 0, "publishedAt": "2026-08-03T10:22:00Z" },
+        { "id": "p11", "author": "Oskar Jensen", "authorChannelId": "UCviewer5555555555555555", "text": "Source on the 2.4GHz interference claim? Not doubting, I want to read more — this one https://www.youtube.com/watch?v=dQw4w9WgXcQ covers some of it.", "likeCount": 28, "publishedAt": "2026-08-03T11:10:00Z" },
+        { "id": "p12", "author": "Lena Fischer", "authorChannelId": "UCviewer6666666666666666", "text": "Wait, does this apply to mesh systems too or just single routers? Bit confused about the last section.", "likeCount": 64, "publishedAt": "2026-08-03T12:55:00Z" }
+      ]
+    },
+    {
+      "videoId": "DEMOPATROL3",
+      "videoTitle": "The Truth About Phone Battery Health",
+      "comments": [
+        { "id": "p13", "author": "GiveawayBot2026", "authorChannelId": "UCscam444444444444444444", "text": "🎉 GIVEAWAY WINNER ANNOUNCED 🎉 You are chosen! Claim your reward here fast: https://free-iphone-claim.example.net", "likeCount": 3, "publishedAt": "2026-08-05T07:30:00Z" },
+        { "id": "p14", "author": "Priya Nair", "authorChannelId": "UCviewer7777777777777777", "text": "Charging to 80% has kept my battery at 96% health after a year. This advice works, people.", "likeCount": 402, "publishedAt": "2026-08-05T08:12:00Z" },
+        { "id": "p15", "author": "Tomás Herrera", "authorChannelId": "UCviewer8888888888888888", "text": "Please make one about laptop batteries next — does the 80% rule apply there too?", "likeCount": 177, "publishedAt": "2026-08-05T09:45:00Z" },
+        { "id": "p16", "author": "BestDealsDaily", "authorChannelId": "UCspam111111111111111111", "text": "We list refurbished laptops even cheaper, check https://best-dealz-daily.example.com before you buy anything", "likeCount": 0, "publishedAt": "2026-08-05T10:05:00Z" }
+      ]
+    }
+  ]
+}

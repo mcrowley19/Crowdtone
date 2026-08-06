@@ -128,6 +128,7 @@ export function mapCommentThreads(body: any): Comment[] {
     out.push({
       id: item.snippet.topLevelComment.id ?? item.id ?? "",
       author: s.authorDisplayName ?? "viewer",
+      authorChannelId: s.authorChannelId?.value ?? undefined,
       text,
       likeCount: Number(s.likeCount ?? 0),
       publishedAt: s.publishedAt ?? "",
