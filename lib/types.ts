@@ -78,7 +78,8 @@ export type ActionKind =
   | "add_chapters"
   | "set_thumbnail"
   | "post_comment"
-  | "reply_to_comment";
+  | "reply_to_comment"
+  | "set_localizations";
 
 export interface ActionPayload {
   /** retitle */
@@ -95,6 +96,10 @@ export interface ActionPayload {
   parentId?: string;
   parentAuthor?: string;
   parentText?: string;
+  /** set_localizations — language code → translated packaging. */
+  localizations?: Record<string, { title: string; description: string }>;
+  /** BCP-47 code to set as snippet.defaultLanguage when the video has none. */
+  detectedLanguage?: string;
 }
 
 export interface ProposedAction {
@@ -114,7 +119,12 @@ export interface ProposedAction {
 export type UndoTicket =
   | { kind: "restore_snippet"; videoId: string; title: string; description: string }
   | { kind: "delete_comment"; commentId: string }
-  | { kind: "restore_thumbnail"; videoId: string; blobId: string };
+  | { kind: "restore_thumbnail"; videoId: string; blobId: string }
+  | {
+      kind: "restore_localizations";
+      videoId: string;
+      localizations: Record<string, { title: string; description: string }> | null;
+    };
 
 export interface ActionResult {
   id: string;

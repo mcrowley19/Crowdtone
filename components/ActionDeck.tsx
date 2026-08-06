@@ -10,6 +10,7 @@ const KIND_LABEL: Record<ProposedAction["kind"], string> = {
   set_thumbnail: "Thumbnail",
   post_comment: "New comment",
   reply_to_comment: "Reply",
+  set_localizations: "Localizations",
 };
 
 export function ActionDeck({

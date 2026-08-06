@@ -273,10 +273,12 @@ export interface OwnedVideo {
   categoryId: string;
   tags?: string[];
   thumbnailUrl: string;
+  defaultLanguage?: string;
+  localizations: Record<string, { title: string; description: string }> | null;
 }
 
 export async function fetchOwnVideo(accessToken: string, videoId: string): Promise<OwnedVideo> {
-  const body = await ytAuthedGet(accessToken, "videos", { part: "snippet", id: videoId });
+  const body = await ytAuthedGet(accessToken, "videos", { part: "snippet,localizations", id: videoId });
   const item = body?.items?.[0];
   if (!item) throw new YouTubeApiError("Video not found", "not_found", 404);
   return {
@@ -286,6 +288,9 @@ export async function fetchOwnVideo(accessToken: string, videoId: string): Promi
     categoryId: item.snippet?.categoryId ?? "22",
     tags: item.snippet?.tags,
     thumbnailUrl: item.snippet?.thumbnails?.maxres?.url ?? item.snippet?.thumbnails?.high?.url ?? "",
+    defaultLanguage: item.snippet?.defaultLanguage,
+    localizations:
+      item.localizations && typeof item.localizations === "object" ? item.localizations : null,
   };
 }
 
@@ -421,6 +426,38 @@ export async function applyAction(
       };
     }
 
+    case "set_localizations": {
+      const additions = action.payload.localizations;
+      if (!additions || Object.keys(additions).length === 0) {
+        throw new Error("No localizations in the action payload.");
+      }
+      // localizations only display once the video declares what language the
+      // original is in. If it doesn't yet, set it — from the model's detection
+      // of the existing metadata, never a guess hardcoded here.
+      const needsDefaultLanguage = !current.defaultLanguage;
+      const parts = needsDefaultLanguage ? "snippet,localizations" : "localizations";
+      const merged = { ...(current.localizations ?? {}), ...additions };
+      const payload: Record<string, unknown> = { id: videoId, localizations: merged };
+      if (needsDefaultLanguage) {
+        payload.snippet = {
+          title: current.title,
+          description: current.description,
+          categoryId: current.categoryId,
+          ...(current.tags ? { tags: current.tags } : {}),
+          defaultLanguage: action.payload.detectedLanguage || "en",
+        };
+      }
+      await ytAuthedWrite(accessToken, "videos", { part: parts }, payload, "PUT");
+      const languages = Object.keys(additions).join(", ");
+      return {
+        ...base,
+        status: "applied",
+        message: `Localized title and description published for: ${languages}. Viewers in those languages now see the video packaged in theirs.`,
+        url: videoUrl(videoId),
+        undo: { kind: "restore_localizations", videoId, localizations: current.localizations },
+      };
+    }
+
     case "post_comment": {
       const text = asString(action.payload.text);
       if (!text) throw new Error("No comment text in the action payload.");
@@ -480,6 +517,20 @@ export async function undoAction(accessToken: string, channelId: string, ticket:
     case "delete_comment": {
       await ytAuthedDelete(accessToken, "comments", { id: ticket.commentId });
       return "Comment deleted.";
+    }
+    case "restore_localizations": {
+      const current = await fetchOwnVideo(accessToken, ticket.videoId);
+      if (current.channelId !== channelId) throw new OwnershipError();
+      await ytAuthedWrite(
+        accessToken,
+        "videos",
+        { part: "localizations" },
+        { id: ticket.videoId, localizations: ticket.localizations ?? {} },
+        "PUT"
+      );
+      return ticket.localizations
+        ? "Previous localizations put back."
+        : "Localizations removed — the video is back to its original language only.";
     }
     case "restore_thumbnail": {
       const current = await fetchOwnVideo(accessToken, ticket.videoId);

@@ -14,6 +14,7 @@ import { ConnectBar, type Connection } from "@/components/ConnectBar";
 import { NextVideoPanel } from "@/components/NextVideoPanel";
 import { PatrolPanel } from "@/components/PatrolPanel";
 import { AnalyticsCard } from "@/components/AnalyticsCard";
+import { LocalizePanel } from "@/components/LocalizePanel";
 import type { VideoAnalytics } from "@/lib/analytics";
 import { DEMO_DURATION_SECONDS, isDemoId } from "@/lib/demo";
 
@@ -334,6 +335,12 @@ export default function Home() {
                 variants={variants}
                 loading={thumbsLoading}
                 onGenerate={generateThumbs}
+              />
+              <LocalizePanel
+                video={video}
+                countries={analytics?.countries ?? []}
+                connected={Boolean(connection?.connected)}
+                isDemo={isDemoId(video.videoId)}
               />
               <ActionDeck
                 video={video}

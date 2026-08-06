@@ -184,6 +184,32 @@ export function moderationPrompt(
   );
 }
 
+/**
+ * Translation for publication, not gist: the output goes straight into the
+ * video's `localizations` map, so it must read like a native-speaker creator
+ * wrote it — and leave URLs, handles, and timestamps exactly as they are.
+ */
+export function localizePrompt(video: VideoMeta, languages: string[]): string {
+  return (
+    `Translate this YouTube video's title and description into each requested language, for the ` +
+    `video's official localized metadata.\n\n` +
+    `Return JSON:\n` +
+    `{\n` +
+    `  "detected_language": string,  // BCP-47 code of the CURRENT title/description's language\n` +
+    `  "localizations": { "<language code>": {"title": string, "description": string}, ... }\n` +
+    `}\n\n` +
+    `Rules:\n` +
+    `- Provide exactly these language codes: ${languages.join(", ")}.\n` +
+    `- Titles stay under 100 characters and keep the promise of the original — adapt idioms, don't ` +
+    `translate them word for word.\n` +
+    `- Descriptions keep their structure and line breaks. Leave URLs, @handles, #hashtags, timestamps ` +
+    `(like 8:14), product names, and numbers untouched.\n` +
+    `- Write like a native-speaker creator, not a translation engine.\n\n` +
+    `Title: "${video.title}"\n\n` +
+    `Description:\n${(video.description ?? "").slice(0, 3000) || "(empty)"}`
+  );
+}
+
 export function thumbnailTextPrompt(topComplaint: string, videoTitle: string): string {
   return (
     `Given top complaint about title/thumbnail, suggest 3 short overlay texts (max 6 words each) ` +
