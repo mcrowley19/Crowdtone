@@ -42,8 +42,8 @@ export function ClipFinder({
           <div className="cliprow" key={c.startSeconds}>
             <div className="cliprange">{c.range}</div>
             <div className="clipbody">
-              <b>{TONE_LABEL[c.tone]}</b> — {c.mentions} comment{c.mentions === 1 ? "" : "s"} point
-              here.
+              <b>{TONE_LABEL[c.tone]}</b> — {c.mentions} comment
+              {c.mentions === 1 ? " points" : "s point"} here.
               <div className="devidence">{c.quote}&rdquo;</div>
               <div className="clipactions">
                 <a href={c.watchUrl} target="_blank" rel="noreferrer" className="textlink">

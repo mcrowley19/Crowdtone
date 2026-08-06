@@ -149,8 +149,8 @@ export function AnalyticsCard({
                   </b>{" "}
                   {d.mentions ? (
                     <>
-                      {d.mentions.count} comment{d.mentions.count === 1 ? "" : "s"} point at this
-                      moment: &ldquo;{d.mentions.quote}&rdquo;
+                      {d.mentions.count} comment{d.mentions.count === 1 ? " points" : "s point"} at
+                      this moment: &ldquo;{d.mentions.quote}&rdquo;
                     </>
                   ) : (
                     "No comment mentions this moment — rewatch it to see what happened."
