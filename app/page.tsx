@@ -293,19 +293,25 @@ export default function Landing() {
           </ul>
         </section>
 
-        <section className="lp-close">
+        <section className="lp-close" data-reveal>
           <h2 className="rv-slide" data-reveal>
-            Point it at a video<br />and see what it says.
+            The audience is<br />already talking.
           </h2>
           <div className="lp-cta rv-ink" data-reveal>
             <Link href="/app" className="lp-btn">
               Open the tool
             </Link>
+            <a href="#outputs" className="lp-btn lp-btn-ghost">
+              What comes back
+            </a>
           </div>
           <p className="lp-note rv-ink" data-reveal>
             Works without any keys on the bundled dataset. Add a YouTube API key to analyse
             a live video.
           </p>
+          <span className="lp-credit">
+            Crowd watching the playograph, World Series, 1911 · Library of Congress
+          </span>
         </section>
       </main>
 

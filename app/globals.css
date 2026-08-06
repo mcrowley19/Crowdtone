@@ -1127,14 +1127,62 @@ ol.brief .hook b {
   margin-right: 6px;
 }
 
-/* close */
+/* close — the audience itself, on the press's own stock. A 1911 Library of
+ * Congress plate of a street crowd watching a scoreboard replay a game being
+ * played somewhere else: an audience, watching content, a century early. */
 
 .lp-close {
-  padding: clamp(72px, 9vw, 122px) 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  padding: clamp(88px, 10vw, 140px) clamp(24px, 4vw, 56px);
+  margin-bottom: 64px;
 }
+
+.lp-close::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/crowd-1911.webp");
+  background-size: cover;
+  background-position: center 28%;
+  opacity: 0;
+  transition: opacity 1.4s ease 0.2s;
+}
+.lp-close.revealed::before { opacity: 0.38; }
+
+.lp-close > * { position: relative; }
 
 .lp-close h2 { margin-bottom: 0; }
 .lp-close .lp-cta { margin-top: 30px; }
+.lp-close .lp-note { color: rgba(243, 240, 233, 0.72); }
+
+.lp-close .lp-btn-ghost {
+  color: var(--paper);
+  border-color: rgba(243, 240, 233, 0.5);
+}
+.lp-close .lp-btn-ghost:hover {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--paper);
+}
+
+.lp-credit {
+  position: absolute;
+  right: clamp(24px, 4vw, 56px);
+  bottom: 16px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(243, 240, 233, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-close::before { opacity: 0.38; transition: none; }
+}
+.no-js .lp-close::before { opacity: 0.38; }
 
 /* footer */
 
