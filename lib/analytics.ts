@@ -154,7 +154,20 @@ export function joinDipsWithMentions(
   });
 }
 
-/* --------------------------- the fetch bundle --------------------------- */
+/**
+ * The one concrete edit a creator can make about this dip, derived from what
+ * is actually known: a dip with comment evidence gets a targeted fix; a dip
+ * without gets the honest instruction to go look.
+ */
+export function dipEditAction(dip: RetentionDip): string {
+  if (dip.mentions) {
+    return (
+      `Pin a correction or reply at ${dip.timestamp} answering "${dip.mentions.quote.slice(0, 120)}" — ` +
+      `and add a chapter just before it so viewers can navigate instead of leaving.`
+    );
+  }
+  return `Rewatch ${dip.timestamp} ±15s — no comment explains this drop, so the answer is in the footage. Tighten or cut the segment in the next edit.`;
+}
 
 export interface VideoAnalytics {
   totals: {

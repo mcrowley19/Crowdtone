@@ -191,3 +191,16 @@ describe("applyVerdicts", () => {
     expect(base[0].verdict).toBe("scam");
   });
 });
+
+import { runPatrol } from "@/lib/moderation";
+
+describe("runPatrol false-positive diary", () => {
+  it("keeps model-cleared candidates in the report instead of dropping them", async () => {
+    // No LLM key in tests, so the heuristic verdicts stand and nothing is
+    // cleared — the diary exists and is empty, never undefined.
+    const demo = getDemoPatrolData();
+    const report = await runPatrol(demo.videos, demo.channel.title, demo.channel.channelId);
+    expect(Array.isArray(report.cleared)).toBe(true);
+    expect(report.flagged.length + report.cleared.length).toBeGreaterThanOrEqual(7);
+  });
+});

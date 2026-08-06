@@ -39,8 +39,8 @@ const OUTPUTS = [
   },
   {
     name: "Thumbnail Lab",
-    what: "Three thumbnail variants composited from real frames of your video, overlaid with text that answers the loudest complaint, shown beside the thumbnail you published.",
-    note: "Built from real frames",
+    what: "Three thumbnail variants composited from the preview stills YouTube publishes for your video, overlaid with text that answers the loudest complaint, shown beside the thumbnail you published.",
+    note: "YouTube's own stills",
   },
   {
     name: "Do it",
@@ -78,7 +78,7 @@ const STEPS = [
   ["Read", "Pulls the video's metadata and up to 200 top-level comments through the YouTube Data API. Public data, no account needed."],
   ["Cluster", "A language model sorts every comment into the four themes and writes a summary of what the audience is collectively saying."],
   ["Draft", "Further passes turn those clusters into next-video ideas, a fix list, thumbnail overlay lines, and the finished copy of each change."],
-  ["Redraw", "Real frames are fetched from the video and composited with the overlay text, so the report ends in pictures rather than advice."],
+  ["Redraw", "YouTube's own preview stills of the video are fetched and composited with the overlay text, so the report ends in pictures rather than advice."],
   ["Publish", "Connect your channel and the changes you tick are written to YouTube: title, description, chapters, thumbnail, localized metadata, comments and replies, and the scams swept out of your comment sections. Each one previewable first and undoable after."],
 ];
 
@@ -178,7 +178,7 @@ export default function Landing() {
             </p>
             <p className="lp-note lp-art-note">
               From the bundled demo dataset. On a real video these are composited from
-              frames of the video itself.
+              the preview stills YouTube publishes for it.
             </p>
           </div>
           <figure>
@@ -278,7 +278,7 @@ export default function Landing() {
               tracks the model, and the fallback analyser covers the gaps.
             </li>
             <li>
-              <b>Thumbnails use real frames.</b> YouTube publishes three frames of every
+              <b>Thumbnails use YouTube&rsquo;s own stills.</b> YouTube publishes three preview stills of every
               public video at predictable addresses, so the variants are composited from
               the actual video. No yt-dlp, no ffmpeg.
             </li>

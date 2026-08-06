@@ -23,7 +23,7 @@ properly, show the evidence, and then — this is the part that matters — **do
 quote under every claim: comment themes with counts; three next-video ideas ranked by
 demand; a fix list for the published video; a Shorts cut list built from the timestamps
 viewers left ("4:12 killed me" is a free highlight marker); and three thumbnail variants
-composited from real frames of the video, overlay text answering the loudest complaint.
+composited from the preview stills YouTube publishes for the video, overlay text answering the loudest complaint.
 
 **Connect your channel and it stops advising.** The findings become finished copy it
 publishes for you through the Data API: a new title, chapters mined from viewer
@@ -73,9 +73,13 @@ YouTube clients, and the LLM client are hand-rolled on `fetch` and `node:crypto`
   keyword heuristic, so the tool always produces output. Replies and moderation verdicts
   address comments **by index into the list we supplied** — the model physically cannot
   target a comment it invented.
-- **`sharp`** composites overlay text onto real video frames YouTube hosts at
-  predictable URLs — no yt-dlp, no ffmpeg, no video download.
-- **124 vitest tests** + CI (typecheck, suite, production build on every push). MIT
+- **`sharp`** composites overlay text onto the preview stills YouTube publishes at
+  predictable URLs — real imagery, YouTube's three picks — with the scrim weighted by
+  the measured luminance under the text. No yt-dlp, no ffmpeg, no video download.
+- **145 vitest tests** — 134 unit plus 11 route-level integration tests that call the
+  real handlers with the network mocked at the fetch layer (ownership refusal, dry-run
+  no-op, simulated demo publish, verified-live re-read, duplicate-publish 409, exact undo)
+  — plus CI (typecheck, suite, production build on every push) and `npm run judge`. MIT
   licensed, with a CONTRIBUTING.md that codifies the safety rules.
 
 ## Challenges
@@ -100,7 +104,7 @@ YouTube clients, and the LLM client are hand-rolled on `fetch` and `node:crypto`
 ## Accomplishments we're proud of
 
 The demo is the argument: paste a comment section, and a minute later the retention dip
-has a quote explaining it, the thumbnail is redrawn from the video's own frames, the
+has a quote explaining it, the thumbnail is redrawn on the video's own preview stills, the
 scams are gone, the packaging exists in four languages — and every single claim on
 screen carries the comment that justifies it. Zero-key demo mode means a judge sees all
 of it in the first minute without creating anything.
@@ -115,6 +119,29 @@ and it's what makes automation on someone's real channel trustworthy rather than
 
 Thumbnail A/B rotation with CTR readback once YouTube exposes impressions to the
 Analytics API; a weekly patrol digest; transcript-aware chapter labels.
+
+## The 90-second judge path
+
+Open **/app** (no keys, no account — every step below is the bundled demo):
+
+1. **Fix a video** tab → *"Run the report on the bundled demo dataset."* Themes land with
+   verbatim quotes.
+2. Scroll to **The numbers behind it** — the retention curve drops 10% at 8:24 and the
+   comment explaining it sits under the dip, with a concrete edit action.
+3. **Cut these into Shorts** → *Download the editor handoff pack* — a real marker CSV,
+   EDL, and caption pack hit your downloads.
+4. **Do it** → *Draft the changes* → tick → **Simulated publish (demo)** → confirm →
+   every action lands with a dashed "Simulated" badge → **Undo this (simulated)**. The
+   exact loop a real channel gets, clearly labeled, nothing sent to YouTube.
+5. **Speak their language** → *Draft the translations* — the bundled es/pt/hi pack.
+6. **Plan the next one** tab → *"Plan the bundled demo channel"* — 20 uploads scored
+   against their own median, one filmable video out.
+7. **Patrol the comments** tab → *"Run the patrol on the bundled demo channel"* — the
+   impersonator in the styled-unicode name is flagged with reasons; simulate the hide,
+   put it back.
+
+Then `npm run judge` in the repo: typecheck, 145 tests (unit + route-level integration
+with mocked Google), production build.
 
 ## How it meets the requirements
 
@@ -163,7 +190,7 @@ pointing at 8:14 telling me exactly why. Studio shows you the dip; the comments 
 it. Nothing else joins these."
 
 **1:20 — Shorts cut list + thumbnails.** "The moments viewers timestamped become a
-Shorts cut list. And the top complaint becomes a new thumbnail — drawn on real frames of
+Shorts editor handoff. And the top complaint becomes a new thumbnail — drawn on YouTube's own preview stills of
 the video, next to the one I published."
 
 **1:40 — Do it, for real.** Draft the changes, show a diff, tick, confirm, and refresh

@@ -45,6 +45,10 @@ export interface FlaggedComment {
 
 export interface PatrolReport {
   flagged: FlaggedComment[];
+  /** The false-positive diary: heuristic hits the model read in context and
+   * cleared, each with its reason. Shown to the creator so bulk-hide is a
+   * decision they can audit, not a black box. */
+  cleared: FlaggedComment[];
   videosScanned: number;
   commentsScanned: number;
   verdictSource: "llm" | "heuristic";
@@ -255,6 +259,7 @@ export async function runPatrol(
 
   return {
     flagged: judged.filter((c) => c.verdict !== "clean"),
+    cleared: judged.filter((c) => c.verdict === "clean"),
     videosScanned: sets.length,
     commentsScanned,
     verdictSource,

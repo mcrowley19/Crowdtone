@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/mcrowley19/youtube-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/mcrowley19/youtube-automation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
-![Tests](https://img.shields.io/badge/tests-124_passing-black.svg)
+![Tests](https://img.shields.io/badge/tests-145_passing-black.svg)
 
 **Live:** https://youtube-automation-sandy.vercel.app — landing page.
 **The tool:** https://youtube-automation-sandy.vercel.app/app — the bundled demo runs with no
@@ -25,10 +25,14 @@ comments, decides what to change, and — once you connect your channel — make
    audience-retention curve with its sharpest drop-offs marked, and when viewers
    timestamped that exact moment in the comments, the quote that explains the dip. Plus
    traffic sources, watch geography, and subscribers gained.
-5. **Cut these into Shorts** — the moments viewers timestamped, ranked and turned into
-   ready-to-cut clip specs: start/end times, why the moment works, and the comment to
-   open the Short with.
-6. **Thumbnail Lab** — 3 thumbnail variants built from **real frames of the video**, with
+5. **Cut these into Shorts** — the moments viewers timestamped, ranked and turned into a
+   one-click **editor handoff pack**: a marker CSV Premiere/Resolve import directly, a
+   CMX3600 EDL with the cuts laid back to back, and a caption pack opening each Short on
+   the viewer quote that earned it. This app doesn't render video — it says so — but the
+   handoff is one step from a timeline.
+6. **Thumbnail Lab** — 3 thumbnail variants built from **the preview stills YouTube
+   publishes for the video** (real imagery, YouTube's three picks — not arbitrary frame
+   extraction), with
    overlay text answering the top complaint, beside the current thumbnail.
 7. **Speak their language** — translates the title and description into the languages the
    video's own audience watches in (from its Analytics geography) and publishes them as
@@ -64,8 +68,26 @@ npm run dev                  # http://localhost:3000
 
 That's it — one runtime, one command. No Python, no yt-dlp, no ffmpeg.
 
-**No keys handy?** Click *"Run the built-in demo dataset"* on the dashboard — the full
-pipeline (clustering, brief, fixes, thumbnails) runs on a bundled 50-comment dataset.
+**No keys handy? Every surface has a bundled demo.** The demo dataset covers the full
+loop: analysis, retention dips joined to comment quotes, thumbnails, the Shorts handoff,
+localization, a **simulated publish + undo** (clearly labeled, dashed border, nothing sent
+to YouTube), the channel plan, and the Comment Patrol sweep.
+
+## What needs what
+
+| Surface | No keys (demo) | `YOUTUBE_API_KEY` | + LLM key | + OAuth |
+| --- | --- | --- | --- | --- |
+| Comment themes / brief / fixes | bundled dataset, heuristic | any public video | LLM-drafted | — |
+| Retention × comments | bundled curve, real dip detector | — | — | own videos, live Analytics |
+| Thumbnail Lab | drawn backgrounds | YouTube preview stills | LLM overlay text | publish via `thumbnails.set` |
+| Shorts editor handoff | full (CSV/EDL/captions) | any public video | — | — |
+| Speak their language | bundled es/pt/hi pack | — | LLM translations | publish localizations |
+| Do it (publish + undo) | **simulated**, labeled | — | drafted copy | real writes, verified re-read |
+| Plan the next one | bundled 20-upload channel | any public channel | LLM plan | your own channel |
+| Comment Patrol | bundled channel, simulated hide | — | LLM clears false positives | real bulk moderation |
+
+`npm run judge` runs the full gate: typecheck, all unit + integration tests, and a
+production build.
 
 ## Environment setup
 
@@ -106,7 +128,7 @@ review step, not something the app can skip.
    `examples/demo_video_urls.txt` lists good test videos with rich comment sections.
 2. Click **Analyze** — video metadata loads, up to 200 top comments are fetched via
    `commentThreads.list`, and the LLM clusters them and drafts the brief (~15s).
-3. Click **Generate thumbnails** — the app pulls real frames from the video
+3. Click **Generate thumbnails** — the app pulls YouTube's preview stills for the video
    (`i.ytimg.com/vi/<id>/maxres{1,2,3}.jpg`, with sd/hq fallbacks) and composites three
    overlay styles with `sharp`.
 4. Under **Do it**, click **Draft the changes**. Each proposal shows its before and after,
@@ -130,7 +152,7 @@ the performance notes behind it, and the per-video table it scored.
 | --- | --- | --- |
 | Retitle | `videos.update` | Restores the previous title |
 | Rewrite description / add chapters | `videos.update` | Restores the previous description |
-| Replace thumbnail | `thumbnails.set` | Re-uploads the previous image, if still cached |
+| Replace thumbnail | `thumbnails.set` | Re-uploads the previous image, which travels **inside the undo ticket** as a data URL — stateless, so it survives serverless cold starts |
 | Publish localized title/description | `videos.update` (localizations) | Restores the previous localization map |
 | Post a comment | `commentThreads.insert` | `comments.delete` |
 | Reply to a viewer | `comments.insert` | `comments.delete` |
@@ -185,8 +207,10 @@ Design choices worth noting:
   hit the cache, and if YouTube quota dies mid-demo the cache serves as fallback.
 - **Every LLM response is validated** and coerced into a strict schema; any failure
   degrades to the heuristic analyzer instead of a broken UI.
-- **Thumbnails without heavy deps**: YouTube hosts three real frames of every public video
-  at predictable URLs, so frame extraction needs no yt-dlp/ffmpeg — just HTTPS + sharp.
+- **Thumbnails without heavy deps**: YouTube publishes three preview stills of every public
+  video at predictable URLs — real imagery from the video, though YouTube picks the three
+  moments. No yt-dlp/ffmpeg, just HTTPS + sharp, and the overlay scrim is weighted by the
+  measured luminance under the text so type holds contrast on any frame.
 - **Chapters come from viewers, not guesses**: no transcript is available, but viewers
   timestamp the moments that mattered. `lib/chapters.ts` mines those timestamps, clusters
   ones within 20s of each other, and the model only labels moments it was given. The same
@@ -210,18 +234,27 @@ Design choices worth noting:
 ## Tests
 
 ```bash
-npm test
+npm test        # 145 tests: unit + route-level integration
+npm run judge   # typecheck + full suite + production build
 ```
 
-124 vitest tests cover URL/ID and channel parsing, YouTube API response mapping, LLM JSON
+134 unit tests cover URL/ID and channel parsing, YouTube API response mapping, LLM JSON
 parsing + schema validation, heuristic clustering, comment caching (incl. path-traversal
-guard), SVG overlay generation, the markdown exporter, timestamp mining and chapter rules,
-action validation (including that a reply can only ever target a comment we supplied),
-channel metrics, plan validation, session cookie signing and tampering, scam detection
-(unicode folding, impersonation-by-id, every lure pattern, the false-positive cases),
-retention-curve dip finding and comment joins, clip suggestion, and localization
-targeting/validation. CI runs the typecheck, the suite, and a production build on every
-push.
+guard), SVG overlay generation and luminance-weighted scrims, the markdown exporter,
+timestamp mining and chapter rules, action validation (including that a reply can only
+ever target a comment we supplied), channel metrics, plan validation, session cookie
+signing and tampering, scam detection (unicode folding, impersonation-by-id, every lure
+pattern, the false-positive cases), retention-curve dip finding and comment joins, clip
+suggestion, the editor handoff formats, and localization targeting/validation.
+
+11 integration tests call the real route handlers with the network mocked at the fetch
+layer (any unexpected request fails the test): the heuristic analyze path, the bundled
+channel plan, the patrol sweep, the retention↔comment join, and the write path end to
+end — dry-run sends nothing, demo confirm simulates, an unowned video is refused before
+any write, an owned retitle PUTs the right snippet and is re-read for the "verified live"
+state, a duplicated requestId gets a 409, and undo restores the exact prior snippet. No
+YouTube response is ever invented outside test fixtures. CI runs the typecheck, the
+suite, and a production build on every push.
 
 ## API quota notes
 
@@ -246,9 +279,10 @@ Two notes specific to running this serverlessly:
 
 - **Comment cache** — `lib/cache.ts` writes to `/tmp` when `VERCEL` is set, since the rest
   of the filesystem is read-only. The cache survives warm invocations, which is the
-  repeat-run case it exists for; a cold start simply refetches. The thumbnail an undo would
-  restore lives in the same place, so undoing a thumbnail is a right-now action — the UI
-  says as much if the bytes are gone.
+  repeat-run case it exists for; a cold start simply refetches. **Undo needs no server
+  state at all**: every undo ticket carries what it restores — the previous snippet as
+  text, the previous thumbnail as a data URL — so undo survives cold starts by
+  construction, for as long as the creator keeps the page open.
 - **Thumbnail fonts** — serverless containers ship no fonts, so librsvg rendered every
   overlay glyph as tofu. `assets/fonts/DejaVuSans-Bold.ttf` is bundled and registered with
   fontconfig at runtime (`lib/fonts.ts`), and `next.config.mjs` force-includes it in the
@@ -269,6 +303,24 @@ falls back to the keyword-heuristic analyzer. `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_
 what turn publishing on; leave them unset and the deployment is read-only by construction.
 Whichever origin you deploy to needs its `/api/auth/callback` added to the OAuth client's
 redirect URIs — including preview URLs, if you want to sign in on one.
+
+## Security
+
+Dependency posture as of 2026-08-06 (`npm audit`):
+
+- **Fixed by upgrade**: `sharp` → 0.35.x (libvips CVEs — it processes fetched images, so
+  this one mattered), `vitest` → 4.x (cleared a dev-only critical in the vitest UI server
+  chain plus the esbuild/vite advisories).
+- **Known, documented**: `next@14` carries advisories whose fixed versions are the 15/16
+  majors. Reviewed individually against this app: it uses no `next/image` optimizer (plain
+  `<img>`), no middleware, no rewrites, no i18n Pages Router, no WebSocket upgrades, no
+  CSP nonces, and no `beforeInteractive` scripts — the attack surfaces those advisories
+  target. The pinned version is a deliberate stability call for the hackathon window, not
+  an oversight; the upgrade path is `next@15` after judging.
+- Idempotency dedupe for publishes is in-memory per warm serverless instance (documented
+  limit); the primary double-publish guard is the armed-button UI plus per-arm request
+  ids. Undo tickets are validated server-side (image type + size caps) and every write
+  path re-checks channel ownership.
 
 ## Contributing & license
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import type { VideoAnalytics } from "@/lib/analytics";
+import { dipEditAction, type VideoAnalytics } from "@/lib/analytics";
 import { formatTimestamp } from "@/lib/chapters";
 
 const fmt = new Intl.NumberFormat("en-US");
@@ -27,6 +27,13 @@ export function AnalyticsCard({
   const { retention, totals, trafficSources, countries } = analytics;
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [hover, setHover] = useState<{ x: number; ratio: number; watch: number } | null>(null);
+  const [copiedNote, setCopiedNote] = useState<number | null>(null);
+
+  const copyNote = useCallback(async (seconds: number, note: string) => {
+    await navigator.clipboard.writeText(note);
+    setCopiedNote(seconds);
+    setTimeout(() => setCopiedNote(null), 1600);
+  }, []);
 
   const plotW = W - PAD.left - PAD.right;
   const plotH = H - PAD.top - PAD.bottom;
@@ -142,21 +149,38 @@ export function AnalyticsCard({
 
           {retention.dips.length > 0 ? (
             <ul className="diplist">
-              {retention.dips.map((d) => (
-                <li key={d.seconds}>
-                  <b>
-                    {d.timestamp} — {d.dropPercent}% of the audience leaves.
-                  </b>{" "}
-                  {d.mentions ? (
-                    <>
-                      {d.mentions.count} comment{d.mentions.count === 1 ? " points" : "s point"} at
-                      this moment: &ldquo;{d.mentions.quote}&rdquo;
-                    </>
-                  ) : (
-                    "No comment mentions this moment — rewatch it to see what happened."
-                  )}
-                </li>
-              ))}
+              {retention.dips.map((d) => {
+                const action = dipEditAction(d);
+                const note = `${d.timestamp} — ${d.dropPercent}% of the audience leaves.\n${
+                  d.mentions ? `Viewer evidence: "${d.mentions.quote}"\n` : ""
+                }Edit action: ${action}`;
+                return (
+                  <li key={d.seconds}>
+                    <b>
+                      {d.timestamp} — {d.dropPercent}% of the audience leaves.
+                    </b>{" "}
+                    {d.mentions ? (
+                      <>
+                        {d.mentions.count} comment{d.mentions.count === 1 ? " points" : "s point"} at
+                        this moment: &ldquo;{d.mentions.quote}&rdquo;
+                      </>
+                    ) : (
+                      "No comment mentions this moment — the answer is in the footage."
+                    )}
+                    <span className="dipaction">{action}</span>
+                    <span className="clipactions">
+                      <button className="textlink" onClick={() => copyNote(d.seconds, note)}>
+                        {copiedNote === d.seconds ? "Copied" : "Copy the edit note"}
+                      </button>
+                      {d.mentions && (
+                        <a className="textlink" href="#do-it">
+                          Draft the pinned reply below
+                        </a>
+                      )}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p className="lede">No sharp drop-offs — the audience leaves gradually, not at a moment.</p>

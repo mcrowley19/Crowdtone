@@ -20,6 +20,7 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
   const [applying, setApplying] = useState(false);
   // Hiding comments takes two deliberate clicks, same as publishing changes.
   const [armed, setArmed] = useState(false);
+  const [showCleared, setShowCleared] = useState(false);
 
   const scan = useCallback(async (demo: boolean) => {
     setLoading(true);
@@ -115,6 +116,7 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
     });
 
   const flagged = data?.report.flagged ?? [];
+  const cleared = data?.report.cleared ?? [];
   const chosenCount = flagged.filter((f) => selected.has(f.comment.id)).length;
   const applied = Object.values(results).some((r) => r.status === "applied");
 
@@ -274,6 +276,32 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
                   </p>
                 )}
               </>
+            )}
+
+            {cleared.length > 0 && (
+              <div className="clearedlog">
+                <button className="textlink" onClick={() => setShowCleared((v) => !v)}>
+                  {showCleared ? "Hide" : "Show"} the false-positive diary — {cleared.length} flagged
+                  comment{cleared.length === 1 ? "" : "s"} the model cleared
+                </button>
+                {showCleared && (
+                  <ul className="quotelist plain">
+                    {cleared.map((c) => (
+                      <li key={c.comment.id}>
+                        <b>{c.comment.author}</b> — &ldquo;{c.comment.text.slice(0, 140)}&rdquo;
+                        <span className="qsrc">
+                          Pattern-matched as {c.reasons.map((r) => REASON_LABEL[r].toLowerCase()).join(", ")};
+                          cleared because: {c.explanation}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="drationale" style={{ margin: "6px 0 0" }}>
+                  Every heuristic hit the model overturns is logged here with its reason — bulk hide
+                  is a decision you can audit, not a black box.
+                </p>
+              </div>
             )}
           </section>
         </>

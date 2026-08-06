@@ -149,7 +149,7 @@ export function ActionDeck({
   const postedComment = results.some((r) => r.status === "applied" && r.kind === "post_comment");
 
   return (
-    <section className="report">
+    <section className="report" id="do-it">
       <h2>Do it</h2>
       <p className="deck">
         The same findings, written as changes this tool can publish for you
