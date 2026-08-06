@@ -1980,3 +1980,85 @@ button.go.danger {
   right: 24px;
   bottom: 10px;
 }
+
+/* --------------------------- poster hero ---------------------------- */
+
+/* The generated crowd mural is composed with its cream zone top-left, so
+ * the headline sets into the empty stock and the crowd fills the rest.
+ * Framed like every other plate on the page — 3px ink, hard shadow. */
+.lp-hero-poster {
+  position: relative;
+  margin: 34px 0 0;
+  border: 3px solid var(--ink);
+  box-shadow: 10px 10px 0 var(--ink);
+  background-image: url("/crowd-poster.webp");
+  background-size: cover;
+  background-position: right bottom;
+  padding: clamp(30px, 4vw, 60px) clamp(20px, 3.5vw, 52px) clamp(150px, 20vw, 260px);
+  overflow: hidden;
+}
+
+/* The copy sits on a pasted label block — same idiom as the app's plates —
+ * so it stays legible wherever the ray and the crowd run beneath it. */
+.lp-hero-poster .lp-hero-text {
+  max-width: 600px;
+  background: #f4ecdb;
+  border: 3px solid var(--ink);
+  box-shadow: 7px 7px 0 var(--ink);
+  padding: clamp(20px, 3vw, 34px) clamp(20px, 3vw, 34px) clamp(22px, 3vw, 32px);
+}
+
+.lp-hero-poster h1 {
+  font-size: clamp(30px, 3.7vw, 50px);
+}
+
+.lp-hero-poster .lp-lede {
+  max-width: 46ch;
+  font-size: 16px;
+  margin-top: 18px;
+}
+
+.lp-hero-poster .lp-cta { margin-top: 26px; }
+
+.lp-hero-poster .lp-note {
+  max-width: 46ch;
+  margin-top: 16px;
+}
+
+/* ------------------------- rematch strip ---------------------------- */
+
+.lp-rematch {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 26px;
+  padding: clamp(48px, 6vw, 84px) 0;
+}
+
+@media (min-width: 900px) {
+  .lp-rematch {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
+    gap: 40px;
+    align-items: start;
+  }
+}
+
+.lp-rematch figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lp-rematch figure:hover img { transform: scale(1.025); }
+}
+
+.lp-rematch figcaption {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--grey);
+  margin-top: 8px;
+}
+.lp-rematch figcaption b { color: var(--ink); }

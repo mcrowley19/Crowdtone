@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { RevealObserver } from "@/components/Reveal";
-import { SignalBurst } from "@/components/SignalBurst";
 
 /*
  * Concept: "The Front Page" — the tool reads comment sections, so its landing
@@ -134,8 +133,7 @@ export default function Landing() {
       </header>
 
       <main className="lp">
-        <section className="lp-hero">
-          <SignalBurst />
+        <section className="lp-hero-poster">
           <div className="lp-hero-text">
             <h1>
               <span className="mline">
@@ -149,17 +147,10 @@ export default function Landing() {
               </span>
             </h1>
             <p className="lp-lede">
-              A video lands, hundreds of comments arrive, and you scroll. The feedback is
-              genuinely good: viewers say plainly what confused them, what they want next,
-              and where the title oversold it. But it arrives as an unsorted stream, so
-              most of it is never acted on.
-            </p>
-            <p className="lp-lede">
-              Paste a video address. AudienceSignal reads the comments and writes back a
-              plan, with a viewer quote as evidence under every claim. Connect your channel
-              and it makes the changes rather than listing them: retitles, chapters,
-              thumbnails, replies, translated packaging, and a bulk sweep of the scam
-              comments impersonating you.
+              A video lands, hundreds of comments arrive, and you scroll. Viewers say
+              plainly what confused them, what they want next, and where the title
+              oversold it. AudienceSignal reads all of it, shows the receipts, and makes
+              the changes.
             </p>
             <div className="lp-cta">
               <Link href="/app" className="lp-btn">
@@ -170,49 +161,56 @@ export default function Landing() {
               </a>
             </div>
             <p className="lp-note">
-              The demo needs no keys and no account. It runs the whole pipeline on a bundled
-              50-comment dataset.
+              The demo needs no keys and no account. It runs the whole pipeline on a
+              bundled 50-comment dataset.
             </p>
           </div>
+        </section>
 
-          <div className="lp-hero-art">
+        <section className="lp-rematch">
+          <div className="lp-rematch-copy">
             <Slug>Thumbnail rematch</Slug>
-            <figure>
-              <span className="lp-frame">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/demo-thumb.svg"
-                  alt="The published thumbnail from the demo dataset: a laptop on a dark background with the words 30 DAYS LATER."
-                  width={1280}
-                  height={720}
-                  fetchPriority="high"
-                />
-              </span>
-              <figcaption>
-                <b>Published.</b> What the viewer saw
-              </figcaption>
-            </figure>
-            <figure>
-              <span className="lp-frame">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/sample-callout-box.jpg"
-                  alt="A redrawn thumbnail: a red callout box reading THE HONEST VERSION."
-                  width={1280}
-                  height={720}
-                  loading="lazy"
-                />
-              </span>
-              <figcaption>
-                <b>Redrawn.</b> Answering the top complaint, that the title oversold the
-                video
-              </figcaption>
-            </figure>
+            <p className="lp-lede">
+              Paste a video address and every claim comes back with a viewer quote as
+              evidence. Connect your channel and it publishes the fixes: retitles,
+              chapters, thumbnails, replies, translated packaging, and a bulk sweep of
+              the scam comments impersonating you.
+            </p>
             <p className="lp-note lp-art-note">
               From the bundled demo dataset. On a real video these are composited from
               frames of the video itself.
             </p>
           </div>
+          <figure>
+            <span className="lp-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/demo-thumb.svg"
+                alt="The published thumbnail from the demo dataset: a laptop on a dark background with the words 30 DAYS LATER."
+                width={1280}
+                height={720}
+              />
+            </span>
+            <figcaption>
+              <b>Published.</b> What the viewer saw
+            </figcaption>
+          </figure>
+          <figure>
+            <span className="lp-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/sample-callout-box.jpg"
+                alt="A redrawn thumbnail: a red callout box reading THE HONEST VERSION."
+                width={1280}
+                height={720}
+                loading="lazy"
+              />
+            </span>
+            <figcaption>
+              <b>Redrawn.</b> Answering the top complaint, that the title oversold the
+              video
+            </figcaption>
+          </figure>
         </section>
 
         <section className="lp-band" data-scrollwords>
