@@ -1,3 +1,4 @@
+import { parseISODuration } from "./chapters";
 import type { Comment, VideoMeta } from "./types";
 
 const API_BASE = "https://www.googleapis.com/youtube/v3";
@@ -82,24 +83,37 @@ export function pickThumbnail(thumbnails: any): string {
   return "";
 }
 
+/** Maps one videos.list item into VideoMeta. Shared by lookup and channel listing. */
+export function mapVideoItem(item: any): VideoMeta {
+  return {
+    videoId: item?.id ?? "",
+    title: item?.snippet?.title ?? "(untitled)",
+    channelTitle: item?.snippet?.channelTitle ?? "",
+    channelId: item?.snippet?.channelId ?? "",
+    description: item?.snippet?.description ?? "",
+    durationSeconds: parseISODuration(item?.contentDetails?.duration ?? ""),
+    categoryId: item?.snippet?.categoryId ?? "",
+    tags: Array.isArray(item?.snippet?.tags) ? item.snippet.tags : undefined,
+    thumbnailUrl: pickThumbnail(item?.snippet?.thumbnails),
+    viewCount: Number(item?.statistics?.viewCount ?? 0),
+    likeCount: Number(item?.statistics?.likeCount ?? 0),
+    commentCount: Number(item?.statistics?.commentCount ?? 0),
+    publishedAt: item?.snippet?.publishedAt ?? "",
+    source: "api",
+  };
+}
+
 export async function fetchVideoMeta(apiKey: string, videoId: string): Promise<VideoMeta> {
   const body = await ytGet("videos", {
-    part: "snippet,statistics",
+    // contentDetails carries the runtime, which is what keeps mined chapter
+    // timestamps inside the video instead of past the end of it.
+    part: "snippet,statistics,contentDetails",
     id: videoId,
     key: apiKey,
   });
   const item = body?.items?.[0];
   if (!item) throw new YouTubeApiError("Video not found", "not_found", 404);
-  return {
-    videoId,
-    title: item.snippet?.title ?? "(untitled)",
-    channelTitle: item.snippet?.channelTitle ?? "",
-    thumbnailUrl: pickThumbnail(item.snippet?.thumbnails),
-    viewCount: Number(item.statistics?.viewCount ?? 0),
-    commentCount: Number(item.statistics?.commentCount ?? 0),
-    publishedAt: item.snippet?.publishedAt ?? "",
-    source: "api",
-  };
+  return { ...mapVideoItem(item), videoId };
 }
 
 /** Maps a commentThreads.list response page into our Comment shape. */

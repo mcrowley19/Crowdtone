@@ -1,0 +1,243 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import type { ActionResult, Analysis, Comment, ProposedAction, VideoMeta } from "@/lib/types";
+
+const KIND_LABEL: Record<ProposedAction["kind"], string> = {
+  retitle: "Title",
+  update_description: "Description",
+  add_chapters: "Chapters",
+  set_thumbnail: "Thumbnail",
+  post_comment: "New comment",
+  reply_to_comment: "Reply",
+};
+
+export function ActionDeck({
+  video,
+  comments,
+  analysis,
+  connected,
+  isDemo,
+}: {
+  video: VideoMeta;
+  comments: Comment[];
+  analysis: Analysis;
+  connected: boolean;
+  isDemo: boolean;
+}) {
+  const [actions, setActions] = useState<ProposedAction[] | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [results, setResults] = useState<ActionResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [applying, setApplying] = useState(false);
+  // Publishing takes two deliberate clicks: the first arms, the second sends.
+  const [armed, setArmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [undone, setUndone] = useState<Record<string, string>>({});
+
+  const draft = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setResults([]);
+    setArmed(false);
+    try {
+      const res = await fetch("/api/actions/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ video, comments, analysis }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Could not draft the changes.");
+      setActions(body.actions);
+      setSelected(new Set(body.actions.map((a: ProposedAction) => a.id)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not draft the changes.");
+    } finally {
+      setLoading(false);
+    }
+  }, [video, comments, analysis]);
+
+  const send = useCallback(
+    async (confirm: boolean) => {
+      if (!actions) return;
+      const chosen = actions.filter((a) => selected.has(a.id));
+      if (chosen.length === 0) return;
+      setApplying(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/actions/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ videoId: video.videoId, actions: chosen, confirm }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error ?? "Apply failed.");
+        setResults(body.results);
+        setArmed(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Apply failed.");
+      } finally {
+        setApplying(false);
+      }
+    },
+    [actions, selected, video]
+  );
+
+  const undo = useCallback(async (result: ActionResult) => {
+    if (!result.undo) return;
+    try {
+      const res = await fetch("/api/actions/undo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ undo: result.undo }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Undo failed.");
+      setUndone((prev) => ({ ...prev, [result.id]: body.message }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Undo failed.");
+    }
+  }, []);
+
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      setArmed(false);
+      return next;
+    });
+
+  const chosenCount = actions ? actions.filter((a) => selected.has(a.id)).length : 0;
+  const resultById = new Map(results.map((r) => [r.id, r]));
+  const postedComment = results.some((r) => r.status === "applied" && r.kind === "post_comment");
+
+  return (
+    <section className="report">
+      <h2>Do it</h2>
+      <p className="deck">
+        The same findings, written as changes this tool can publish for you
+      </p>
+
+      {!actions && (
+        <>
+          <p className="lede">
+            AudienceSignal drafts the finished copy — a new title, chapters mined from the timestamps
+            viewers left, a pinned-style comment, replies to the questions people actually asked, and a
+            new thumbnail — then applies whichever ones you tick.
+          </p>
+          <div className="thumbactions">
+            <button className="go" onClick={draft} disabled={loading}>
+              {loading ? "Drafting…" : "Draft the changes"}
+            </button>
+          </div>
+        </>
+      )}
+
+      {error && <div className="errorline">{error}</div>}
+
+      {actions && actions.length === 0 && (
+        <p className="lede">Nothing worth changing on this video — the comments aren't asking for it.</p>
+      )}
+
+      {actions && actions.length > 0 && (
+        <>
+          <div className="deckgrid">
+            {actions.map((a) => {
+              const result = resultById.get(a.id);
+              return (
+                <div className={`deckrow${selected.has(a.id) ? " picked" : ""}`} key={a.id}>
+                  <label className="deckhead">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(a.id)}
+                      onChange={() => toggle(a.id)}
+                      disabled={applying || Boolean(result?.status === "applied")}
+                    />
+                    <span className="kind">{KIND_LABEL[a.kind]}</span>
+                    <span className="dlabel">{a.label}</span>
+                  </label>
+                  <p className="drationale">{a.rationale}</p>
+                  {a.before && (
+                    <div className="diff before">
+                      <span>Now</span>
+                      <p>{a.before}</p>
+                    </div>
+                  )}
+                  <div className="diff after">
+                    <span>After</span>
+                    <p>{a.after}</p>
+                  </div>
+                  {a.evidence && <div className="devidence">{a.evidence}&rdquo;</div>}
+                  {result && (
+                    <div className={`dresult ${result.status}`}>
+                      <b>
+                        {result.status === "applied"
+                          ? "Published"
+                          : result.status === "dry_run"
+                            ? "Preview"
+                            : "Failed"}
+                      </b>{" "}
+                      {undone[result.id] ?? result.message}
+                      {result.url && result.status === "applied" && (
+                        <>
+                          {" "}
+                          <a href={result.url} target="_blank" rel="noreferrer">
+                            View on YouTube
+                          </a>
+                        </>
+                      )}
+                      {result.undo && !undone[result.id] && (
+                        <button className="textlink" onClick={() => undo(result)}>
+                          Undo this
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="deckfoot">
+            <button onClick={() => send(false)} disabled={applying || chosenCount === 0}>
+              {applying && !armed ? "Checking…" : `Preview ${chosenCount} change${chosenCount === 1 ? "" : "s"}`}
+            </button>
+            {isDemo ? (
+              <span className="deckwarn">
+                The demo dataset isn't a real video — analyze one of your own to publish changes.
+              </span>
+            ) : !connected ? (
+              <span className="deckwarn">
+                Connect your channel above to publish these. Until then this is a preview.
+              </span>
+            ) : armed ? (
+              <button className="go danger" onClick={() => send(true)} disabled={applying}>
+                {applying ? "Publishing…" : `Yes — publish ${chosenCount} to YouTube now`}
+              </button>
+            ) : (
+              <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
+                Publish {chosenCount} change{chosenCount === 1 ? "" : "s"} to YouTube
+              </button>
+            )}
+            <button className="textlink" onClick={draft} disabled={loading || applying}>
+              Redraft
+            </button>
+          </div>
+          {armed && (
+            <p className="deckarmed">
+              This writes to <b>{video.title}</b> on YouTube for real. Anything you can undo gets an
+              undo button next to it afterwards.
+            </p>
+          )}
+          {postedComment && (
+            <p className="deckarmed">
+              Note: YouTube's Data API has no endpoint for pinning a comment — that one click still has
+              to happen in Studio.
+            </p>
+          )}
+        </>
+      )}
+    </section>
+  );
+}

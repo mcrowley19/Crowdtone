@@ -12,7 +12,7 @@ import { RevealObserver } from "@/components/Reveal";
 export const metadata: Metadata = {
   title: "AudienceSignal — the comment section already wrote your next video",
   description:
-    "Paste a public YouTube video. AudienceSignal reads its comments and writes back a plan: what viewers praised, complained about and asked for, three next-video ideas, a fix list, and redrawn thumbnails built from real frames.",
+    "Paste a public YouTube video. AudienceSignal reads its comments and writes back a plan — themes, next-video ideas, fixes, redrawn thumbnails — then, if you connect your channel, publishes the changes for you.",
 };
 
 const OUTPUTS = [
@@ -40,13 +40,26 @@ const OUTPUTS = [
     what: "Three thumbnail variants composited from real frames of your video, overlaid with text that answers the loudest complaint, shown beside the thumbnail you published.",
     note: "Built from real frames",
   },
+  {
+    n: "05",
+    name: "Do it",
+    what: "The same findings written as finished copy and published for you: a new title, chapters mined from the timestamps viewers left, a comment answering the top confusion, replies to the questions people asked, the new thumbnail. You tick what you want, see the exact diff, confirm, and can undo.",
+    note: "Changes, not advice",
+  },
+  {
+    n: "06",
+    name: "Plan the next one",
+    what: "Channel-wide: the last twenty uploads scored against your own median views a day, the comment sections of the recent and the outperforming ones, and out of it one video — title, spoken hook, beat-by-beat outline, description, tags, runtime, publish date — with the numbers and quotes behind each.",
+    note: "One video, filmable",
+  },
 ];
 
 const STEPS = [
-  ["Read", "Pulls the video's metadata and up to 200 top-level comments through the YouTube Data API. Public data only — no OAuth, no account access."],
+  ["Read", "Pulls the video's metadata and up to 200 top-level comments through the YouTube Data API. Public data, no account needed."],
   ["Cluster", "A language model sorts every comment into the four themes and writes a summary of what the audience is collectively saying."],
-  ["Draft", "Three further passes turn those clusters into next-video ideas, a fix list for the current video, and thumbnail overlay lines."],
+  ["Draft", "Further passes turn those clusters into next-video ideas, a fix list, thumbnail overlay lines, and the finished copy of each change."],
   ["Redraw", "Real frames are fetched from the video and composited with the overlay text, so the report ends in pictures rather than advice."],
+  ["Publish", "Connect your channel and the changes you tick are written to YouTube — title, description, chapters, thumbnail, comments and replies — each one previewable first and undoable after."],
 ];
 
 export default function Landing() {
@@ -87,7 +100,8 @@ export default function Landing() {
             </p>
             <p className="lp-lede">
               Paste a video address. AudienceSignal reads the comments and writes back a
-              plan, with a viewer quote as evidence under every claim.
+              plan, with a viewer quote as evidence under every claim — then, if you connect
+              your channel, it makes the changes rather than listing them.
             </p>
             <div className="lp-cta">
               <Link href="/app" className="lp-btn">
@@ -148,7 +162,7 @@ export default function Landing() {
         <section id="outputs" className="lp-sec">
           <div className="reveal" data-reveal>
             <p className="lp-kick">What comes back</p>
-            <h2>Four things, and the evidence for each</h2>
+            <h2>Six things, and the evidence for each</h2>
           </div>
           <dl className="lp-index">
             {OUTPUTS.map((o, i) => (
@@ -173,7 +187,7 @@ export default function Landing() {
         <section id="how" className="lp-sec lp-sec-alt">
           <div className="reveal" data-reveal>
             <p className="lp-kick">How it works</p>
-            <h2>Four passes, about a minute</h2>
+            <h2>Five passes, about a minute</h2>
           </div>
           <ol className="lp-steps">
             {STEPS.map(([name, body], i) => (
@@ -201,9 +215,9 @@ export default function Landing() {
           <div className="reveal" data-reveal>
             <ul className="lp-facts">
               <li>
-                <b>Public data only.</b> It reads a video's metadata and its top-level
-                comments through the YouTube Data API. No OAuth, no channel access, nothing
-                private, no viewer accounts.
+                <b>Reading needs no account.</b> Video metadata and top-level comments come
+                through the YouTube Data API as public data. Nothing private, no viewer
+                accounts, ever.
               </li>
               <li>
                 <b>Runs on a free model.</b> This deployment is wired to a free hosted model,
@@ -217,7 +231,14 @@ export default function Landing() {
               </li>
               <li>
                 <b>Nothing is kept.</b> Fetched comments are cached briefly to spare API
-                quota and are not stored permanently.
+                quota and are not stored permanently. Your sign-in lives in one signed
+                cookie, not a database, and signing out revokes it with Google.
+              </li>
+              <li>
+                <b>Writing is opt-in, and yours.</b> Publishing a change requires signing
+                in with Google and a second, deliberate confirmation. Every write is checked
+                against the channel you connected, so the tool can only ever change your own
+                videos, and most changes can be undone from the same screen.
               </li>
             </ul>
           </div>

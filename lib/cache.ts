@@ -36,6 +36,36 @@ export async function readCachedComments(
   }
 }
 
+/**
+ * Holds the bytes an action is about to overwrite (today: the thumbnail
+ * thumbnails.set is going to replace) so undo has something to put back.
+ * Same short-lived storage as the comment cache — undo is a right-now action,
+ * not an archive, and the UI says so.
+ */
+export async function writeUndoBlob(
+  videoId: string,
+  bytes: Buffer,
+  baseDir = DEFAULT_CACHE_DIR
+): Promise<string> {
+  if (!SAFE_ID.test(videoId)) throw new Error(`Unsafe video id: ${videoId}`);
+  const blobId = `${videoId}-${Date.now()}`;
+  const dir = path.join(baseDir, "undo");
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(path.join(dir, `${blobId}.jpg`), bytes);
+  return blobId;
+}
+
+const SAFE_BLOB_ID = /^[A-Za-z0-9_-]{1,32}-\d{10,16}$/;
+
+export async function readUndoBlob(blobId: string, baseDir = DEFAULT_CACHE_DIR): Promise<Buffer | null> {
+  if (!SAFE_BLOB_ID.test(blobId)) return null;
+  try {
+    return await fs.readFile(path.join(baseDir, "undo", `${blobId}.jpg`));
+  } catch {
+    return null;
+  }
+}
+
 export async function writeCachedComments(
   videoId: string,
   comments: Comment[],

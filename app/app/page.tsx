@@ -9,8 +9,13 @@ import { ThemeGrid } from "@/components/ThemeGrid";
 import { BriefCard } from "@/components/BriefCard";
 import { FixList } from "@/components/FixList";
 import { ThumbnailLab } from "@/components/ThumbnailLab";
+import { ActionDeck } from "@/components/ActionDeck";
+import { ConnectBar, type Connection } from "@/components/ConnectBar";
+import { NextVideoPanel } from "@/components/NextVideoPanel";
+import { isDemoId } from "@/lib/demo";
 
 type Stage = "idle" | "video" | "comments" | "analyzing" | "done";
+type Mode = "video" | "channel";
 
 interface Health {
   youtube: boolean;
@@ -25,10 +30,13 @@ const STATUS_TEXT: Partial<Record<Stage, string>> = {
 
 export default function Home() {
   const [input, setInput] = useState("");
+  const [mode, setMode] = useState<Mode>("video");
   const [stage, setStage] = useState<Stage>("idle");
   const [error, setError] = useState<string | null>(null);
   const [offerDemo, setOfferDemo] = useState(false);
   const [health, setHealth] = useState<Health | null>(null);
+  const [connection, setConnection] = useState<Connection | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const [video, setVideo] = useState<VideoMeta | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -43,6 +51,22 @@ export default function Home() {
       .then((r) => r.json())
       .then(setHealth)
       .catch(() => undefined);
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then(setConnection)
+      .catch(() => undefined);
+    // The OAuth callback lands back here with a query string; read it, then
+    // strip it so a refresh doesn't replay the banner.
+    const params = new URLSearchParams(window.location.search);
+    setAuthError(params.get("auth_error"));
+    if (params.has("auth_error") || params.has("connected")) {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  const disconnect = useCallback(async () => {
+    await fetch("/api/auth/session", { method: "DELETE" }).catch(() => undefined);
+    setConnection((prev) => (prev ? { ...prev, connected: false, channelId: null, channelTitle: null } : prev));
   }, []);
 
   const busy = stage === "video" || stage === "comments" || stage === "analyzing";
@@ -172,78 +196,112 @@ export default function Home() {
       </header>
       <div className="kicker">The comment section already wrote your next video</div>
 
-      <p className="intro">
-        Paste the address of any public YouTube video. AudienceSignal reads its comments and
-        writes back a plan: what viewers praised, complained about, asked for, and found
-        confusing, then three ideas for the next video, a fix list for this one, and redrawn
-        thumbnails that answer the loudest complaint.
-      </p>
+      <ConnectBar connection={connection} authError={authError} onDisconnect={disconnect} />
 
-      <form
-        className="queryform"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (input.trim()) analyze(input);
-        }}
-      >
-        <label htmlFor="video-input">Video address or ID</label>
-        <div className="queryrow">
-          <input
-            id="video-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v="
-            spellCheck={false}
-            disabled={busy}
-          />
-          <button type="submit" className="go" disabled={busy || !input.trim()}>
-            {busy ? "Working" : "Analyze"}
-          </button>
-        </div>
-      </form>
-      <button className="textlink" onClick={() => analyze("DEMO")} disabled={busy}>
-        No keys yet? Run the report on the bundled demo dataset.
-      </button>
+      <div className="modes" role="tablist">
+        <button
+          role="tab"
+          aria-selected={mode === "video"}
+          className={mode === "video" ? "on" : ""}
+          onClick={() => setMode("video")}
+        >
+          Fix a video
+        </button>
+        <button
+          role="tab"
+          aria-selected={mode === "channel"}
+          className={mode === "channel" ? "on" : ""}
+          onClick={() => setMode("channel")}
+        >
+          Plan the next one
+        </button>
+      </div>
 
-      {busy && <p className="statusline">{STATUS_TEXT[stage]}</p>}
-
-      {error && (
-        <div className="errorline">
-          {error}{" "}
-          {offerDemo && (
-            <button className="textlink" onClick={() => analyze("DEMO")}>
-              Run the demo dataset instead.
-            </button>
-          )}
-        </div>
-      )}
-
-      {video && (
-        <VideoCard
-          video={video}
-          commentCount={comments.length > 0 ? comments.length : null}
-          commentSource={commentSource}
-        />
-      )}
-
-      {analysis && video && (
+      {mode === "channel" ? (
+        <NextVideoPanel connected={Boolean(connection?.connected)} />
+      ) : (
         <>
-          <ThemeGrid clusters={analysis.clusters} source={analysis.source} />
-          <BriefCard ideas={analysis.ideas} />
-          <FixList fixes={analysis.fixes} />
-          <ThumbnailLab
-            video={video}
-            topComplaint={analysis.topComplaint}
-            variants={variants}
-            loading={thumbsLoading}
-            onGenerate={generateThumbs}
-          />
-          <div className="exports">
-            <button onClick={downloadJson}>Save report as JSON</button>
-            <button onClick={copyMarkdown}>
-              {copied ? "Copied to clipboard" : "Copy report as markdown"}
-            </button>
-          </div>
+          <p className="intro">
+            Paste the address of any public YouTube video. AudienceSignal reads its comments and
+            writes back a plan: what viewers praised, complained about, asked for, and found
+            confusing, then three ideas for the next video, a fix list for this one, and redrawn
+            thumbnails that answer the loudest complaint.
+          </p>
+
+          <form
+            className="queryform"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (input.trim()) analyze(input);
+            }}
+          >
+            <label htmlFor="video-input">Video address or ID</label>
+            <div className="queryrow">
+              <input
+                id="video-input"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v="
+                spellCheck={false}
+                disabled={busy}
+              />
+              <button type="submit" className="go" disabled={busy || !input.trim()}>
+                {busy ? "Working" : "Analyze"}
+              </button>
+            </div>
+          </form>
+          <button className="textlink" onClick={() => analyze("DEMO")} disabled={busy}>
+            No keys yet? Run the report on the bundled demo dataset.
+          </button>
+
+          {busy && <p className="statusline">{STATUS_TEXT[stage]}</p>}
+
+          {error && (
+            <div className="errorline">
+              {error}{" "}
+              {offerDemo && (
+                <button className="textlink" onClick={() => analyze("DEMO")}>
+                  Run the demo dataset instead.
+                </button>
+              )}
+            </div>
+          )}
+
+          {video && (
+            <VideoCard
+              video={video}
+              commentCount={comments.length > 0 ? comments.length : null}
+              commentSource={commentSource}
+            />
+          )}
+
+          {analysis && video && (
+            <>
+              <ThemeGrid clusters={analysis.clusters} source={analysis.source} />
+              <BriefCard ideas={analysis.ideas} />
+              <FixList fixes={analysis.fixes} />
+              <ThumbnailLab
+                video={video}
+                topComplaint={analysis.topComplaint}
+                variants={variants}
+                loading={thumbsLoading}
+                onGenerate={generateThumbs}
+              />
+              <ActionDeck
+                video={video}
+                comments={comments}
+                analysis={analysis}
+                connected={Boolean(connection?.connected)}
+                isDemo={isDemoId(video.videoId)}
+              />
+              <div className="exports">
+                <button onClick={downloadJson}>Save report as JSON</button>
+                <button onClick={copyMarkdown}>
+                  {copied ? "Copied to clipboard" : "Copy report as markdown"}
+                </button>
+              </div>
+            </>
+          )}
         </>
       )}
 
