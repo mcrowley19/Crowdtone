@@ -12,7 +12,7 @@ import { RevealObserver } from "@/components/Reveal";
 export const metadata: Metadata = {
   title: "AudienceSignal — the comment section already wrote your next video",
   description:
-    "Paste a public YouTube video. AudienceSignal reads its comments and writes back a plan — themes, next-video ideas, fixes, redrawn thumbnails — then, if you connect your channel, publishes the changes for you.",
+    "Paste a public YouTube video. AudienceSignal reads its comments and writes back a plan — themes, next-video ideas, fixes, redrawn thumbnails, retention dips explained by comments, a Shorts cut list — then, if you connect your channel, publishes the changes, translates your packaging, and sweeps the scams out of your comments.",
 };
 
 const OUTPUTS = [
@@ -48,6 +48,30 @@ const OUTPUTS = [
   },
   {
     n: "06",
+    name: "The numbers behind it",
+    what: "For your own videos, the YouTube Analytics API joins the picture: the audience-retention curve with its sharpest drop-offs marked — and, when viewers timestamped that exact moment in the comments, the quote that explains the dip. Plus traffic sources, watch geography, and subscribers gained.",
+    note: "Retention × comments",
+  },
+  {
+    n: "07",
+    name: "Cut these into Shorts",
+    what: "The moments viewers timestamped are the moments they rewatched and quoted. Each becomes a ready-to-cut clip spec: a start and end time, why it works, and the comment to open the Short with.",
+    note: "The free highlight reel",
+  },
+  {
+    n: "08",
+    name: "Speak their language",
+    what: "Your Analytics say where the audience actually is. AudienceSignal translates the title and description into those languages and publishes them as YouTube localizations, so a viewer in São Paulo sees your video packaged in Portuguese.",
+    note: "Published, not pasted",
+  },
+  {
+    n: "09",
+    name: "Comment Patrol",
+    what: "A sweep of your recent uploads for the comments every channel gets: impersonators wearing your name in a fancy-unicode font, WhatsApp and crypto lures, giveaway bots, cross-video paste spam. Tick the ones to hide and they're moderated in bulk — reversibly.",
+    note: "Scams out, in bulk",
+  },
+  {
+    n: "10",
     name: "Plan the next one",
     what: "Channel-wide: the last twenty uploads scored against your own median views a day, the comment sections of the recent and the outperforming ones, and out of it one video — title, spoken hook, beat-by-beat outline, description, tags, runtime, publish date — with the numbers and quotes behind each.",
     note: "One video, filmable",
@@ -59,7 +83,7 @@ const STEPS = [
   ["Cluster", "A language model sorts every comment into the four themes and writes a summary of what the audience is collectively saying."],
   ["Draft", "Further passes turn those clusters into next-video ideas, a fix list, thumbnail overlay lines, and the finished copy of each change."],
   ["Redraw", "Real frames are fetched from the video and composited with the overlay text, so the report ends in pictures rather than advice."],
-  ["Publish", "Connect your channel and the changes you tick are written to YouTube — title, description, chapters, thumbnail, comments and replies — each one previewable first and undoable after."],
+  ["Publish", "Connect your channel and the changes you tick are written to YouTube — title, description, chapters, thumbnail, localized metadata, comments and replies, and the scams swept out of your comment sections — each one previewable first and undoable after."],
 ];
 
 export default function Landing() {
@@ -101,7 +125,9 @@ export default function Landing() {
             <p className="lp-lede">
               Paste a video address. AudienceSignal reads the comments and writes back a
               plan, with a viewer quote as evidence under every claim — then, if you connect
-              your channel, it makes the changes rather than listing them.
+              your channel, it makes the changes rather than listing them: retitles,
+              chapters, thumbnails, replies, translated packaging, and a bulk sweep of the
+              scam comments impersonating you.
             </p>
             <div className="lp-cta">
               <Link href="/app" className="lp-btn">
@@ -162,7 +188,7 @@ export default function Landing() {
         <section id="outputs" className="lp-sec">
           <div className="reveal" data-reveal>
             <p className="lp-kick">What comes back</p>
-            <h2>Six things, and the evidence for each</h2>
+            <h2>Ten things, and the evidence for each</h2>
           </div>
           <dl className="lp-index">
             {OUTPUTS.map((o, i) => (

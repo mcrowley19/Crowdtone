@@ -1,6 +1,10 @@
 # AudienceSignal
 
-**Turn a YouTube comment section into your next video — and a better thumbnail.**
+**Turn a YouTube comment section into your next video — then let it make the changes.**
+
+[![CI](https://github.com/mcrowley19/youtube-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/mcrowley19/youtube-automation/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
+![Tests](https://img.shields.io/badge/tests-124_passing-black.svg)
 
 **Live:** https://youtube-automation-sandy.vercel.app — landing page.
 **The tool:** https://youtube-automation-sandy.vercel.app/app — the bundled demo runs with no
@@ -17,9 +21,19 @@ comments, decides what to change, and — once you connect your channel — make
    an opening hook, and the comment quotes proving viewers want it.
 3. **Fix This Video** — concrete, doable-today fixes for the current video, each backed by
    a quote.
-4. **Thumbnail Lab** — 3 thumbnail variants built from **real frames of the video**, with
+4. **The numbers behind it** — for your own videos, the YouTube Analytics API adds the
+   audience-retention curve with its sharpest drop-offs marked, and when viewers
+   timestamped that exact moment in the comments, the quote that explains the dip. Plus
+   traffic sources, watch geography, and subscribers gained.
+5. **Cut these into Shorts** — the moments viewers timestamped, ranked and turned into
+   ready-to-cut clip specs: start/end times, why the moment works, and the comment to
+   open the Short with.
+6. **Thumbnail Lab** — 3 thumbnail variants built from **real frames of the video**, with
    overlay text answering the top complaint, beside the current thumbnail.
-5. **Do it** — the same findings as finished copy the app will publish for you: a new
+7. **Speak their language** — translates the title and description into the languages the
+   video's own audience watches in (from its Analytics geography) and publishes them as
+   YouTube localizations, so viewers see the packaging in their language.
+8. **Do it** — the same findings as finished copy the app will publish for you: a new
    title, chapters mined from the timestamps viewers left in the comments, a comment
    answering the top confusion, replies to the questions people actually asked, and the new
    thumbnail. Tick the ones you want, preview the exact diff, publish, undo.
@@ -30,6 +44,13 @@ the outperforming ones, and returns a single video specified well enough to film
 alternates, the spoken hook, a beat-by-beat outline, a paste-ready description, tags,
 thumbnail text, target runtime, a publish date on the channel's own cadence, what not to
 repeat — and the numbers and quotes each of those came from.
+
+**Patrol the comments.** A sweep of your recent uploads for the comments every channel
+gets: impersonators wearing your channel's name in styled-unicode fonts, "message me on
+WhatsApp" and crypto-broker lures, giveaway bots, links dumped by paste-bots across
+several videos at once. Heuristics find the candidates, the model reads each in context
+to clear false positives, and the ones you tick are hidden in bulk through
+`comments.setModerationStatus` — reversibly, with a "put it back" button per comment.
 
 Not a sentiment dashboard, and not advice. A plan, and the hands to carry it out.
 
@@ -65,10 +86,13 @@ it just can't publish. Secrets stay in `.env.local` (gitignored) — never commi
 
 ### Connecting a channel
 
-Sign-in requests two scopes: `youtube.readonly` (your uploads and their stats) and
-`youtube.force-ssl` (the write endpoints). The tokens live in one HMAC-signed, httpOnly
-cookie — there is no database and no server-side session store — and signing out revokes
-the grant with Google.
+Sign-in requests three scopes: `youtube.readonly` (your uploads and their stats),
+`youtube.force-ssl` (the write endpoints), and `yt-analytics.readonly` (retention curves,
+traffic sources, geography — enable the **YouTube Analytics API** in the same Cloud
+project). The tokens live in one HMAC-signed, httpOnly cookie — there is no database and
+no server-side session store — and signing out revokes the grant with Google. Sessions
+created before analytics support show a one-line "connect again" note instead of the
+numbers.
 
 While the OAuth client is unverified, Google shows an "unverified app" screen and only
 accounts listed as test users on the consent screen can get through. That's a Google
@@ -107,8 +131,10 @@ the performance notes behind it, and the per-video table it scored.
 | Retitle | `videos.update` | Restores the previous title |
 | Rewrite description / add chapters | `videos.update` | Restores the previous description |
 | Replace thumbnail | `thumbnails.set` | Re-uploads the previous image, if still cached |
+| Publish localized title/description | `videos.update` (localizations) | Restores the previous localization map |
 | Post a comment | `commentThreads.insert` | `comments.delete` |
 | Reply to a viewer | `comments.insert` | `comments.delete` |
+| Hide a scam/spam comment | `comments.setModerationStatus` | Sets it back to `published` |
 
 Guardrails, because these are public and permanent:
 
@@ -131,19 +157,26 @@ Next.js 14 (App Router) + TypeScript, one process for UI and API:
 
 ```
 app/page.tsx            landing page (static)
-app/app/page.tsx        dashboard (client), two modes
+app/app/page.tsx        dashboard (client), three modes
 app/api/video           videos.list → metadata, description, runtime, thumbnail
 app/api/comments        commentThreads.list (≤200, paginated) + disk cache
 app/api/analyze         LLM pipeline: cluster → (ideas ∥ fixes ∥ thumbnail texts)
+app/api/analytics       YouTube Analytics API: retention (joined with comment
+                        timestamps), traffic sources, geography, totals
 app/api/thumbnails      real frame fetch + sharp SVG compositing → data URLs
+app/api/localize        LLM-translated title/description per audience language
 app/api/auth/*          Google OAuth start / callback / session, signed cookie
 app/api/actions/plan    analysis → concrete, applyable changes with diffs
 app/api/actions/apply   dry run by default; writes only on explicit confirm
-app/api/actions/undo    restores a snippet, deletes a comment, puts a thumbnail back
+app/api/actions/undo    restores snippets, comments, thumbnails, localizations
+app/api/patrol/scan     recent uploads → flagged scam/spam comments with reasons
+app/api/patrol/moderate bulk setModerationStatus, dry-run-by-default, reversible
 app/api/channel         channel + last 20 uploads + performance metrics
 app/api/plan            channel-wide demand + performance → next-video plan
 lib/                    pure, tested logic (parsing, clustering, prompts, validation,
-                        chapter mining, channel metrics, action building)
+                        chapter mining, channel metrics, action building, scam
+                        detection, retention dip analysis, clip suggestion,
+                        localization targeting)
 ```
 
 Design choices worth noting:
@@ -156,7 +189,18 @@ Design choices worth noting:
   at predictable URLs, so frame extraction needs no yt-dlp/ffmpeg — just HTTPS + sharp.
 - **Chapters come from viewers, not guesses**: no transcript is available, but viewers
   timestamp the moments that mattered. `lib/chapters.ts` mines those timestamps, clusters
-  ones within 20s of each other, and the model only labels moments it was given.
+  ones within 20s of each other, and the model only labels moments it was given. The same
+  mined moments power the Shorts cut list and explain retention dips.
+- **Retention dips get explained, not just found**: `lib/analytics.ts` finds where the
+  audience actually leaves (drops 3× steeper than the curve's own typical decay, skipping
+  the universal opening drop-off), then joins each dip against the comment-mined
+  timestamps within ±25s — so "10% leave at 8:24" arrives with the comment that says why.
+- **Scam detection is layered**: `lib/moderation.ts` catches the shapes scams can't write
+  around — off-platform contact lures, impersonator display names folded back from
+  styled-unicode, identical texts pasted across videos — deterministically and with
+  tests; the LLM then reads each candidate in context to clear false positives (a real
+  viewer citing a source is clean; "message me about crypto" never is). The real creator
+  can never be flagged on their own channel: the check is by channel id, not name.
 - **Performance numbers are computed, never generated**: views/day, outlier score against
   the channel's own median, cadence and runtime are calculated in `lib/channel.ts` and
   passed into the prompt as facts, so the plan can't invent a statistic.
@@ -169,19 +213,25 @@ Design choices worth noting:
 npm test
 ```
 
-85 vitest tests cover URL/ID and channel parsing, YouTube API response mapping, LLM JSON
+124 vitest tests cover URL/ID and channel parsing, YouTube API response mapping, LLM JSON
 parsing + schema validation, heuristic clustering, comment caching (incl. path-traversal
 guard), SVG overlay generation, the markdown exporter, timestamp mining and chapter rules,
 action validation (including that a reply can only ever target a comment we supplied),
-channel metrics, plan validation, and session cookie signing and tampering.
+channel metrics, plan validation, session cookie signing and tampering, scam detection
+(unicode folding, impersonation-by-id, every lure pattern, the false-positive cases),
+retention-curve dip finding and comment joins, clip suggestion, and localization
+targeting/validation. CI runs the typecheck, the suite, and a production build on every
+push.
 
 ## API quota notes
 
 A single-video analysis costs ~3 units of YouTube's 10,000/day free quota (1 per
 `videos.list`, 1 per 100 comments). A channel plan costs ~10 (channel, uploads page, two
-video hydrations, and up to five comment fetches). Writes cost 50 each and thumbnail
-uploads more, so the quota, not the tool, is the practical limit on how much you publish
-in a day. Caching keeps repeat runs free.
+video hydrations, and up to five comment fetches); a Comment Patrol sweep ~10 (channel,
+uploads, one comment page per video with comments). Analytics API reads use a separate
+quota and don't touch these numbers. Writes cost 50 each and thumbnail uploads more, so
+the quota, not the tool, is the practical limit on how much you publish in a day. Caching
+keeps repeat runs free.
 
 ## Deployment
 
@@ -219,3 +269,9 @@ falls back to the keyword-heuristic analyzer. `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_
 what turn publishing on; leave them unset and the deployment is read-only by construction.
 Whichever origin you deploy to needs its `/api/auth/callback` added to the OAuth client's
 redirect URIs — including preview URLs, if you want to sign in on one.
+
+## Contributing & license
+
+MIT — see [LICENSE](LICENSE). Contributions welcome; [CONTRIBUTING.md](CONTRIBUTING.md)
+explains the ground rules (pure `lib/`, validated LLM output, sacred write path, degrade
+don't die).

@@ -1,61 +1,140 @@
 # AudienceSignal — hackathon submission
 
 **Live deployment:** https://youtube-automation-sandy.vercel.app
-**Straight to the tool:** https://youtube-automation-sandy.vercel.app/app
+**Straight to the tool:** https://youtube-automation-sandy.vercel.app/app *(the demo runs
+with no keys and no account — every feature is visible in under a minute)*
 
-## Write-up
+## Inspiration
 
-**The problem.** A video lands, hundreds of comments arrive, and the creator is left
-scrolling. The feedback is genuinely valuable — viewers say plainly what confused them,
-what they want next, and where the title oversold the video — but it arrives as an
-unsorted stream, so most of it is never acted on. Existing tools stop at a sentiment
-score, which tells a creator how people feel and nothing about what to do.
+A video lands, hundreds of comments arrive, and the creator scrolls. The feedback is
+genuinely valuable — viewers say plainly what confused them, what they want next, where
+the title oversold it, even the exact second they lost interest — but it arrives as an
+unsorted stream, so almost none of it is acted on. Existing tools stop at a sentiment
+score: they tell a creator how people *feel* and nothing about what to *do*. And the
+tools that do plan content (vidIQ, 1of10, Spotter Studio) charge $16–69/month and still
+hand back a to-do list.
 
-**How the tool works.** Paste any public YouTube video address. AudienceSignal pulls the
-video's metadata and up to 200 top-level comments through the YouTube Data API, then runs
-them through a language model: cluster every comment into praise, complaints, requests, and
-confusion; rank three next-video ideas by how loudly the comments ask for them; draft a fix
-list for the video that's already published; and write thumbnail overlay text answering the
-most-liked complaint. It then fetches real frames from the video and composites those lines
-onto them, so the report ends with the current thumbnail beside three redrawn alternatives.
-Every claim carries a verbatim viewer quote as evidence.
+AudienceSignal's premise: the comment section already wrote your next video. Read it
+properly, show the evidence, and then — this is the part that matters — **do the work**.
 
-Then it stops advising and starts doing. Connect your channel with Google and the same
-findings arrive as finished copy the tool will publish for you: a new title, chapters mined
-from the timestamps viewers themselves left in the comments, a comment answering the most
-repeated confusion, replies to the questions people actually asked, and the new thumbnail.
-Each proposal shows its before and after and the comment it came from; you tick the ones
-you want, preview exactly what would be sent, confirm a second time, and undo from the same
-screen. Every write re-reads the video and refuses unless the connected channel owns it.
+## What it does
 
-The second mode plans forward instead of back. Point it at a channel and it reads the last
-twenty uploads, scores each against that channel's own median views a day, pulls the
-comment sections of the recent and the outperforming ones, and returns one video specified
-well enough to film — title and alternates, the spoken hook, a beat-by-beat outline, a
-paste-ready description, tags, target runtime, a publish date on the channel's own cadence,
-and what not to repeat. The performance numbers underneath it are computed, not generated,
-so the plan cannot invent a statistic.
+**Fix a video.** Paste any public YouTube URL and it returns, with a verbatim viewer
+quote under every claim: comment themes with counts; three next-video ideas ranked by
+demand; a fix list for the published video; a Shorts cut list built from the timestamps
+viewers left ("4:12 killed me" is a free highlight marker); and three thumbnail variants
+composited from real frames of the video, overlay text answering the loudest complaint.
 
-**The tech.** Next.js 14 (App Router) and TypeScript, with the API routes in the same
-process, so the whole thing installs and runs with `npm install && npm run dev`. YouTube
-Data API v3 for both directions — `videos.list`, `commentThreads.list`, `channels.list` and
-`playlistItems.list` to read; `videos.update`, `thumbnails.set`, `commentThreads.insert`,
-`comments.insert` and `comments.delete` to write — OpenRouter or OpenAI for analysis, and
-`sharp` for thumbnail compositing: SVG text layers over fetched frames, no `yt-dlp` or
-`ffmpeg`. Google OAuth, token refresh, and the signed session cookie are hand-rolled on
-`fetch` and `node:crypto`, so the dependency list is still next, react, and sharp. Fetched
-comments are cached to `data/cache/` (`/tmp` on Vercel) so repeat runs cost no quota. Every
-model response is schema-validated and coerced; if the model fails or no key is set, a
-keyword analyzer takes over, so the tool always produces a report — and without an OAuth
-client it degrades cleanly to read-only, drafting and previewing every change it can't
-publish. 85 vitest tests cover parsing, API response mapping, clustering, caching, image
-generation, chapter mining, action validation, channel metrics, and cookie signing.
+**Connect your channel and it stops advising.** The findings become finished copy it
+publishes for you through the Data API: a new title, chapters mined from viewer
+timestamps, a comment answering the top confusion, replies to real questions, the new
+thumbnail — plus your title and description **translated into the languages your
+audience actually watches in** (from your Analytics geography) and published as YouTube
+localizations. Every change shows its before/after diff and the comment it came from;
+everything previews first, publishes only after a second deliberate click, and undoes
+from the same screen.
 
-## Team info
+**The numbers meet the words.** For your own videos, the YouTube Analytics API adds the
+audience-retention curve with the sharpest drop-offs marked — and when viewers
+timestamped that exact moment, the dip arrives *explained*: "10.4% of the audience
+leaves at 8:24 — a comment says: 'at 8:14 you said battery lasted 14 hours but the chart
+shows 11'." Retention tells you where; the comments tell you why; no other tool joins
+the two.
 
-<!-- Fill this in before submitting. -->
+**Comment Patrol.** A sweep of your recent uploads for the plague every channel knows:
+impersonators wearing your channel name in styled-unicode fonts, "message me on
+WhatsApp" crypto lures, giveaway bots, paste-bots spamming the same link across videos.
+Layered detection — deterministic heuristics find candidates (unicode-folding
+impersonator names back to ASCII, catching off-platform contact patterns, counting
+identical texts across videos), then the LLM reads each in context to clear false
+positives. Tick the ones to hide and they're moderated in bulk through
+`comments.setModerationStatus`, each with a "put it back" button.
 
-- **[Your name]** — [GitHub handle] — built the whole project.
+**Plan the next one.** Point it at a channel: last 20 uploads scored against the
+channel's own median views/day, comment sections of the recent and outperforming videos
+read, and out comes one video specified well enough to film — title, spoken hook,
+beat-by-beat outline, paste-ready description, tags, runtime, a publish date on the
+channel's own cadence — with computed (never generated) statistics underneath.
+
+## How we built it
+
+Next.js 14 (App Router) + TypeScript, one process for UI and API; the runtime dependency
+list is `next`, `react`, and `sharp` — OAuth, token refresh, session cookies, the
+YouTube clients, and the LLM client are hand-rolled on `fetch` and `node:crypto`.
+
+- **YouTube Data API v3**, both directions: `videos.list`, `commentThreads.list`,
+  `channels.list`, `playlistItems.list` to read; `videos.update` (snippet *and*
+  localizations), `thumbnails.set`, `commentThreads.insert`, `comments.insert`,
+  `comments.delete`, `comments.setModerationStatus` to write.
+- **YouTube Analytics API v2** for retention curves, traffic sources, geography, and
+  subscriber conversion — fetched per-section so one failure never blanks the rest.
+- **LLM via OpenRouter or OpenAI** for clustering, drafting, translation, and scam
+  verdicts. Every response is schema-validated and coerced; any failure degrades to a
+  keyword heuristic, so the tool always produces output. Replies and moderation verdicts
+  address comments **by index into the list we supplied** — the model physically cannot
+  target a comment it invented.
+- **`sharp`** composites overlay text onto real video frames YouTube hosts at
+  predictable URLs — no yt-dlp, no ffmpeg, no video download.
+- **124 vitest tests** + CI (typecheck, suite, production build on every push). MIT
+  licensed, with a CONTRIBUTING.md that codifies the safety rules.
+
+## Challenges
+
+- **Writes on a live channel have to be boring.** `videos.update` replaces the whole
+  snippet — omit a field and YouTube wipes it. Every write re-reads the video, changes
+  only the named field, refuses unless the connected channel owns it, previews by
+  default, requires `confirm: true` plus a second UI click, and returns an undo ticket.
+- **Retention dips that mean something.** Every video loses viewers constantly; naive
+  "steepest drop" finds the opening skid. Dips only count when they fall 3× faster than
+  the curve's own typical decay, outside the first 10%, reported at the cliff's midpoint
+  — that's what makes the join to comment timestamps land within seconds.
+- **Scam detection without defaming viewers.** A fan named after the channel, or a
+  viewer linking a source, must never be auto-flagged. Impersonation checks compare
+  channel *ids* (never names), YouTube links don't count as link spam, single weak
+  signals stay under the flag threshold, and the LLM pass exists specifically to say
+  "clean."
+- **Serverless rendering details.** Vercel containers ship no fonts, so thumbnail text
+  rendered as tofu — fixed by bundling DejaVu Sans Bold and registering it with
+  fontconfig at runtime.
+
+## Accomplishments we're proud of
+
+The demo is the argument: paste a comment section, and a minute later the retention dip
+has a quote explaining it, the thumbnail is redrawn from the video's own frames, the
+scams are gone, the packaging exists in four languages — and every single claim on
+screen carries the comment that justifies it. Zero-key demo mode means a judge sees all
+of it in the first minute without creating anything.
+
+## What we learned
+
+The gap between "insight" and "done" is where creator tools die. Closing it safely —
+ownership checks, diffs, confirms, undo — turned out to be more design work than the AI,
+and it's what makes automation on someone's real channel trustworthy rather than scary.
+
+## What's next
+
+Thumbnail A/B rotation with CTR readback once YouTube exposes impressions to the
+Analytics API; a weekly patrol digest; transcript-aware chapter labels.
+
+## How it meets the requirements
+
+| Requirement | How |
+| --- | --- |
+| Automates the YouTube content pipeline | Covers six of the use cases named on the hackathon page: **thumbnail generation** (real-frame composites, published via `thumbnails.set`), **metadata & SEO** (titles, descriptions, tags, chapters, localized metadata), **analytics reporting** (retention × comments, traffic, geography), **comment moderation** (Patrol's bulk scam sweep), **clip generation** (the Shorts cut list), and comment triage/planning on top |
+| Solves a genuine pain point | The feedback loop creators skip because it's manual — closed end to end, plus the impersonation-scam plague no mainstream tool addresses |
+| Real, functional results — no mockups | Live comment fetch, real generated JPEGs, real writes to a real channel (titles, thumbnails, localizations, replies, moderation), downloadable JSON/markdown |
+| YouTube API terms & rate limits | Official endpoints only, no scraping. ~3 units per video analysis, ~10 per channel plan or patrol against the 10,000/day allowance; comment caching keeps repeat runs free; writes ride the user's own OAuth consent, gated on channel ownership and explicit confirmation |
+| Built during the hackathon window | Full history in this repo |
+
+Two things it deliberately does not do: touch a video the connected channel doesn't own
+(enforced server-side on every write, replies and moderation included), and pretend to
+pin a comment — the Data API has no pin endpoint, so it posts the comment and says
+plainly that pinning is one click in Studio.
+
+## Team
+
+- **Michael Crowley** — [@mcrowley19](https://github.com/mcrowley19) — built the whole
+  project.
 
 ## Repo
 
@@ -63,59 +142,49 @@ generation, chapter mining, action validation, channel metrics, and cookie signi
   `claude/audiencesignal-youtube-hackathon-cpyayr`)
 - Setup, environment variables, and architecture notes: [README.md](README.md)
 
-## How it meets the requirements
+## Demo video script (~2:45)
 
-| Requirement | How |
-| --- | --- |
-| Automates part of the YouTube creator workflow | Comment triage, content planning, thumbnail iteration — and then the edits themselves: titles, descriptions, chapters, thumbnails, comments and replies |
-| Solves a genuine pain point | The feedback loop creators skip because it's manual, closed end to end rather than handed back as a to-do list |
-| Actually runs and produces a real result | Live comment fetch, real generated JPEGs, real writes to a real channel, downloadable JSON and markdown report — no mockups |
-| Stays within YouTube Data API terms and rate limits | Official endpoints only, no scraping. Reads are ~3 units per analysis and ~10 per channel plan against the 10,000/day free allowance; writes go through the documented OAuth scopes with the user's own consent, are gated on channel ownership, and never fire without an explicit confirmation |
-| Built during the hackathon window | All code in this repo written during the event |
+**0:00 — Cold open, the pitch.** Screen: a real comment section scrolling fast.
+"This video has 1,800 comments. My next video idea, the reason this one underperformed,
+and the exact second people stopped watching are all in here. AudienceSignal reads them —
+and then it does the work."
 
-Two things the tool deliberately does not do: it never touches a video the connected
-channel doesn't own, and it doesn't pretend to pin a comment — the Data API has no pin
-endpoint, so it posts the comment and says plainly that pinning is still one click in
-Studio.
+**0:15 — Paste and analyze.** Paste the URL, click Analyze. While the steps run: "Video,
+then up to 200 comments through the YouTube Data API, then a language model sorts every
+one — with the receipts."
 
-## Demo video script (~3 min)
+**0:35 — Themes and the brief.** Point at counts and a quote. "Fifteen requests, twelve
+complaints — real quotes, not a summary. And three next-video ideas ranked by how loudly
+the comments ask."
 
-**0:00 — The problem.** On screen: a real YouTube comment section, scrolling fast.
-"This video has 1,800 comments. Somewhere in here is my next video idea, and the reason
-this one underperformed. I'm not going to find either by scrolling."
+**0:55 — The wow: retention × comments.** Scroll to the curve. "This is my audience
+retention from the Analytics API. It drops ten percent at 8:24 — and here's a comment
+pointing at 8:14 telling me exactly why. Studio shows you the dip; the comments explain
+it. Nothing else joins these."
 
-**0:20 — Paste and analyze.** Open AudienceSignal, paste the video URL, click Analyze.
-Let the step counter run — say what's happening: "It's pulling the video, then up to 200
-comments through the YouTube Data API, then reading them."
+**1:20 — Shorts cut list + thumbnails.** "The moments viewers timestamped become a
+Shorts cut list. And the top complaint becomes a new thumbnail — drawn on real frames of
+the video, next to the one I published."
 
-**0:45 — What the comments say.** The four theme bands land. Point at the counts.
-"Fifteen requests, twelve complaints. And these are real quotes, not a summary — every
-number here is backed by comments I can go read."
+**1:40 — Do it, for real.** Draft the changes, show a diff, tick, confirm, and refresh
+the actual YouTube watch page. "New title. Live. Chapters from the timestamps viewers
+left. And every one of these has an undo button."
 
-**1:10 — What to make next.** Scroll to the brief. Read idea one aloud with its evidence
-quote. "That's not a guess. Three people asked for that comparison in the comments, and
-it's showing me who."
+**2:05 — Speak their language.** "My analytics say a third of my audience isn't
+English-speaking. One click and the title and description exist in Spanish, Hindi, and
+Portuguese — published as real YouTube localizations."
 
-**1:35 — What to fix.** "And for the video that's already up — retitle it, pin a
-correction about the battery numbers, add chapters. Each one tied to the comment that
-asked for it."
+**2:20 — Comment Patrol.** Run the sweep. "Every channel has these — the fake me with
+the WhatsApp number, the crypto bots. Found across all my recent uploads, explained,
+hidden in bulk. Reversibly."
 
-**1:55 — Thumbnail rematch.** Click *Draw 3 variants*. "The top complaint was that the
-title oversold it. So it pulls real frames out of the video and puts honest text on them."
-Variants appear beside the current thumbnail.
+**2:40 — Close.** "From 1,800 comments to a published fix, a filmable plan, and a clean
+comment section — in minutes, on the official APIs, with an undo button. That's
+AudienceSignal."
 
-**2:15 — Do it.** Scroll to *Do it*, click *Draft the changes*. "And here's the part that
-isn't advice." Point at a diff. "New title, chapters built from the timestamps viewers left
-themselves, a reply to the top question. I tick what I want, preview it, and it goes to
-YouTube." Click through the confirmation, then show the Undo button. "And it comes back."
-
-**2:40 — Close.** Switch to *Plan the next one*. "Same idea, whole channel: what to make
-next, and why, from the numbers and the comments. Eighteen hundred comments to a published
-fix and a filmable plan, in about a minute. That's the loop."
-
-**Recording notes:** use a video with a genuinely mixed comment section — praise *and*
-complaints — or the report reads thin. For the *Do it* segment you need a video on your own
-channel, since every write is ownership-checked; a private or unlisted test upload with a
-few seeded comments works. Do a practice run first so the comments are cached and the demo
-can't be broken by a quota error mid-recording. Keep `.env.local` and the OAuth consent
-screen's account picker off camera.
+**Recording notes:** use a video with a mixed comment section or the report reads thin.
+For the publish and patrol segments you need a video on your own channel (writes are
+ownership-checked); an unlisted upload with seeded comments works. Do a practice run
+first so comments are cached and quota can't break the take. Keep `.env.local` and the
+OAuth account picker off camera. Under 3 minutes; upload to YouTube unlisted the day
+before the deadline.
