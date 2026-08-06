@@ -1,5 +1,7 @@
 import demoData from "@/examples/demo_comments.json";
 import patrolData from "@/examples/demo_patrol.json";
+import channelData from "@/examples/demo_channel.json";
+import localizationData from "@/examples/demo_localizations.json";
 import type { Comment, VideoMeta } from "./types";
 
 export const DEMO_VIDEO_ID = "DEMO";
@@ -39,6 +41,36 @@ export function getDemoRetentionCurve(): { ratio: number; watchRatio: number }[]
     points.push({ ratio, watchRatio: Math.max(0.05, Math.round(watch * 1000) / 1000) });
   }
   return points;
+}
+
+/**
+ * The bundled channel for the Plan tab: 20 uploads of the same fictional
+ * channel the other demos use, with realistic view/cadence spread and comment
+ * sections carrying real demand signals. Only the fetch layer is canned — the
+ * stats, selection, and plan drafting run through the live pipeline.
+ */
+export function getDemoChannelData(): {
+  channel: {
+    channelId: string;
+    title: string;
+    handle: string;
+    thumbnailUrl: string;
+    subscriberCount: number;
+    videoCount: number;
+    uploadsPlaylistId: string;
+  };
+  videos: VideoMeta[];
+  commentSets: { videoId: string; comments: Comment[] }[];
+} {
+  return channelData as any;
+}
+
+/** The bundled translation pack, so Speak-their-language runs without an LLM key. */
+export function getDemoLocalizations(): {
+  detectedLanguage: string;
+  localizations: { language: string; languageName: string; title: string; description: string }[];
+} {
+  return localizationData;
 }
 
 /** The bundled Comment Patrol dataset: a fictional channel with seeded scams. */

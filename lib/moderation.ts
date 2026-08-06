@@ -267,7 +267,7 @@ export type ModerationStatus = "rejected" | "heldForReview" | "published";
 
 export interface ModerationResult {
   commentId: string;
-  status: "applied" | "failed" | "dry_run";
+  status: "applied" | "failed" | "dry_run" | "simulated";
   message: string;
 }
 

@@ -75,6 +75,13 @@ export function ActionDeck({
         if (!res.ok) throw new Error(body.error ?? "Apply failed.");
         setResults(body.results);
         setArmed(false);
+        if (body.simulated) {
+          try {
+            for (const r of body.results as ActionResult[]) {
+              localStorage.setItem(`as_demo_publish_${r.id}`, new Date().toISOString());
+            }
+          } catch {}
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Apply failed.");
       } finally {
@@ -85,6 +92,18 @@ export function ActionDeck({
   );
 
   const undo = useCallback(async (result: ActionResult) => {
+    // A simulated publish gets a simulated undo: pure state, no network —
+    // the demo mirrors the real loop without ever touching YouTube.
+    if (result.status === "simulated") {
+      setUndone((prev) => ({
+        ...prev,
+        [result.id]: "Simulated undo — the demo publish is reverted; YouTube was never touched.",
+      }));
+      try {
+        localStorage.removeItem(`as_demo_publish_${result.id}`);
+      } catch {}
+      return;
+    }
     if (!result.undo) return;
     try {
       const res = await fetch("/api/actions/undo", {
@@ -175,11 +194,18 @@ export function ActionDeck({
                       <b>
                         {result.status === "applied"
                           ? "Published"
-                          : result.status === "dry_run"
-                            ? "Preview"
-                            : "Failed"}
+                          : result.status === "simulated"
+                            ? "Simulated"
+                            : result.status === "dry_run"
+                              ? "Preview"
+                              : "Failed"}
                       </b>{" "}
                       {undone[result.id] ?? result.message}
+                      {result.verified && result.status === "applied" && !undone[result.id] && (
+                        <span className="dverified">
+                          Verified live: re-read from YouTube after the write.
+                        </span>
+                      )}
                       {result.url && result.status === "applied" && (
                         <>
                           {" "}
@@ -188,9 +214,9 @@ export function ActionDeck({
                           </a>
                         </>
                       )}
-                      {result.undo && !undone[result.id] && (
+                      {(result.undo || result.status === "simulated") && !undone[result.id] && (
                         <button className="textlink" onClick={() => undo(result)}>
-                          Undo this
+                          {result.status === "simulated" ? "Undo this (simulated)" : "Undo this"}
                         </button>
                       )}
                     </div>
@@ -205,9 +231,15 @@ export function ActionDeck({
               {applying && !armed ? "Checking…" : `Preview ${chosenCount} change${chosenCount === 1 ? "" : "s"}`}
             </button>
             {isDemo ? (
-              <span className="deckwarn">
-                The demo dataset isn't a real video — analyze one of your own to publish changes.
-              </span>
+              armed ? (
+                <button className="go danger" onClick={() => send(true)} disabled={applying}>
+                  {applying ? "Simulating…" : `Yes — simulate publishing ${chosenCount}`}
+                </button>
+              ) : (
+                <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
+                  Simulated publish (demo) — {chosenCount} change{chosenCount === 1 ? "" : "s"}
+                </button>
+              )
             ) : !connected ? (
               <span className="deckwarn">
                 Connect your channel above to publish these. Until then this is a preview.
@@ -227,8 +259,17 @@ export function ActionDeck({
           </div>
           {armed && (
             <p className="deckarmed">
-              This writes to <b>{video.title}</b> on YouTube for real. Anything you can undo gets an
-              undo button next to it afterwards.
+              {isDemo ? (
+                <>
+                  This is the bundled demo dataset, so the publish is <b>simulated</b>: the full
+                  confirm-and-undo loop runs, and nothing is ever sent to YouTube.
+                </>
+              ) : (
+                <>
+                  This writes to <b>{video.title}</b> on YouTube for real. Anything you can undo gets
+                  an undo button next to it afterwards.
+                </>
+              )}
             </p>
           )}
           {postedComment && (

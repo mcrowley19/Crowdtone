@@ -91,6 +91,10 @@ export function LocalizePanel({
   );
 
   const undo = useCallback(async () => {
+    if (result?.status === "simulated") {
+      setUndone("Simulated undo — the demo publish is reverted; YouTube was never touched.");
+      return;
+    }
     if (!result?.undo) return;
     try {
       const res = await fetch("/api/actions/undo", {
@@ -180,9 +184,11 @@ export function LocalizePanel({
               <b>
                 {result.status === "applied"
                   ? "Published"
-                  : result.status === "dry_run"
-                    ? "Preview"
-                    : "Failed"}
+                  : result.status === "simulated"
+                    ? "Simulated"
+                    : result.status === "dry_run"
+                      ? "Preview"
+                      : "Failed"}
               </b>{" "}
               {undone ?? result.message}
               {result.url && result.status === "applied" && (
@@ -193,9 +199,9 @@ export function LocalizePanel({
                   </a>
                 </>
               )}
-              {result.undo && !undone && (
+              {(result.undo || result.status === "simulated") && !undone && (
                 <button className="textlink" onClick={undo}>
-                  Undo this
+                  {result.status === "simulated" ? "Undo this (simulated)" : "Undo this"}
                 </button>
               )}
             </div>
@@ -206,9 +212,15 @@ export function LocalizePanel({
               {applying && !armed ? "Checking…" : `Preview ${chosenCount} language${chosenCount === 1 ? "" : "s"}`}
             </button>
             {isDemo ? (
-              <span className="deckwarn">
-                The demo dataset isn&rsquo;t a real video — analyze one of your own to publish.
-              </span>
+              armed ? (
+                <button className="go danger" onClick={() => publish(true)} disabled={applying}>
+                  {applying ? "Simulating…" : `Yes — simulate publishing ${chosenCount}`}
+                </button>
+              ) : (
+                <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
+                  Simulated publish (demo) — {chosenCount} language{chosenCount === 1 ? "" : "s"}
+                </button>
+              )
             ) : !connected ? (
               <span className="deckwarn">Connect your channel above to publish these.</span>
             ) : armed ? (
@@ -226,8 +238,18 @@ export function LocalizePanel({
           </div>
           {armed && (
             <p className="deckarmed">
-              This adds localized metadata to <b>{video.title}</b> on YouTube. The original title and
-              description are untouched — localizations sit alongside them, and undo removes them.
+              {isDemo ? (
+                <>
+                  This is the bundled demo dataset, so the publish is <b>simulated</b> — nothing is
+                  sent to YouTube.
+                </>
+              ) : (
+                <>
+                  This adds localized metadata to <b>{video.title}</b> on YouTube. The original title
+                  and description are untouched — localizations sit alongside them, and undo removes
+                  them.
+                </>
+              )}
             </p>
           )}
         </>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getDemoLocalizations, isDemoId } from "@/lib/demo";
 import { draftLocalizations, pickTargetLanguages, LANGUAGE_NAME } from "@/lib/localize";
 import { getLLMConfig } from "@/lib/llm";
 import type { ProposedAction, VideoMeta } from "@/lib/types";
@@ -21,6 +22,36 @@ export async function POST(req: NextRequest) {
   if (!video?.videoId || !video?.title) {
     return NextResponse.json({ error: "No video to localize." }, { status: 400 });
   }
+
+  // The demo video ships a bundled translation pack, so this surface works
+  // with no LLM key. Clearly labeled: the response carries demo: true and the
+  // UI says so.
+  if (isDemoId(video.videoId)) {
+    const pack = getDemoLocalizations();
+    const action: ProposedAction = {
+      id: "set_localizations",
+      kind: "set_localizations",
+      label: `Publish the packaging in ${pack.localizations.map((l) => l.languageName).join(", ")}`,
+      rationale: "Bundled demo translations — on a real video these are drafted by the model from your Analytics geography.",
+      before: "Title and description exist only in the original language.",
+      after: pack.localizations.map((l) => `${l.languageName}: “${l.title}”`).join("\n"),
+      payload: {
+        localizations: Object.fromEntries(
+          pack.localizations.map((l) => [l.language, { title: l.title, description: l.description }])
+        ),
+        detectedLanguage: pack.detectedLanguage,
+      },
+      source: "heuristic",
+    };
+    return NextResponse.json({
+      languages: pack.localizations.map((l) => ({ code: l.language, name: l.languageName })),
+      localizations: pack.localizations,
+      detectedLanguage: pack.detectedLanguage,
+      action,
+      demo: true,
+    });
+  }
+
   if (!getLLMConfig()) {
     return NextResponse.json(
       {

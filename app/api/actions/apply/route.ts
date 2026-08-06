@@ -9,6 +9,19 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
+function simulatedMessage(action: ProposedAction): string {
+  const outcome: Partial<Record<ProposedAction["kind"], string>> = {
+    retitle: `The title would now be “${action.payload?.title ?? ""}”.`,
+    add_chapters: `${action.payload?.chapters?.length ?? 0} chapters would be written into the description.`,
+    update_description: "The description would be updated.",
+    set_thumbnail: "The new thumbnail would be uploaded.",
+    post_comment: "The comment would be posted (pinning is still a Studio click).",
+    reply_to_comment: `The reply to ${action.payload?.parentAuthor ?? "the viewer"} would be posted.`,
+    set_localizations: `Localized packaging would be published for: ${Object.keys(action.payload?.localizations ?? {}).join(", ")}.`,
+  };
+  return `Simulated publish — this is the bundled demo dataset, nothing was sent to YouTube. ${outcome[action.kind] ?? ""}`;
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const videoId: string = typeof body?.videoId === "string" ? body.videoId : "";
@@ -35,11 +48,19 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // The demo dataset publishes in simulation: every action "lands" with the
+  // exact message and diff a real publish would produce, nothing reaches
+  // YouTube, and the result says so in so many words.
   if (isDemoId(videoId)) {
-    return NextResponse.json(
-      { error: "The demo dataset isn't a real video — connect a channel and analyze one of your own.", code: "demo" },
-      { status: 400 }
-    );
+    return NextResponse.json({
+      simulated: true,
+      results: actions.map((a) => ({
+        id: a.id,
+        kind: a.kind,
+        status: "simulated" as const,
+        message: simulatedMessage(a),
+      })),
+    });
   }
 
   try {

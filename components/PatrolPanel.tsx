@@ -63,7 +63,7 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
         const res = await fetch("/api/patrol/moderate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ commentIds: ids, status: "rejected", confirm }),
+          body: JSON.stringify({ commentIds: ids, status: "rejected", confirm, demo: data.demo }),
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error ?? "Moderation failed.");
@@ -81,6 +81,14 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
   );
 
   const restore = useCallback(async (commentId: string) => {
+    // Simulated hides get simulated restores — pure state, no network.
+    if (results[commentId]?.status === "simulated") {
+      setRestored((prev) => ({
+        ...prev,
+        [commentId]: "Simulated restore — the demo comment is back; YouTube was never touched.",
+      }));
+      return;
+    }
     try {
       const res = await fetch("/api/patrol/moderate", {
         method: "POST",
@@ -95,7 +103,7 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Restore failed.");
     }
-  }, []);
+  }, [results]);
 
   const toggle = (id: string) =>
     setSelected((prev) => {
@@ -195,16 +203,21 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
                             <b>
                               {result.status === "applied"
                                 ? "Hidden"
-                                : result.status === "dry_run"
-                                  ? "Preview"
-                                  : "Failed"}
+                                : result.status === "simulated"
+                                  ? "Simulated"
+                                  : result.status === "dry_run"
+                                    ? "Preview"
+                                    : "Failed"}
                             </b>{" "}
                             {restored[f.comment.id] ?? result.message}
-                            {result.status === "applied" && !restored[f.comment.id] && (
-                              <button className="textlink" onClick={() => restore(f.comment.id)}>
-                                Put it back
-                              </button>
-                            )}
+                            {(result.status === "applied" || result.status === "simulated") &&
+                              !restored[f.comment.id] && (
+                                <button className="textlink" onClick={() => restore(f.comment.id)}>
+                                  {result.status === "simulated"
+                                    ? "Put it back (simulated)"
+                                    : "Put it back"}
+                                </button>
+                              )}
                           </div>
                         )}
                       </div>
@@ -219,10 +232,15 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
                       : `Preview hiding ${chosenCount} comment${chosenCount === 1 ? "" : "s"}`}
                   </button>
                   {data.demo ? (
-                    <span className="deckwarn">
-                      These are the bundled demo comments, not a real channel — connect yours to
-                      moderate for real.
-                    </span>
+                    armed ? (
+                      <button className="go danger" onClick={() => moderate(true)} disabled={applying}>
+                        {applying ? "Simulating…" : `Yes — simulate hiding ${chosenCount}`}
+                      </button>
+                    ) : (
+                      <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
+                        Simulated hide (demo) — {chosenCount} comment{chosenCount === 1 ? "" : "s"}
+                      </button>
+                    )
                   ) : armed ? (
                     <button className="go danger" onClick={() => moderate(true)} disabled={applying}>
                       {applying ? "Hiding…" : `Yes — hide ${chosenCount} from YouTube now`}
@@ -235,8 +253,18 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
                 </div>
                 {armed && (
                   <p className="deckarmed">
-                    This sets each ticked comment to <b>rejected</b> on YouTube — viewers stop seeing
-                    it immediately. Every one gets a &ldquo;put it back&rdquo; button afterwards.
+                    {data.demo ? (
+                      <>
+                        These are the bundled demo comments, so the hide is <b>simulated</b> —
+                        nothing is sent to YouTube.
+                      </>
+                    ) : (
+                      <>
+                        This sets each ticked comment to <b>rejected</b> on YouTube — viewers stop
+                        seeing it immediately. Every one gets a &ldquo;put it back&rdquo; button
+                        afterwards.
+                      </>
+                    )}
                   </p>
                 )}
                 {applied && (

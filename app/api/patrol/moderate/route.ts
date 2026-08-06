@@ -32,6 +32,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "status must be rejected, heldForReview, or published." }, { status: 400 });
   }
 
+  // The demo channel's flagged comments moderate in simulation — the full
+  // confirm loop runs, the result says "simulated", and no session is needed
+  // because no write can happen.
+  if (body?.demo === true) {
+    const verb = status === "published" ? "restored" : "hidden";
+    return NextResponse.json({
+      simulated: true,
+      results: ids.map((commentId: string) => ({
+        commentId,
+        status: confirm ? ("simulated" as const) : ("dry_run" as const),
+        message: confirm
+          ? `Simulated — this demo comment would be ${verb}. Nothing was sent to YouTube.`
+          : `Would be ${verb} — nothing was sent to YouTube.`,
+      })),
+    });
+  }
+
   try {
     const { session, changed } = await requireSession(req);
     const results = await setModerationStatus(session.accessToken, ids, status, !confirm);

@@ -129,9 +129,14 @@ export type UndoTicket =
 export interface ActionResult {
   id: string;
   kind: ActionKind;
-  status: "applied" | "failed" | "dry_run";
+  /** "simulated" is the demo dataset's publish: the full pipeline runs and the
+   * UI shows the outcome, but nothing is sent to YouTube — and the UI says so. */
+  status: "applied" | "failed" | "dry_run" | "simulated";
   message: string;
   /** Deep link to the thing that changed, when there is one. */
   url?: string;
   undo?: UndoTicket;
+  /** Set after a real publish: the snippet re-read from YouTube, proving the
+   * change landed rather than assuming it. */
+  verified?: { title: string; description: string };
 }

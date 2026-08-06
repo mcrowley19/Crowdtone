@@ -7,6 +7,7 @@ import {
   parseChannelInput,
 } from "@/lib/channel";
 import { resolveChannelAuth, setSessionCookie } from "@/lib/authserver";
+import { getDemoChannelData, getDemoComments, getDemoVideo } from "@/lib/demo";
 import { buildNextVideoPlan, selectVideosForPlan, type VideoComments } from "@/lib/plan";
 import { readCachedComments, writeCachedComments } from "@/lib/cache";
 import { YouTubeApiError } from "@/lib/youtube";
@@ -21,6 +22,35 @@ const COMMENTS_PER_VIDEO = 100;
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const input = typeof body?.input === "string" ? body.input.trim() : "";
+
+  // The bundled channel demo needs no keys and no auth. Only the fetch layer
+  // is canned: stats, video selection, and the plan itself run the same code
+  // as a live channel (including the LLM, when a key is configured).
+  if (input.toUpperCase() === "DEMO") {
+    const demo = getDemoChannelData();
+    const stats = computeChannelStats(demo.videos as any);
+    const sets: VideoComments[] = [
+      { video: getDemoVideo(), comments: getDemoComments() },
+      ...demo.commentSets.map((s) => ({
+        video: demo.videos.find((v) => v.videoId === s.videoId)!,
+        comments: s.comments,
+      })),
+    ];
+    const plan = await buildNextVideoPlan(demo.channel as any, stats, sets);
+    return NextResponse.json({
+      channel: demo.channel,
+      stats,
+      plan,
+      videosRead: sets.map((s) => ({
+        videoId: s.video.videoId,
+        title: s.video.title,
+        comments: s.comments.length,
+      })),
+      owned: false,
+      demo: true,
+    });
+  }
+
   const { auth, session, refreshed, reason } = await resolveChannelAuth(req, input);
 
   if (!auth) {

@@ -1,0 +1,387 @@
+{
+  "channel": {
+    "channelId": "UCdemo000000000000000000",
+    "title": "Tech World",
+    "handle": "@techworld",
+    "thumbnailUrl": "",
+    "subscriberCount": 214000,
+    "videoCount": 187,
+    "uploadsPlaylistId": "UUdemo000000000000000000"
+  },
+  "videos": [
+    {
+      "videoId": "DEMO",
+      "title": "I Used the M4 MacBook Pro for 30 Days — Honest Review",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 2075,
+      "thumbnailUrl": "",
+      "viewCount": 10080,
+      "likeCount": 413,
+      "commentCount": 1874,
+      "publishedAt": "2026-08-01T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "DEMOPATROL3",
+      "title": "The Truth About Phone Battery Health",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1140,
+      "thumbnailUrl": "",
+      "viewCount": 10560,
+      "likeCount": 433,
+      "commentCount": 342,
+      "publishedAt": "2026-07-26T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "DEMOPATROL2",
+      "title": "Why Your Wi-Fi Is Slow (and the 10-Minute Fix)",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 924,
+      "thumbnailUrl": "",
+      "viewCount": 52200,
+      "likeCount": 2140,
+      "commentCount": 641,
+      "publishedAt": "2026-07-19T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "DEMOPATROL1",
+      "title": "I Tested 5 Budget Laptops So You Don't Have To",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1493,
+      "thumbnailUrl": "",
+      "viewCount": 34320,
+      "likeCount": 1407,
+      "commentCount": 388,
+      "publishedAt": "2026-07-12T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000005",
+      "title": "USB-C Explained: Why Every Cable Is Different",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 812,
+      "thumbnailUrl": "",
+      "viewCount": 31320,
+      "likeCount": 1284,
+      "commentCount": 197,
+      "publishedAt": "2026-07-05T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000006",
+      "title": "My Desk Setup Tour 2026",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1030,
+      "thumbnailUrl": "",
+      "viewCount": 25920,
+      "likeCount": 1063,
+      "commentCount": 254,
+      "publishedAt": "2026-06-28T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000007",
+      "title": "Stop Buying These 7 Tech Gadgets",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1122,
+      "thumbnailUrl": "",
+      "viewCount": 92880,
+      "likeCount": 3808,
+      "commentCount": 503,
+      "publishedAt": "2026-06-21T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000008",
+      "title": "Mechanical Keyboards: A Beginner's Guide",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1345,
+      "thumbnailUrl": "",
+      "viewCount": 48000,
+      "likeCount": 1968,
+      "commentCount": 211,
+      "publishedAt": "2026-06-14T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000009",
+      "title": "The $99 Phone That Shouldn't Exist",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1010,
+      "thumbnailUrl": "",
+      "viewCount": 232560,
+      "likeCount": 9535,
+      "commentCount": 887,
+      "publishedAt": "2026-06-07T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000010",
+      "title": "How I Edit My Videos (Full Workflow)",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1710,
+      "thumbnailUrl": "",
+      "viewCount": 38400,
+      "likeCount": 1574,
+      "commentCount": 176,
+      "publishedAt": "2026-05-31T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000011",
+      "title": "Is 8GB of RAM Enough in 2026?",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 890,
+      "thumbnailUrl": "",
+      "viewCount": 119280,
+      "likeCount": 4890,
+      "commentCount": 465,
+      "publishedAt": "2026-05-24T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000012",
+      "title": "E-Waste: Where Your Old Phone Actually Goes",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1260,
+      "thumbnailUrl": "",
+      "viewCount": 65520,
+      "likeCount": 2686,
+      "commentCount": 231,
+      "publishedAt": "2026-05-17T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000013",
+      "title": "I Switched to Linux for a Month",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1543,
+      "thumbnailUrl": "",
+      "viewCount": 224400,
+      "likeCount": 9200,
+      "commentCount": 758,
+      "publishedAt": "2026-05-10T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000014",
+      "title": "The Best Budget Monitor Just Got Cheaper",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 745,
+      "thumbnailUrl": "",
+      "viewCount": 110400,
+      "likeCount": 4526,
+      "commentCount": 189,
+      "publishedAt": "2026-05-03T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000015",
+      "title": "Every Charger Wattage, Tested",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 980,
+      "thumbnailUrl": "",
+      "viewCount": 106920,
+      "likeCount": 4384,
+      "commentCount": 204,
+      "publishedAt": "2026-04-26T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000016",
+      "title": "Why Smart Homes Still Feel Dumb",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1188,
+      "thumbnailUrl": "",
+      "viewCount": 152640,
+      "likeCount": 6258,
+      "commentCount": 356,
+      "publishedAt": "2026-04-19T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000017",
+      "title": "This 60-Second Fix Doubled My Download Speed",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 58,
+      "thumbnailUrl": "",
+      "viewCount": 352560,
+      "likeCount": 14455,
+      "commentCount": 611,
+      "publishedAt": "2026-04-12T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000018",
+      "title": "Mini PC vs Laptop: What Should You Buy?",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 1075,
+      "thumbnailUrl": "",
+      "viewCount": 158400,
+      "likeCount": 6494,
+      "commentCount": 298,
+      "publishedAt": "2026-04-05T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000019",
+      "title": "The Cheapest SSD on Amazon, Torn Down",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 995,
+      "thumbnailUrl": "",
+      "viewCount": 121920,
+      "likeCount": 4999,
+      "commentCount": 226,
+      "publishedAt": "2026-03-29T14:00:00.000Z",
+      "source": "demo"
+    },
+    {
+      "videoId": "demo0000020",
+      "title": "One Setting Every New Phone Gets Wrong",
+      "channelTitle": "Tech World",
+      "channelId": "UCdemo000000000000000000",
+      "description": "",
+      "durationSeconds": 61,
+      "thumbnailUrl": "",
+      "viewCount": 321600,
+      "likeCount": 13186,
+      "commentCount": 542,
+      "publishedAt": "2026-03-22T14:00:00.000Z",
+      "source": "demo"
+    }
+  ],
+  "commentSets": [
+    {
+      "videoId": "DEMOPATROL3",
+      "comments": [
+        {
+          "id": "cs1",
+          "author": "Priya Nair",
+          "text": "Please make one about laptop batteries next — does the 80% rule apply there too?",
+          "likeCount": 177,
+          "publishedAt": "2026-07-28T08:12:00Z"
+        },
+        {
+          "id": "cs2",
+          "author": "Jonah B",
+          "text": "Can you do a video on wireless charging? Is it really worse for battery health?",
+          "likeCount": 94,
+          "publishedAt": "2026-07-28T10:30:00Z"
+        },
+        {
+          "id": "cs3",
+          "author": "Femi A",
+          "text": "This advice works. Charging to 80% kept my phone at 96% health after a year.",
+          "likeCount": 402,
+          "publishedAt": "2026-07-29T09:00:00Z"
+        },
+        {
+          "id": "cs4",
+          "author": "Sara Lindgren",
+          "text": "What about iPhones vs Android, do they manage charging differently? Would love a comparison.",
+          "likeCount": 61,
+          "publishedAt": "2026-07-30T12:45:00Z"
+        }
+      ]
+    },
+    {
+      "videoId": "DEMOPATROL2",
+      "comments": [
+        {
+          "id": "cs5",
+          "author": "Hannah Reyes",
+          "text": "The channel-switching tip at 4:12 legitimately doubled my speed. Do a follow-up on mesh systems please!",
+          "likeCount": 312,
+          "publishedAt": "2026-07-20T09:40:00Z"
+        },
+        {
+          "id": "cs6",
+          "author": "Lena Fischer",
+          "text": "Wait, does this apply to mesh systems too or just single routers? Bit confused about the last section.",
+          "likeCount": 64,
+          "publishedAt": "2026-07-21T12:55:00Z"
+        },
+        {
+          "id": "cs7",
+          "author": "Marco T",
+          "text": "Can you test powerline adapters next? Nobody covers whether they're still worth it.",
+          "likeCount": 128,
+          "publishedAt": "2026-07-21T15:20:00Z"
+        },
+        {
+          "id": "cs8",
+          "author": "Dev Prakash",
+          "text": "More networking content please, this was the clearest explanation I've seen.",
+          "likeCount": 87,
+          "publishedAt": "2026-07-22T08:10:00Z"
+        }
+      ]
+    },
+    {
+      "videoId": "demo0000009",
+      "comments": [
+        {
+          "id": "cs9",
+          "author": "Tomás Herrera",
+          "text": "Would love a 6-month follow-up on this phone. Did it survive?",
+          "likeCount": 233,
+          "publishedAt": "2026-06-10T10:00:00Z"
+        },
+        {
+          "id": "cs10",
+          "author": "Aoife K",
+          "text": "Please do the $150 tablet next, same energy as this video!",
+          "likeCount": 190,
+          "publishedAt": "2026-06-11T14:20:00Z"
+        },
+        {
+          "id": "cs11",
+          "author": "Viktor S",
+          "text": "How is the camera in low light? You only showed daylight shots.",
+          "likeCount": 76,
+          "publishedAt": "2026-06-12T09:30:00Z"
+        }
+      ]
+    }
+  ]
+}

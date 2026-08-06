@@ -11,6 +11,7 @@ interface PlanResponse {
   stats: ChannelStats;
   plan: NextVideoPlan;
   videosRead: { videoId: string; title: string; comments: number }[];
+  demo?: boolean;
 }
 
 export function NextVideoPanel({ connected }: { connected: boolean }) {
@@ -83,6 +84,9 @@ export function NextVideoPanel({ connected }: { connected: boolean }) {
           </button>
         </div>
       </form>
+      <button className="textlink" onClick={() => run("DEMO")} disabled={loading}>
+        No keys yet? Plan the bundled demo channel.
+      </button>
 
       {loading && <p className="statusline">Reading the channel, its numbers, and its comment sections</p>}
       {error && <div className="errorline">{error}</div>}
@@ -93,7 +97,10 @@ export function NextVideoPanel({ connected }: { connected: boolean }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {data.channel.thumbnailUrl && <img src={data.channel.thumbnailUrl} alt="" />}
             <div>
-              <div className="vtitle">{data.channel.title}</div>
+              <div className="vtitle">
+                {data.channel.title}
+                {data.demo && <span className="stamp">Demo data</span>}
+              </div>
               <div className="byline">
                 {fmt.format(data.channel.subscriberCount)} subscribers &middot;{" "}
                 {fmt.format(data.channel.videoCount)} videos &middot; last {data.stats.videos.length}{" "}
