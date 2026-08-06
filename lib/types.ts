@@ -67,7 +67,10 @@ export interface ThumbnailVariant {
   dataUrl: string;
   style: string;
   text: string;
-  frameSource: "video-frame" | "generated";
+  /** "yt-still": one of the preview stills YouTube publishes for the video
+   * (maxres1–3 and fallbacks) — real imagery from the video, but YouTube's
+   * three fixed picks, not arbitrary frame extraction. */
+  frameSource: "yt-still" | "generated";
 }
 
 /* ---- actions: the things AudienceSignal can do to a video, not just say ---- */

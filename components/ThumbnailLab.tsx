@@ -26,8 +26,12 @@ export function ThumbnailLab({
             ? "Drawing…"
             : variants.length
               ? "Redraw variants"
-              : "Draw 3 variants from video frames"}
+              : "Draw 3 variants from YouTube's preview stills"}
         </button>
+        <p className="drationale" style={{ margin: "8px 0 0" }}>
+          Backgrounds are the preview stills YouTube publishes for every public video —
+          real imagery from the video, though YouTube picks the three moments, not us.
+        </p>
       </div>
       <div className="thumbrow">
         <figure>
@@ -43,7 +47,7 @@ export function ThumbnailLab({
             <img src={v.dataUrl} alt={`Variant ${i + 1}: ${v.text}`} />
             <figcaption>
               <b>Variant {i + 1}.</b> &ldquo;{v.text}&rdquo; &middot;{" "}
-              {v.frameSource === "video-frame" ? `real frame ${i + 1}` : "drawn background"}
+              {v.frameSource === "yt-still" ? `YouTube preview still ${i + 1}` : "drawn background"}
             </figcaption>
           </figure>
         ))}

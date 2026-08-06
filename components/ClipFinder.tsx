@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { suggestClips, TONE_LABEL } from "@/lib/clips";
+import { buildHandoffFiles } from "@/lib/handoff";
 import type { Comment, VideoMeta } from "@/lib/types";
 
 /**
@@ -29,6 +30,17 @@ export function ClipFinder({
     await navigator.clipboard.writeText(text);
     setCopied(i);
     setTimeout(() => setCopied(null), 1600);
+  };
+
+  const downloadHandoff = () => {
+    for (const file of buildHandoffFiles(video.title, video.videoId, clips)) {
+      const blob = new Blob([file.content], { type: file.mime });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
   };
 
   return (
@@ -60,9 +72,16 @@ export function ClipFinder({
           </div>
         ))}
       </div>
+      <div className="thumbactions">
+        <button className="go" onClick={downloadHandoff}>
+          Download the editor handoff pack
+        </button>
+      </div>
       <p className="drationale" style={{ margin: "10px 0 0" }}>
-        Cut them in your editor or YouTube&rsquo;s own clip tool — the Data API can&rsquo;t upload
-        Shorts on your behalf, so this stops honestly at the cut list.
+        Three files: a marker CSV Premiere and Resolve import directly, a CMX3600 EDL with the
+        cuts laid back to back, and a caption pack opening each Short on the viewer quote that
+        earned it. This app doesn&rsquo;t render video — the Data API can&rsquo;t upload Shorts —
+        so it stops honestly at a handoff your editor opens in one step.
       </p>
     </section>
   );

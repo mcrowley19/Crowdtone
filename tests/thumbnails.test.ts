@@ -64,3 +64,29 @@ describe("fallbackBackgroundSvg", () => {
     expect(fallbackBackgroundSvg(0)).toContain("<svg");
   });
 });
+
+import { scrimOpacityFor, textRegionFor } from "@/lib/thumbnails";
+
+describe("luminance-aware scrims", () => {
+  it("weights the veil by how bright the frame is under the text", () => {
+    // Dark frame: barely any veil on the center style, light gradient.
+    expect(scrimOpacityFor("big-center", 40)).toBeLessThan(0.2);
+    expect(scrimOpacityFor("gradient-bar", 40)).toBeLessThan(0.85);
+    // Bright frame: heavy veil so white type keeps contrast.
+    expect(scrimOpacityFor("big-center", 220)).toBeGreaterThan(0.45);
+    expect(scrimOpacityFor("gradient-bar", 220)).toBeGreaterThanOrEqual(0.95);
+    // The callout box carries its own solid background; only bright frames
+    // get a soft shadow under it.
+    expect(scrimOpacityFor("callout-box", 40)).toBe(0);
+    expect(scrimOpacityFor("callout-box", 220)).toBeGreaterThan(0.2);
+  });
+
+  it("measures the region each style actually covers", () => {
+    const bar = textRegionFor("gradient-bar");
+    expect(bar.top).toBeGreaterThan(300); // bottom band
+    const box = textRegionFor("callout-box");
+    expect(box.top).toBe(0); // top-left
+    const center = textRegionFor("big-center");
+    expect(center.left).toBeGreaterThan(0); // middle
+  });
+});

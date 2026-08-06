@@ -5,9 +5,11 @@ export const THUMB_W = 1280;
 export const THUMB_H = 720;
 
 /**
- * YouTube hosts real frames from every public video at predictable URLs:
- * maxres1/2/3.jpg (1280x720), sd1/2/3.jpg (640x480), hq1/2/3.jpg (480x360).
- * We try highest-res first. No yt-dlp/ffmpeg needed — works with plain HTTPS.
+ * YouTube publishes three preview stills for every public video at
+ * predictable URLs: maxres1/2/3.jpg (1280x720), sd1/2/3.jpg, hq1/2/3.jpg.
+ * We try highest-res first. These are real imagery from the video, but they
+ * are YouTube's three fixed picks — this app does not do arbitrary frame
+ * extraction (that would need the video bytes), and its UI and README say so.
  */
 export function frameUrlCandidates(videoId: string, frame: 1 | 2 | 3): string[] {
   return [
@@ -56,9 +58,38 @@ const FONT = `'DejaVu Sans', Arial, Helvetica, sans-serif`;
 export const OVERLAY_STYLES = ["gradient-bar", "callout-box", "big-center"] as const;
 export type OverlayStyle = (typeof OVERLAY_STYLES)[number];
 
-/** Builds the SVG layer composited over a frame. Three distinct looks. */
-export function buildOverlaySvg(text: string, style: OverlayStyle, w = THUMB_W, h = THUMB_H): string {
+/** The region of the frame each style lays text over — measured, not guessed. */
+export function textRegionFor(style: OverlayStyle, w = THUMB_W, h = THUMB_H) {
+  if (style === "gradient-bar") return { left: 0, top: Math.round(h * 0.55), width: w, height: Math.round(h * 0.45) };
+  if (style === "callout-box") return { left: 0, top: 0, width: Math.round(w * 0.6), height: Math.round(h * 0.45) };
+  return { left: Math.round(w * 0.15), top: Math.round(h * 0.2), width: Math.round(w * 0.7), height: Math.round(h * 0.6) };
+}
+
+/**
+ * How hard the scrim under the text has to work, given the measured mean
+ * luminance (0–255) of the region the text sits on. A bright frame needs a
+ * heavier veil for white type to hold contrast; a dark frame barely needs one.
+ */
+export function scrimOpacityFor(style: OverlayStyle, luminance: number): number {
+  const t = Math.min(1, Math.max(0, (luminance - 60) / 140));
+  if (style === "gradient-bar") return Math.round((0.82 + t * 0.16) * 100) / 100;
+  if (style === "big-center") return Math.round((0.16 + t * 0.32) * 100) / 100;
+  // callout-box text sits on its own solid box; the scrim is a soft shadow
+  // under the box on bright frames only.
+  return Math.round(t * 0.25 * 100) / 100;
+}
+
+/** Builds the SVG layer composited over a frame. Three distinct looks, each
+ * with its scrim weighted by the measured luminance under the text. */
+export function buildOverlaySvg(
+  text: string,
+  style: OverlayStyle,
+  w = THUMB_W,
+  h = THUMB_H,
+  luminance = 110
+): string {
   const lines = wrapText(text);
+  const scrim = scrimOpacityFor(style, luminance);
 
   if (style === "gradient-bar") {
     const size = 92;
@@ -73,7 +104,7 @@ export function buildOverlaySvg(text: string, style: OverlayStyle, w = THUMB_W, 
     return `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
   <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#000" stop-opacity="0"/>
-    <stop offset="1" stop-color="#000" stop-opacity="0.92"/>
+    <stop offset="1" stop-color="#000" stop-opacity="${scrim}"/>
   </linearGradient></defs>
   <rect x="0" y="${h - blockH - 120}" width="${w}" height="${blockH + 120}" fill="url(#g)"/>
   <rect x="64" y="${h - blockH - 26}" width="120" height="10" fill="#facc15"/>
@@ -93,6 +124,7 @@ export function buildOverlaySvg(text: string, style: OverlayStyle, w = THUMB_W, 
       .map((l, i) => `<tspan x="88" y="${88 + (i + 1) * lineHeight - 24}">${escapeXml(l)}</tspan>`)
       .join("");
     return `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+  ${scrim > 0 ? `<rect x="60" y="62" width="${boxW}" height="${boxH}" rx="18" fill="#000" opacity="${scrim}"/>` : ""}
   <rect x="48" y="48" width="${boxW}" height="${boxH}" rx="18" fill="#dc2626" opacity="0.96"/>
   <rect x="48" y="48" width="${boxW}" height="${boxH}" rx="18" fill="none" stroke="#ffffff" stroke-width="6"/>
   <text font-family="${FONT}" font-size="${size}" font-weight="800" fill="#ffffff">${tspans}</text>
@@ -108,7 +140,7 @@ export function buildOverlaySvg(text: string, style: OverlayStyle, w = THUMB_W, 
     .map((l, i) => `<tspan x="${w / 2}" y="${startY + i * lineHeight}">${escapeXml(l)}</tspan>`)
     .join("");
   return `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="${w}" height="${h}" fill="#000" opacity="0.28"/>
+  <rect x="0" y="0" width="${w}" height="${h}" fill="#000" opacity="${scrim}"/>
   <text text-anchor="middle" font-family="${FONT}" font-size="${size}" font-weight="800"
     fill="#ffffff" stroke="#000000" stroke-width="10" paint-order="stroke" stroke-linejoin="round">${tspans}</text>
 </svg>`;
@@ -155,12 +187,25 @@ export async function generateVariants(videoId: string, texts: string[]): Promis
     const frameNo = ((i % 3) + 1) as 1 | 2 | 3;
     const frame = videoId === "DEMO" ? null : await fetchFrame(videoId, frameNo);
 
-    const base = frame
-      ? sharp(frame).resize(THUMB_W, THUMB_H, { fit: "cover" })
-      : sharp(Buffer.from(fallbackBackgroundSvg(i)));
+    const background = frame
+      ? await sharp(frame).resize(THUMB_W, THUMB_H, { fit: "cover" }).toBuffer()
+      : await sharp(Buffer.from(fallbackBackgroundSvg(i))).png().toBuffer();
 
-    const jpeg = await base
-      .composite([{ input: Buffer.from(buildOverlaySvg(text, style)) }])
+    // Measure the region the text will sit on, so the scrim is as heavy as
+    // this frame needs — not a one-size veil that muddies dark frames and
+    // still loses white type on bright ones.
+    let luminance = 110;
+    try {
+      const region = textRegionFor(style);
+      const stats = await sharp(background).extract(region).stats();
+      const [r, g, b] = stats.channels;
+      luminance = 0.2126 * (r?.mean ?? 110) + 0.7152 * (g?.mean ?? 110) + 0.0722 * (b?.mean ?? 110);
+    } catch {
+      // A stats failure only costs adaptivity; the default scrim still works.
+    }
+
+    const jpeg = await sharp(background)
+      .composite([{ input: Buffer.from(buildOverlaySvg(text, style, THUMB_W, THUMB_H, luminance)) }])
       .jpeg({ quality: 88 })
       .toBuffer();
 
@@ -168,7 +213,7 @@ export async function generateVariants(videoId: string, texts: string[]): Promis
       dataUrl: `data:image/jpeg;base64,${jpeg.toString("base64")}`,
       style,
       text,
-      frameSource: frame ? "video-frame" : "generated",
+      frameSource: frame ? "yt-still" : "generated",
     });
   }
   return variants;
