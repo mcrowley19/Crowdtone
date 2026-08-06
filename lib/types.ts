@@ -122,7 +122,10 @@ export interface ProposedAction {
 export type UndoTicket =
   | { kind: "restore_snippet"; videoId: string; title: string; description: string }
   | { kind: "delete_comment"; commentId: string }
-  | { kind: "restore_thumbnail"; videoId: string; blobId: string }
+  /** The previous thumbnail travels inside the ticket as a data URL, so undo
+   * is stateless: it survives serverless cold starts by never depending on
+   * server-side storage at all. */
+  | { kind: "restore_thumbnail"; videoId: string; imageDataUrl: string }
   | {
       kind: "restore_localizations";
       videoId: string;

@@ -10,7 +10,6 @@ import type {
   UndoTicket,
   VideoMeta,
 } from "./types";
-import { readUndoBlob, writeUndoBlob } from "./cache";
 import { YouTubeApiError } from "./youtube";
 import { ytAuthedDelete, ytAuthedGet, ytAuthedUpload, ytAuthedWrite } from "./ytclient";
 import { generateVariants, OVERLAY_STYLES } from "./thumbnails";
@@ -329,19 +328,55 @@ async function updateSnippet(
   );
 }
 
-async function snapshotThumbnail(videoId: string, url: string): Promise<string | null> {
+/** YouTube caps custom thumbnails at 2MB; anything bigger isn't ours to restore. */
+const MAX_THUMBNAIL_BYTES = 4 * 1024 * 1024;
+
+/**
+ * Snapshots the current thumbnail as a data URL that travels inside the undo
+ * ticket itself. No server-side storage means no cold-start amnesia: as long
+ * as the creator's browser holds the ticket, undo works.
+ */
+async function snapshotThumbnail(url: string): Promise<string | null> {
   if (!url) return null;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
     if (!res.ok) return null;
-    return await writeUndoBlob(videoId, Buffer.from(await res.arrayBuffer()));
+    const bytes = Buffer.from(await res.arrayBuffer());
+    if (bytes.length === 0 || bytes.length > MAX_THUMBNAIL_BYTES) return null;
+    return `data:image/jpeg;base64,${bytes.toString("base64")}`;
   } catch {
     return null;
   }
 }
 
+/** Decodes a restore ticket's data URL, refusing anything but a plausible image. */
+export function decodeThumbnailTicket(imageDataUrl: string): Buffer | null {
+  const match = /^data:image\/(?:jpeg|png);base64,([A-Za-z0-9+/=]+)$/.exec(imageDataUrl ?? "");
+  if (!match) return null;
+  const bytes = Buffer.from(match[1], "base64");
+  if (bytes.length === 0 || bytes.length > MAX_THUMBNAIL_BYTES) return null;
+  return bytes;
+}
+
 function videoUrl(videoId: string): string {
   return `https://www.youtube.com/watch?v=${videoId}`;
+}
+
+/**
+ * Re-reads the snippet after a write, so "published" in the UI means "read
+ * back from YouTube", not "the request didn't error". Costs one videos.list
+ * unit; a verification failure never fails the action it verifies.
+ */
+async function verifySnippet(
+  accessToken: string,
+  videoId: string
+): Promise<{ title: string; description: string } | undefined> {
+  try {
+    const after = await fetchOwnVideo(accessToken, videoId);
+    return { title: after.title, description: trimForDiff(after.description, 200) };
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -378,6 +413,7 @@ export async function applyAction(
         status: "applied",
         message: `Title is now “${title}”.`,
         url: videoUrl(videoId),
+        verified: await verifySnippet(accessToken, videoId),
         undo: {
           kind: "restore_snippet",
           videoId,
@@ -400,6 +436,7 @@ export async function applyAction(
             ? `Added ${action.payload.chapters?.length ?? 0} chapters to the description.`
             : "Description updated.",
         url: videoUrl(videoId),
+        verified: await verifySnippet(accessToken, videoId),
         undo: {
           kind: "restore_snippet",
           videoId,
@@ -415,14 +452,14 @@ export async function applyAction(
       const [variant] = await generateVariants(videoId, [text]);
       const bytes = Buffer.from(variant.dataUrl.split(",")[1] ?? "", "base64");
       // Snapshot first: once thumbnails.set lands, the old image is gone.
-      const blobId = await snapshotThumbnail(videoId, current.thumbnailUrl);
+      const imageDataUrl = await snapshotThumbnail(current.thumbnailUrl);
       await ytAuthedUpload(accessToken, "thumbnails/set", { videoId }, bytes, "image/jpeg");
       return {
         ...base,
         status: "applied",
         message: "New thumbnail uploaded — YouTube takes a minute to show it everywhere.",
         url: videoUrl(videoId),
-        undo: blobId ? { kind: "restore_thumbnail", videoId, blobId } : undefined,
+        undo: imageDataUrl ? { kind: "restore_thumbnail", videoId, imageDataUrl } : undefined,
       };
     }
 
@@ -535,8 +572,8 @@ export async function undoAction(accessToken: string, channelId: string, ticket:
     case "restore_thumbnail": {
       const current = await fetchOwnVideo(accessToken, ticket.videoId);
       if (current.channelId !== channelId) throw new OwnershipError();
-      const bytes = await readUndoBlob(ticket.blobId);
-      if (!bytes) throw new Error("The previous thumbnail is no longer held on this server.");
+      const bytes = decodeThumbnailTicket(ticket.imageDataUrl);
+      if (!bytes) throw new Error("This undo ticket doesn't carry a valid image.");
       await ytAuthedUpload(accessToken, "thumbnails/set", { videoId: ticket.videoId }, bytes, "image/jpeg");
       return "Previous thumbnail restored.";
     }

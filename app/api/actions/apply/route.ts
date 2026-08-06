@@ -22,6 +22,25 @@ function simulatedMessage(action: ProposedAction): string {
   return `Simulated publish — this is the bundled demo dataset, nothing was sent to YouTube. ${outcome[action.kind] ?? ""}`;
 }
 
+/**
+ * Idempotency, best-effort: the UI mints one requestId when the publish
+ * button is armed, so a double-fired confirm (retry, double click that beat
+ * the disabled state, flaky network resubmit) is rejected instead of posting
+ * the same comment twice. In-memory, so it protects within a warm serverless
+ * instance — the README says exactly that.
+ */
+const seenRequests = new Map<string, number>();
+const DEDUPE_WINDOW_MS = 10 * 60 * 1000;
+
+function isDuplicateRequest(requestId: string, now = Date.now()): boolean {
+  seenRequests.forEach((at, id) => {
+    if (now - at > DEDUPE_WINDOW_MS) seenRequests.delete(id);
+  });
+  if (seenRequests.has(requestId)) return true;
+  seenRequests.set(requestId, now);
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const videoId: string = typeof body?.videoId === "string" ? body.videoId : "";
@@ -29,6 +48,14 @@ export async function POST(req: NextRequest) {
   // Writing is opt-in per request: without an explicit confirm this endpoint
   // only ever previews. The UI sends confirm:true from a second, deliberate click.
   const dryRun = body?.confirm !== true;
+  const requestId = typeof body?.requestId === "string" ? body.requestId.slice(0, 64) : "";
+
+  if (!dryRun && requestId && isDuplicateRequest(requestId)) {
+    return NextResponse.json(
+      { error: "This publish was already sent — refusing to send it twice.", code: "duplicate" },
+      { status: 409 }
+    );
+  }
 
   if (!videoId || actions.length === 0) {
     return NextResponse.json({ error: "Nothing to apply.", code: "invalid_input" }, { status: 400 });

@@ -33,6 +33,17 @@ export function ActionDeck({
   const [applying, setApplying] = useState(false);
   // Publishing takes two deliberate clicks: the first arms, the second sends.
   const [armed, setArmed] = useState(false);
+  // One idempotency key per armed publish: if the confirm fires twice, the
+  // server refuses the second with a 409 instead of double-posting.
+  const [requestId, setRequestId] = useState("");
+  const arm = () => {
+    setRequestId(
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random()}`
+    );
+    setArmed(true);
+  };
   const [error, setError] = useState<string | null>(null);
   const [undone, setUndone] = useState<Record<string, string>>({});
 
@@ -69,7 +80,12 @@ export function ActionDeck({
         const res = await fetch("/api/actions/apply", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ videoId: video.videoId, actions: chosen, confirm }),
+          body: JSON.stringify({
+            videoId: video.videoId,
+            actions: chosen,
+            confirm,
+            ...(confirm && requestId ? { requestId } : {}),
+          }),
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error ?? "Apply failed.");
@@ -88,7 +104,7 @@ export function ActionDeck({
         setApplying(false);
       }
     },
-    [actions, selected, video]
+    [actions, selected, video, requestId]
   );
 
   const undo = useCallback(async (result: ActionResult) => {
@@ -236,7 +252,7 @@ export function ActionDeck({
                   {applying ? "Simulating…" : `Yes — simulate publishing ${chosenCount}`}
                 </button>
               ) : (
-                <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
+                <button className="go" onClick={arm} disabled={chosenCount === 0}>
                   Simulated publish (demo) — {chosenCount} change{chosenCount === 1 ? "" : "s"}
                 </button>
               )
@@ -249,7 +265,7 @@ export function ActionDeck({
                 {applying ? "Publishing…" : `Yes — publish ${chosenCount} to YouTube now`}
               </button>
             ) : (
-              <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
+              <button className="go" onClick={arm} disabled={chosenCount === 0}>
                 Publish {chosenCount} change{chosenCount === 1 ? "" : "s"} to YouTube
               </button>
             )}
