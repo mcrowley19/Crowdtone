@@ -13,7 +13,9 @@ import { ActionDeck } from "@/components/ActionDeck";
 import { ConnectBar, type Connection } from "@/components/ConnectBar";
 import { NextVideoPanel } from "@/components/NextVideoPanel";
 import { PatrolPanel } from "@/components/PatrolPanel";
-import { isDemoId } from "@/lib/demo";
+import { AnalyticsCard } from "@/components/AnalyticsCard";
+import type { VideoAnalytics } from "@/lib/analytics";
+import { DEMO_DURATION_SECONDS, isDemoId } from "@/lib/demo";
 
 type Stage = "idle" | "video" | "comments" | "analyzing" | "done";
 type Mode = "video" | "channel" | "patrol";
@@ -46,6 +48,8 @@ export default function Home() {
   const [variants, setVariants] = useState<ThumbnailVariant[]>([]);
   const [thumbsLoading, setThumbsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [analytics, setAnalytics] = useState<VideoAnalytics | null>(null);
+  const [analyticsNote, setAnalyticsNote] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/health")
@@ -82,6 +86,8 @@ export default function Home() {
       setCommentSource(null);
       setAnalysis(null);
       setVariants([]);
+      setAnalytics(null);
+      setAnalyticsNote(null);
 
       try {
         setStage("video");
@@ -118,12 +124,33 @@ export default function Home() {
         if (!aRes.ok) throw new Error(aBody.error ?? "Analysis failed.");
         setAnalysis(aBody.analysis);
         setStage("done");
+
+        // Analytics are owner-only (or bundled, for the demo), so this fetch
+        // is best-effort: the report stands on its own without it.
+        if (isDemoId(v.videoId) || connection?.connected) {
+          fetch("/api/analytics", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              videoId: v.videoId,
+              publishedAt: v.publishedAt,
+              durationSeconds: v.durationSeconds ?? 0,
+              comments: cBody.comments,
+            }),
+          })
+            .then(async (r) => {
+              const body = await r.json();
+              if (r.ok && body.analytics) setAnalytics(body.analytics);
+              else if (body.code === "no_analytics_scope") setAnalyticsNote(body.error);
+            })
+            .catch(() => undefined);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
         setStage("idle");
       }
     },
-    [busy]
+    [busy, connection]
   );
 
   const generateThumbs = useCallback(async () => {
@@ -289,6 +316,16 @@ export default function Home() {
           {analysis && video && (
             <>
               <ThemeGrid clusters={analysis.clusters} source={analysis.source} />
+              {analytics && (
+                <AnalyticsCard
+                  analytics={analytics}
+                  demo={isDemoId(video.videoId)}
+                  durationSeconds={
+                    isDemoId(video.videoId) ? DEMO_DURATION_SECONDS : (video.durationSeconds ?? 0)
+                  }
+                />
+              )}
+              {analyticsNote && <p className="statusline">{analyticsNote}</p>}
               <BriefCard ideas={analysis.ideas} />
               <FixList fixes={analysis.fixes} />
               <ThumbnailLab

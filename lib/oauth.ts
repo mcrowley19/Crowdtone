@@ -4,11 +4,14 @@ const TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
 /**
  * `youtube.force-ssl` is the scope that lets us write: update a video's
  * snippet, upload a thumbnail, post and reply to comments. `youtube.readonly`
- * covers reading the signed-in creator's own uploads and their stats.
+ * covers reading the signed-in creator's own uploads and their stats, and
+ * `yt-analytics.readonly` unlocks the numbers Studio shows but the Data API
+ * doesn't: audience retention, traffic sources, watch geography.
  */
 export const SCOPES = [
   "https://www.googleapis.com/auth/youtube.readonly",
   "https://www.googleapis.com/auth/youtube.force-ssl",
+  "https://www.googleapis.com/auth/yt-analytics.readonly",
 ];
 
 export interface OAuthConfig {

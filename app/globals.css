@@ -1518,3 +1518,149 @@ button.go.danger {
   color: var(--grey);
   padding: 0 5px;
 }
+
+/* ----------------------------- analytics ---------------------------- */
+
+.statrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin: 14px 0 6px;
+}
+
+.statrow > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statrow span {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--grey);
+}
+
+.statrow b {
+  font-family: var(--display);
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.retention {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 8px;
+}
+
+.retention .grid {
+  stroke: var(--ink);
+  stroke-opacity: 0.12;
+  stroke-width: 1;
+}
+
+.retention .axis {
+  font-size: 10px;
+  fill: var(--grey);
+  font-family: var(--mono, monospace);
+}
+
+.retention .area {
+  fill: var(--ink);
+  fill-opacity: 0.08;
+}
+
+.retention .line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.retention .dipline {
+  stroke: var(--red);
+  stroke-width: 2;
+  stroke-dasharray: 3 3;
+}
+
+.retention .diplabel {
+  font-size: 11px;
+  font-weight: 800;
+  fill: var(--red);
+}
+
+.retention .crosshair {
+  stroke: var(--grey);
+  stroke-width: 1;
+}
+
+.retention .hoverlabel {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.diplist {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diplist li {
+  border-left: 3px solid var(--red);
+  padding-left: 10px;
+  font-size: 14px;
+  max-width: 720px;
+}
+
+.srcgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0 32px;
+}
+
+.barlist {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.barlist li {
+  display: grid;
+  grid-template-columns: 130px 1fr 64px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.barlist .blabel {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barlist .bbar {
+  display: block;
+  height: 12px;
+}
+
+.barlist .bbar i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  opacity: 0.85;
+}
+
+.barlist .bval {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--grey);
+}
