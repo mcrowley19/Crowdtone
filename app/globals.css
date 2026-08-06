@@ -591,21 +591,68 @@ ol.brief .hook b {
   }
 }
 
-.reveal {
+/*
+ * Motion: "gone to press". The page assembles the way a paper is set —
+ * rules draw themselves across the column, headline slugs drop into place,
+ * labels slide out along their rules, registration crosses land last.
+ * Nothing does a generic opacity/translateY fade; each element moves the
+ * way its printed counterpart would.
+ */
+
+/* A hairline or heavy rule that draws itself left-to-right. */
+.rv-rule {
+  position: relative;
+  border-top: 0 !important;
+}
+.rv-rule::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rv-rule.revealed::before { transform: scaleX(1); }
+
+/* Registration cross at the tail of a drawn rule. */
+.rv-rule::after {
+  content: "+";
+  position: absolute;
+  top: -8px;
+  right: -3px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--ink);
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition: opacity 0.35s ease 0.85s;
 }
-.reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
+.rv-rule.revealed::after { opacity: 1; }
+
+/* Type that slides out along its baseline, like a slug pushed into the row. */
+.rv-slide {
+  opacity: 0;
+  transform: translateX(-16px);
+  transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.reveal-d1 { transition-delay: 0.08s; }
-.reveal-d2 { transition-delay: 0.16s; }
-.reveal-d3 { transition-delay: 0.24s; }
+.rv-slide.revealed { opacity: 1; transform: translateX(0); }
+
+/* Plain ink-up for body copy — no travel, print doesn't slide prose around. */
+.rv-ink {
+  opacity: 0;
+  transition: opacity 0.8s ease 0.12s;
+}
+.rv-ink.revealed { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .rv-rule::before { transform: none; transition: none; }
+  .rv-rule::after { opacity: 1; transition: none; }
+  .rv-slide,
+  .rv-ink { opacity: 1; transform: none; transition: none; }
 }
 
 /* ---- nav ---- */
@@ -673,15 +720,46 @@ ol.brief .hook b {
   padding: 0 24px;
 }
 
-.lp-kick {
+/* Section slug: a short rule that draws, then the label slides out along
+ * it — the section name set into the rule, not floated above the head. */
+.lp-slug {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.lp-slug i {
+  display: block;
+  width: 44px;
+  height: 1px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-slug span {
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--grey);
-  margin-bottom: 18px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.5s ease 0.25s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s;
 }
+
+.lp-slug.revealed i { transform: scaleX(1); }
+.lp-slug.revealed span { opacity: 1; transform: translateX(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-slug i { transform: none; transition: none; }
+  .lp-slug span { opacity: 1; transform: none; transition: none; }
+}
+.no-js .lp-slug i { transform: none; }
+.no-js .lp-slug span { opacity: 1; transform: none; }
 
 .lp h1 {
   font-family: var(--display);
@@ -776,15 +854,34 @@ ol.brief .hook b {
   }
 }
 
-.lp-hero-text > * {
+/* Headline lines drop into place from behind the baseline, one slug at a
+ * time. The padding/margin pair gives descenders room inside the clip. */
+.mline {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.09em;
+  margin-bottom: -0.09em;
+}
+.mline > span {
+  display: block;
+  transform: translateY(115%);
+  animation: lp-slug 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.lp h1 .mline:nth-child(1) > span { animation-delay: 0.06s; }
+.lp h1 .mline:nth-child(2) > span { animation-delay: 0.18s; }
+.lp h1 .mline:nth-child(3) > span { animation-delay: 0.3s; }
+
+@keyframes lp-slug {
+  to { transform: translateY(0); }
+}
+
+.lp-hero-text > *:not(h1) {
   animation: lp-rise 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
 }
-.lp-hero-text > *:nth-child(1) { animation-delay: 0.02s; }
-.lp-hero-text > *:nth-child(2) { animation-delay: 0.1s; }
-.lp-hero-text > *:nth-child(3) { animation-delay: 0.2s; }
-.lp-hero-text > *:nth-child(4) { animation-delay: 0.28s; }
-.lp-hero-text > *:nth-child(5) { animation-delay: 0.36s; }
-.lp-hero-text > *:nth-child(6) { animation-delay: 0.44s; }
+.lp-hero-text > *:nth-child(2) { animation-delay: 0.5s; }
+.lp-hero-text > *:nth-child(3) { animation-delay: 0.58s; }
+.lp-hero-text > *:nth-child(4) { animation-delay: 0.66s; }
+.lp-hero-text > *:nth-child(5) { animation-delay: 0.74s; }
 
 @keyframes lp-rise {
   from { opacity: 0; transform: translateY(22px); }
@@ -793,18 +890,32 @@ ol.brief .hook b {
 
 @media (prefers-reduced-motion: reduce) {
   .lp-hero-text > * { animation: none; }
+  .mline > span { animation: none; transform: none; }
 }
+.no-js .mline > span { animation: none; transform: none; }
+.no-js .lp-hero-text > *:not(h1) { animation: none; }
 
 .lp-hero-art {
   display: grid;
   gap: 22px;
 }
 
+/* The frame crops a slow push-in on hover; the border stays put. */
+.lp-frame {
+  display: block;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+}
+
 .lp-hero-art img {
   display: block;
   width: 100%;
   height: auto;
-  border: 2px solid var(--ink);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lp-hero-art figure:hover img { transform: scale(1.025); }
 }
 
 .lp-hero-art figcaption {
@@ -827,11 +938,24 @@ ol.brief .hook b {
 .lp-band-inner {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 26px 24px;
+  padding: 54px 24px;
   font-family: var(--display);
-  font-size: clamp(22px, 3.4vw, 40px);
+  font-size: clamp(24px, 3.6vw, 44px);
   text-transform: uppercase;
   letter-spacing: 0.01em;
+  line-height: 1.12;
+  max-width: 1080px;
+}
+
+/* Each word inks in as the band crosses the viewport — the press rolling
+ * over the line. --p is the band's scroll progress (set in Reveal.tsx),
+ * --i each word's start; without JS, --p defaults to 1 and all ink is dry. */
+.lp-band-inner .w {
+  opacity: clamp(0.14, calc((var(--p, 1) - var(--i, 0)) * 2.8 + 0.14), 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-band-inner .w { opacity: 1; }
 }
 
 /* ---- sections ---- */
@@ -868,16 +992,31 @@ ol.brief .hook b {
   font-size: 27px;
   text-transform: uppercase;
   line-height: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
 }
 
-.lp-num {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--red);
+/* The entry's name takes a red underline drawn on row hover. */
+.lp-index dt em {
+  font-style: normal;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 3px;
+}
+.lp-index dt em::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lp-index-row:hover dt em::after { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-index dt em::after { transition: none; }
 }
 
 .lp-index dd p {
@@ -905,7 +1044,6 @@ ol.brief .hook b {
   display: grid;
   gap: 0;
   border-top: 3px solid var(--ink);
-  counter-reset: lp-step;
 }
 
 @media (min-width: 860px) {
@@ -913,20 +1051,33 @@ ol.brief .hook b {
 }
 
 .lp-steps li {
-  counter-increment: lp-step;
   padding: 24px 0;
   border-bottom: 1px solid var(--line);
 }
 
+/* Each pass opens with a short red dash that draws when the list lands. */
 .lp-steps li::before {
-  content: counter(lp-step, decimal-leading-zero);
+  content: "";
   display: block;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--red);
-  margin-bottom: 9px;
+  width: 22px;
+  height: 3px;
+  background: var(--red);
+  margin-bottom: 12px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.lp-steps li:nth-child(1)::before { transition-delay: 0.25s; }
+.lp-steps li:nth-child(2)::before { transition-delay: 0.35s; }
+.lp-steps li:nth-child(3)::before { transition-delay: 0.45s; }
+.lp-steps li:nth-child(4)::before { transition-delay: 0.55s; }
+.lp-steps li:nth-child(5)::before { transition-delay: 0.65s; }
+.lp-steps.revealed li::before { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-steps li::before { transform: none; transition: none; }
+}
+.no-js .lp-steps li::before { transform: none; }
 
 .lp-steps li b {
   font-family: var(--display);
@@ -1014,11 +1165,14 @@ ol.brief .hook b {
 }
 .mastlink:hover span { color: var(--ink); }
 
-.lp-hero-art .lp-kick { margin-bottom: 4px; }
+.lp-hero-art .lp-slug { margin-bottom: 4px; }
 .lp-art-note { margin-top: 4px; }
 
 /* Without JS the observer never runs, so reveal targets must not stay hidden. */
-.no-js .reveal { opacity: 1; transform: none; }
+.no-js .rv-slide,
+.no-js .rv-ink { opacity: 1; transform: none; }
+.no-js .rv-rule::before { transform: none; }
+.no-js .rv-rule::after { opacity: 1; }
 
 /* ---- connection bar ---- */
 
