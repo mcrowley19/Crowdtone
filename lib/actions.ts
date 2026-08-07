@@ -1,5 +1,6 @@
 import { buildChapters, extractTimestampMentions, mergeChaptersIntoDescription, renderChapterBlock, parseTimestamp } from "./chapters";
 import { chatJSON, getLLMConfig } from "./llm";
+import { applyStyleGuards, describeStyleProfile, type StyleProfile } from "./replystyle";
 import { SYSTEM_PROMPT, actionPlanPrompt } from "./prompts";
 import type {
   ActionPayload,
@@ -243,24 +244,49 @@ export function heuristicActionPlan(ctx: ActionContext): ActionPlanDraft {
   return draft;
 }
 
-export async function planActions(ctx: ActionContext): Promise<ProposedAction[]> {
+/**
+ * "Reply as me", the deterministic half: whatever the model drafted, the
+ * measured style profile is enforced in code — emoji stripped for creators
+ * who never use them, lengths brought back into their range, sign-offs
+ * appended. Runs on exactly the texts that get posted under the creator's
+ * name: replies and the pinned-style comment.
+ */
+export function applyVoiceToDraft(draft: ActionPlanDraft, profile: StyleProfile): ActionPlanDraft {
+  return {
+    ...draft,
+    pinnedComment: draft.pinnedComment
+      ? { ...draft.pinnedComment, text: applyStyleGuards(draft.pinnedComment.text, profile) }
+      : undefined,
+    replies: draft.replies.map((r) => ({ ...r, text: applyStyleGuards(r.text, profile) })),
+  };
+}
+
+export async function planActions(ctx: ActionContext, voice?: StyleProfile | null): Promise<ProposedAction[]> {
   const config = getLLMConfig();
   const questions = pickQuestions(ctx.comments);
   if (config) {
     try {
-      const raw = await chatJSON(
-        config,
-        SYSTEM_PROMPT,
-        actionPlanPrompt(ctx.video, ctx.analysis, questions, extractTimestampMentions(ctx.comments, ctx.video.durationSeconds ?? 0))
+      const prompt = actionPlanPrompt(
+        ctx.video,
+        ctx.analysis,
+        questions,
+        extractTimestampMentions(ctx.comments, ctx.video.durationSeconds ?? 0)
       );
-      const draft = validateActionPlan(raw, questions);
+      const voiced = voice
+        ? `${prompt}\n\nVoice for "pinned_comment" and every reply: ${describeStyleProfile(voice)}`
+        : prompt;
+      const raw = await chatJSON(config, SYSTEM_PROMPT, voiced);
+      let draft = validateActionPlan(raw, questions);
+      if (voice) draft = applyVoiceToDraft(draft, voice);
       const actions = buildProposedActions(ctx, draft, "llm");
       if (actions.length > 0) return actions;
     } catch (err) {
       console.error("Action planning failed, falling back to heuristic actions:", err);
     }
   }
-  return buildProposedActions(ctx, heuristicActionPlan(ctx), "heuristic");
+  let fallback = heuristicActionPlan(ctx);
+  if (voice) fallback = applyVoiceToDraft(fallback, voice);
+  return buildProposedActions(ctx, fallback, "heuristic");
 }
 
 /* -------------------------------- applying ------------------------------- */

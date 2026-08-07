@@ -27,6 +27,7 @@ export function ActionDeck({
   isDemo: boolean;
 }) {
   const [actions, setActions] = useState<ProposedAction[] | null>(null);
+  const [voice, setVoice] = useState<{ sampleSize: number; summary: string } | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [results, setResults] = useState<ActionResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -61,6 +62,7 @@ export function ActionDeck({
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? "Could not draft the changes.");
       setActions(body.actions);
+      setVoice(body.voice ?? null);
       setSelected(new Set(body.actions.map((a: ProposedAction) => a.id)));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not draft the changes.");
@@ -178,6 +180,20 @@ export function ActionDeck({
 
       {actions && actions.length > 0 && (
         <>
+          <p className="drationale">
+            {voice ? (
+              <>
+                <b>Replies drafted in your voice</b> — learned from {voice.sampleSize} of the
+                creator&rsquo;s own replies, then enforced in code: emoji habits, typical length,
+                and sign-offs are measured, not guessed. ({voice.summary})
+              </>
+            ) : (
+              <>
+                No past replies from this creator in the fetched comments, so replies are drafted
+                in a neutral voice — connect and reply once, and future drafts learn your style.
+              </>
+            )}
+          </p>
           <div className="deckgrid">
             {actions.map((a) => {
               const result = resultById.get(a.id);

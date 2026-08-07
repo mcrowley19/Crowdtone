@@ -1,0 +1,302 @@
+/* Styles for the P7 feature set (sentiment, superfans, globe, digest,
+ * premiere co-pilot). Kept out of globals.css deliberately; same design
+ * language: paper, ink, one red. */
+
+/* ---- sentiment chart ---- */
+
+.sentchart .zeroline {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.sentchart .sentbar.pos {
+  fill: var(--ink);
+}
+
+.sentchart .sentbar.neg {
+  fill: var(--red);
+}
+
+.statrow b.up {
+  color: var(--ink);
+}
+
+.statrow b.down {
+  color: var(--red);
+}
+
+/* ---- superfans ---- */
+
+.fanlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: fan;
+}
+
+.fanlist > li {
+  counter-increment: fan;
+  padding: 12px 0 12px 44px;
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+
+.fanlist > li::before {
+  content: counter(fan);
+  position: absolute;
+  left: 0;
+  top: 10px;
+  font-family: var(--display);
+  font-size: 26px;
+  color: var(--red);
+}
+
+.fanhead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.fanhead b {
+  font-size: 16px;
+}
+
+/* ---- globe ---- */
+
+.globewrap {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 14px 0 6px;
+}
+
+.globe {
+  width: 190px;
+  flex: 0 0 auto;
+}
+
+.globedisc {
+  fill: var(--paper2, #e7e2d8);
+  stroke: none;
+}
+
+.globegrid {
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.18;
+  stroke-width: 0.7;
+}
+
+.globerim {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+.globedot {
+  fill: var(--red);
+  stroke: var(--paper, #f2efe8);
+  stroke-width: 1.5;
+}
+
+.globelabel {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  fill: var(--ink);
+}
+
+.globekey {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+}
+
+.globekey li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.globekey li span {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--grey);
+}
+
+@media (max-width: 640px) {
+  .globewrap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ---- digest ---- */
+
+.digestpre {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* ---- premiere co-pilot ---- */
+
+.premhead {
+  margin: 18px 0 10px;
+}
+
+.premhead .vtitle {
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.premhead .byline {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--grey);
+  margin-top: 4px;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.spikebanner {
+  border: 3px solid var(--red);
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 10px 14px;
+  margin: 10px 0;
+  animation: spikepulse 1.2s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spikebanner {
+    animation: none;
+  }
+}
+
+@keyframes spikepulse {
+  from {
+    background: transparent;
+  }
+  to {
+    background: rgba(190, 44, 30, 0.08);
+  }
+}
+
+.premgrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  margin-top: 8px;
+}
+
+@media (max-width: 760px) {
+  .premgrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.premfeed {
+  border: 3px solid var(--ink);
+  background: var(--paper2, #e7e2d8);
+  height: 380px;
+  overflow-y: auto;
+  padding: 10px 12px;
+  scroll-behavior: smooth;
+}
+
+.premmsg {
+  display: flex;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 14px;
+  line-height: 1.45;
+  border-bottom: 1px solid var(--line);
+}
+
+.premmsg .premat {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--grey);
+  flex: 0 0 44px;
+  padding-top: 2px;
+}
+
+.premmsg.question > div > b {
+  border-bottom: 2px solid var(--ink);
+}
+
+.premmsg.scam {
+  background: rgba(190, 44, 30, 0.07);
+}
+
+.premmsg.scam.restored {
+  background: transparent;
+}
+
+.premreasons {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--red);
+  margin-top: 2px;
+}
+
+.premmsg.scam.restored .premreasons {
+  color: var(--grey);
+}
+
+.premrail h3 {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 8px;
+  border-bottom: 3px solid var(--ink);
+  padding-bottom: 6px;
+}
+
+.premrail h3 + .premrail h3,
+.premrail ul + h3,
+.premrail p + h3 {
+  margin-top: 20px;
+}
+
+.premq {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+}
+
+.premq li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.premq li b {
+  display: block;
+}
+
+.premq li span {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

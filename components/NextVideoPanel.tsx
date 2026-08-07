@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { SuperfanList } from "@/components/SuperfanList";
 import type { ChannelInfo, ChannelStats } from "@/lib/channel";
 import type { NextVideoPlan } from "@/lib/plan";
+import type { Superfan } from "@/lib/superfans";
 
 const fmt = new Intl.NumberFormat("en-US");
 
@@ -10,6 +12,7 @@ interface PlanResponse {
   channel: ChannelInfo;
   stats: ChannelStats;
   plan: NextVideoPlan;
+  superfans?: Superfan[];
   videosRead: { videoId: string; title: string; comments: number }[];
   demo?: boolean;
 }
@@ -223,6 +226,11 @@ export function NextVideoPanel({ connected }: { connected: boolean }) {
               </div>
             )}
           </section>
+
+          <SuperfanList
+            fans={data.superfans ?? []}
+            deck="The viewers who keep showing up across the comment sections read for this plan"
+          />
 
           <section className="report">
             <h2>The channel, by the numbers</h2>

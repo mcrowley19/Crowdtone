@@ -16,11 +16,16 @@ import { PatrolPanel } from "@/components/PatrolPanel";
 import { AnalyticsCard } from "@/components/AnalyticsCard";
 import { LocalizePanel } from "@/components/LocalizePanel";
 import { ClipFinder } from "@/components/ClipFinder";
+import { SentimentCard } from "@/components/SentimentCard";
+import { SuperfanList } from "@/components/SuperfanList";
+import { DigestCard } from "@/components/DigestCard";
+import { PremierePanel } from "@/components/PremierePanel";
+import { rankSuperfans } from "@/lib/superfans";
 import type { VideoAnalytics } from "@/lib/analytics";
 import { DEMO_DURATION_SECONDS, isDemoId } from "@/lib/demo";
 
 type Stage = "idle" | "video" | "comments" | "analyzing" | "done";
-type Mode = "video" | "channel" | "patrol";
+type Mode = "video" | "channel" | "patrol" | "premiere";
 
 interface Health {
   youtube: boolean;
@@ -253,9 +258,19 @@ export default function Home() {
         >
           Patrol the comments
         </button>
+        <button
+          role="tab"
+          aria-selected={mode === "premiere"}
+          className={mode === "premiere" ? "on" : ""}
+          onClick={() => setMode("premiere")}
+        >
+          Premiere co-pilot
+        </button>
       </div>
 
-      {mode === "patrol" ? (
+      {mode === "premiere" ? (
+        <PremierePanel />
+      ) : mode === "patrol" ? (
         <PatrolPanel connected={Boolean(connection?.connected)} />
       ) : mode === "channel" ? (
         <NextVideoPanel connected={Boolean(connection?.connected)} />
@@ -318,6 +333,7 @@ export default function Home() {
           {analysis && video && (
             <>
               <ThemeGrid clusters={analysis.clusters} source={analysis.source} />
+              <SentimentCard comments={comments} />
               {analytics && (
                 <AnalyticsCard
                   analytics={analytics}
@@ -330,6 +346,13 @@ export default function Home() {
               {analyticsNote && <p className="statusline">{analyticsNote}</p>}
               <BriefCard ideas={analysis.ideas} />
               <FixList fixes={analysis.fixes} />
+              <SuperfanList
+                fans={rankSuperfans([{ videoTitle: video.title, comments }], {
+                  ownerChannelId: video.channelId,
+                  ownerName: video.channelTitle,
+                })}
+                deck="The most invested viewers in this comment section — computed from likes, questions, and timestamps"
+              />
               <ClipFinder
                 video={video}
                 comments={comments}
@@ -356,6 +379,17 @@ export default function Home() {
                 analysis={analysis}
                 connected={Boolean(connection?.connected)}
                 isDemo={isDemoId(video.videoId)}
+              />
+              <DigestCard
+                video={video}
+                comments={comments}
+                analysis={analysis}
+                analytics={analytics}
+                fans={rankSuperfans([{ videoTitle: video.title, comments }], {
+                  ownerChannelId: video.channelId,
+                  ownerName: video.channelTitle,
+                  max: 5,
+                })}
               />
               <div className="exports">
                 <button onClick={downloadJson}>Save report as JSON</button>

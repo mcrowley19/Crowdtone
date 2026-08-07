@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { LanguageGlobe } from "@/components/LanguageGlobe";
 import type { Localization } from "@/lib/localize";
 import type { ActionResult, ProposedAction, VideoMeta } from "@/lib/types";
 
@@ -127,6 +128,8 @@ export function LocalizePanel({
       <p className="deck">
         Localized titles and descriptions — YouTube shows each viewer the version in their language
       </p>
+
+      <LanguageGlobe countries={countries} />
 
       {!localizations && (
         <>

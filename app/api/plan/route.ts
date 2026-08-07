@@ -9,6 +9,7 @@ import {
 import { resolveChannelAuth, setSessionCookie } from "@/lib/authserver";
 import { getDemoChannelData, getDemoComments, getDemoVideo } from "@/lib/demo";
 import { buildNextVideoPlan, selectVideosForPlan, type VideoComments } from "@/lib/plan";
+import { rankSuperfans } from "@/lib/superfans";
 import { readCachedComments, writeCachedComments } from "@/lib/cache";
 import { YouTubeApiError } from "@/lib/youtube";
 
@@ -41,6 +42,10 @@ export async function POST(req: NextRequest) {
       channel: demo.channel,
       stats,
       plan,
+      superfans: rankSuperfans(
+        sets.map((s) => ({ videoTitle: s.video.title, comments: s.comments })),
+        { ownerChannelId: demo.channel.channelId, ownerName: demo.channel.title }
+      ),
       videosRead: sets.map((s) => ({
         videoId: s.video.videoId,
         title: s.video.title,
@@ -113,6 +118,10 @@ export async function POST(req: NextRequest) {
       channel,
       stats,
       plan,
+      superfans: rankSuperfans(
+        sets.map((s) => ({ videoTitle: s.video.title, comments: s.comments })),
+        { ownerChannelId: channel.channelId, ownerName: channel.title }
+      ),
       videosRead: sets.map((s) => ({ videoId: s.video.videoId, title: s.video.title, comments: s.comments.length })),
       owned: Boolean(session && session.channelId === channel.channelId),
     });

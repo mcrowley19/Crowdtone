@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/mcrowley19/youtube-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/mcrowley19/youtube-automation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
-![Tests](https://img.shields.io/badge/tests-145_passing-black.svg)
+![Tests](https://img.shields.io/badge/tests-196_passing-black.svg)
 
 **Live:** https://youtube-automation-sandy.vercel.app — landing page.
 **The tool:** https://youtube-automation-sandy.vercel.app/app — the bundled demo runs with no
@@ -17,30 +17,43 @@ comments, decides what to change, and — once you connect your channel — make
 
 1. **Comment themes** — praise, complaints, requests, confusion, each with counts and the
    top verbatim quotes.
-2. **Next Video Brief** — 3 video ideas ranked by demand, each with a ready-to-use title,
+2. **How the room feels** — every comment scored by a deterministic sentiment lexicon (no
+   model) and charted over the life of the thread, bars diverging from neutral, each
+   bucket carrying its most polarized comment as the receipt.
+3. **Next Video Brief** — 3 video ideas ranked by demand, each with a ready-to-use title,
    an opening hook, and the comment quotes proving viewers want it.
-3. **Fix This Video** — concrete, doable-today fixes for the current video, each backed by
+4. **Fix This Video** — concrete, doable-today fixes for the current video, each backed by
    a quote.
-4. **The numbers behind it** — for your own videos, the YouTube Analytics API adds the
+5. **Your superfans** — the most invested viewers, ranked by pure arithmetic: showing up,
+   likes earned from other viewers, questions asked, timestamps cited. Names, badges,
+   and their best comment as the receipt.
+6. **The numbers behind it** — for your own videos, the YouTube Analytics API adds the
    audience-retention curve with its sharpest drop-offs marked, and when viewers
    timestamped that exact moment in the comments, the quote that explains the dip. Plus
    traffic sources, watch geography, and subscribers gained.
-5. **Cut these into Shorts** — the moments viewers timestamped, ranked and turned into a
+7. **Cut these into Shorts** — the moments viewers timestamped, ranked and turned into a
    one-click **editor handoff pack**: a marker CSV Premiere/Resolve import directly, a
    CMX3600 EDL with the cuts laid back to back, and a caption pack opening each Short on
    the viewer quote that earned it. This app doesn't render video — it says so — but the
    handoff is one step from a timeline.
-6. **Thumbnail Lab** — 3 thumbnail variants built from **the preview stills YouTube
+8. **Thumbnail Lab** — 3 thumbnail variants built from **the preview stills YouTube
    publishes for the video** (real imagery, YouTube's three picks — not arbitrary frame
    extraction), with
    overlay text answering the top complaint, beside the current thumbnail.
-7. **Speak their language** — translates the title and description into the languages the
+9. **Speak their language** — translates the title and description into the languages the
    video's own audience watches in (from its Analytics geography) and publishes them as
-   YouTube localizations, so viewers see the packaging in their language.
-8. **Do it** — the same findings as finished copy the app will publish for you: a new
-   title, chapters mined from the timestamps viewers left in the comments, a comment
-   answering the top confusion, replies to the questions people actually asked, and the new
-   thumbnail. Tick the ones you want, preview the exact diff, publish, undo.
+   YouTube localizations — with a slowly turning globe marking where the audience
+   actually is and what they speak.
+10. **Do it** — the same findings as finished copy the app will publish for you: a new
+    title, chapters mined from the timestamps viewers left in the comments, a comment
+    answering the top confusion, **replies drafted in the creator's own measured voice**
+    ("reply as me": emoji habits, typical length, and sign-offs learned from their real
+    replies, then enforced in code after the model drafts), and the new thumbnail. Tick
+    the ones you want, preview the exact diff, publish, undo.
+11. **State of the Audience** — the whole report folded into one Monday-morning email,
+    composed in code from the numbers the report already proved: the mood, the worst
+    dip with the comment explaining it, the superfans, and this week's two actions.
+    Copy it into any newsletter tool or download it as markdown.
 
 **Plan the next one.** Point it at a channel and it reads the last 20 uploads, scores each
 against that channel's own median views/day, pulls the comment sections of the recent and
@@ -56,7 +69,17 @@ several videos at once. Heuristics find the candidates, the model reads each in 
 to clear false positives, and the ones you tick are hidden in bulk through
 `comments.setModerationStatus` — reversibly, with a "put it back" button per comment.
 
-Not a sentiment dashboard, and not advice. A plan, and the hands to carry it out.
+**Premiere co-pilot.** During a premiere, chat moves faster than any human can triage.
+The co-pilot reads it as it comes: questions clustered and counted ("asked 3 times")
+for answering on air, scams auto-hidden by the same deterministic detector Comment
+Patrol uses (reversibly), and the seconds chat lights up — measured against the
+stream's own median pace — timestamped into a clip list before the stream ends,
+then a full debrief the second it's over. The demo replays a bundled premiere chat
+at 12×, and says so: the triage code is exactly what a live stream would run, only the
+transport is canned (a real premiere needs the live-chat API and a stream that is
+actually on air, which is why this surface is honest about being a replay).
+
+Not just a sentiment dashboard, and not advice. A plan, and the hands to carry it out.
 
 ## Quick start
 
@@ -85,6 +108,11 @@ to YouTube), the channel plan, and the Comment Patrol sweep.
 | Do it (publish + undo) | **simulated**, labeled | — | drafted copy | real writes, verified re-read |
 | Plan the next one | bundled 20-upload channel | any public channel | LLM plan | your own channel |
 | Comment Patrol | bundled channel, simulated hide | — | LLM clears false positives | real bulk moderation |
+| Sentiment chart | full — deterministic lexicon, no model, no keys | — | — | — |
+| Superfans | full — pure arithmetic over comments | any public video/channel | — | — |
+| Reply as me | bundled reply sample | — | drafts in the measured voice; guards run either way | learns from your real replies in the thread |
+| State of the Audience email | full — composed in code | — | — | richer with live analytics |
+| Premiere co-pilot | bundled chat replay, real triage code | — | — | — (live chat reading not built — labeled) |
 
 `npm run judge` runs the full gate: typecheck, all unit + integration tests, and a
 production build.
@@ -105,6 +133,32 @@ Copy `.env.example` to `.env.local`:
 Without an LLM key the app falls back to a keyword-heuristic analyzer, so it always
 produces output. Without OAuth it is read-only: it still drafts and previews every change,
 it just can't publish. Secrets stay in `.env.local` (gitignored) — never commit keys.
+
+### Run the model locally — zero tokens, zero cloud
+
+Every LLM call goes through one OpenAI-compatible client, so pointing it at a local
+server replaces the cloud entirely — no API key, no per-token cost, and comments never
+leave your machine:
+
+```bash
+# with Ollama (https://ollama.com — brew install ollama)
+ollama pull qwen2.5:7b-instruct        # or llama3.1:8b; 7–8B models fit in ~8 GB RAM
+# .env.local:
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_MODEL=qwen2.5:7b-instruct
+```
+
+`LLM_BASE_URL` outranks any cloud key, so a machine with both configured stays local. It
+works with anything speaking the OpenAI chat-completions dialect — Ollama, llama.cpp's
+server (`llama-server -m model.gguf`), LM Studio. The client's JSON mode
+(`response_format: json_object`) is supported by all three, and every model response is
+schema-validated with the heuristic fallback behind it, so a small local model degrades
+the same safe way a free cloud model does. Two honest caveats: quality — a 7B model
+clusters and drafts noticeably below `gpt-4o-mini`, which is why the validated-or-
+fallback pipeline matters; and hosting — the deployed Vercel app can't reach your
+localhost, so local models are for running the app locally (`npm run dev`) or
+self-hosting, not for the hosted demo. The integration is verified in `tests/llm.test.ts`
+against a stub server speaking the exact wire format.
 
 ### Connecting a channel
 
@@ -232,6 +286,17 @@ Design choices worth noting:
 - **Performance numbers are computed, never generated**: views/day, outlier score against
   the channel's own median, cadence and runtime are calculated in `lib/channel.ts` and
   passed into the prompt as facts, so the plan can't invent a statistic.
+- **A model only where the job is open-ended; code everywhere else.** Roles deliberately
+  kept out of the LLM, because they don't need one: sentiment scoring (`lib/sentiment.ts`,
+  lexicon with negation handling), superfan ranking (`lib/superfans.ts`, arithmetic),
+  the creator's reply-voice profile (`lib/replystyle.ts`, measured from their real
+  replies — and *enforced* in code after the model drafts, so emoji habits, lengths, and
+  sign-offs hold even when the model ignores instructions), premiere chat triage and
+  spike detection (`lib/premiere.ts`, reusing the patrol's detector; a spike is a window
+  beating the stream's own median pace), question de-duplication (stemmed keyword
+  clustering), and the State-of-the-Audience email (`lib/digest.ts`, pure string
+  building over already-computed numbers). Deterministic means testable: all of it is
+  under unit tests, and the same input always produces the same output.
 - **No auth dependencies**: OAuth, token refresh and the session cookie are ~200 lines of
   `fetch` and `node:crypto`. The dependency list is still next, react, and sharp — plus
   `youtube-chapter-kit`, which is this project's own chapters engine published as a
@@ -240,7 +305,7 @@ Design choices worth noting:
 ## Tests
 
 ```bash
-npm test        # 145 tests: unit + route-level integration
+npm test        # 196 tests: unit + route-level integration
 npm run judge   # typecheck + full suite + production build
 ```
 
@@ -251,7 +316,15 @@ timestamp mining and chapter rules, action validation (including that a reply ca
 ever target a comment we supplied), channel metrics, plan validation, session cookie
 signing and tampering, scam detection (unicode folding, impersonation-by-id, every lure
 pattern, the false-positive cases), retention-curve dip finding and comment joins, clip
-suggestion, the editor handoff formats, and localization targeting/validation.
+suggestion, the editor handoff formats, and localization targeting/validation. The
+deterministic feature set added in P7 is covered the same way: sentiment scoring
+(negation flips, emoji, empty input, determinism), superfan ranking (cross-video
+credit, the owner never ranks, badge arithmetic), reply-voice profiling and its guards
+(emoji stripping, sentence-boundary truncation, sign-off idempotency), the audience
+digest (structure, dip-first ordering, determinism), premiere triage against the
+bundled chat (exactly the three seeded scams, no false positives, both engineered
+spikes found by the stream's-own-median rule), and the local-LLM config path, including
+a live round-trip against a stub OpenAI-compatible server.
 
 11 integration tests call the real route handlers with the network mocked at the fetch
 layer (any unexpected request fails the test): the heuristic analyze path, the bundled

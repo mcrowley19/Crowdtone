@@ -20,17 +20,24 @@ properly, show the evidence, and then — this is the part that matters — **do
 ## What it does
 
 **Fix a video.** Paste any public YouTube URL and it returns, with a verbatim viewer
-quote under every claim: comment themes with counts; three next-video ideas ranked by
-demand; a fix list for the published video; a Shorts cut list built from the timestamps
-viewers left ("4:12 killed me" is a free highlight marker); and three thumbnail variants
-composited from the preview stills YouTube publishes for the video, overlay text answering the loudest complaint.
+quote under every claim: comment themes with counts; a sentiment chart of how the room
+feels over the life of the thread (scored by a deterministic lexicon, no model); three
+next-video ideas ranked by demand; a fix list for the published video; your superfans,
+ranked by arithmetic (showing up, likes from other viewers, questions, timestamps) with
+their best comment as the receipt; a Shorts cut list built from the timestamps viewers
+left ("4:12 killed me" is a free highlight marker); three thumbnail variants composited
+from the preview stills YouTube publishes for the video, overlay text answering the
+loudest complaint; and a **State of the Audience email** — the whole report folded into
+one Monday-morning digest, composed in code so every number in it was proved upstream.
 
 **Connect your channel and it stops advising.** The findings become finished copy it
 publishes for you through the Data API: a new title, chapters mined from viewer
-timestamps, a comment answering the top confusion, replies to real questions, the new
+timestamps, a comment answering the top confusion, replies to real questions **drafted
+in your own measured voice** ("reply as me": emoji habits, typical length, and sign-offs
+learned from your real replies, then enforced in code after the model drafts), the new
 thumbnail — plus your title and description **translated into the languages your
-audience actually watches in** (from your Analytics geography) and published as YouTube
-localizations. Every change shows its before/after diff and the comment it came from;
+audience actually watches in** (from your Analytics geography, drawn on a spinning globe)
+and published as YouTube localizations. Every change shows its before/after diff and the comment it came from;
 everything previews first, publishes only after a second deliberate click, and undoes
 from the same screen.
 
@@ -54,7 +61,16 @@ positives. Tick the ones to hide and they're moderated in bulk through
 channel's own median views/day, comment sections of the recent and outperforming videos
 read, and out comes one video specified well enough to film — title, spoken hook,
 beat-by-beat outline, paste-ready description, tags, runtime, a publish date on the
-channel's own cadence — with computed (never generated) statistics underneath.
+channel's own cadence — with computed (never generated) statistics underneath, and the
+channel's superfans ranked across every comment section read.
+
+**Premiere co-pilot.** Live chat moves faster than a human can triage, so the co-pilot
+does it in real time: questions clustered and counted ("asked 3 times") for answering on
+air, scams auto-hidden by the same deterministic detector Patrol uses (reversibly), and
+the seconds chat lights up — measured against the stream's own median pace — turned
+into a clip list before the stream ends, plus a full debrief the moment it's over. The
+demo replays a bundled premiere chat at 12× and is labeled as a replay; the triage code
+is exactly what a live stream would run.
 
 ## How we built it
 
@@ -77,6 +93,17 @@ refresh, session cookies, the YouTube clients, and the LLM client are hand-rolle
 - **`sharp`** composites overlay text onto the preview stills YouTube publishes at
   predictable URLs — real imagery, YouTube's three picks — with the scrim weighted by
   the measured luminance under the text. No yt-dlp, no ffmpeg, no video download.
+- **A model only where the job is open-ended; code everywhere else.** Sentiment scoring
+  (lexicon + negation handling), superfan ranking, the reply-voice profile (measured
+  from the creator's real replies and *enforced in code after* the model drafts),
+  premiere chat triage, spike detection (a window beating the stream's own median pace),
+  question de-duplication, and the weekly digest are all deterministic, unit-tested
+  functions — same input, same output, zero tokens. The LLM is reserved for the genuinely
+  open-ended work (clustering themes, drafting copy, clearing false positives), always
+  schema-validated with a heuristic fallback.
+- **Runs on a local model.** One env var (`LLM_BASE_URL`) points the client at Ollama,
+  llama.cpp, or LM Studio — no API key, no per-token cost, comments never leave the
+  machine. Verified against a stub OpenAI-compatible server in the test suite.
 - **Open-source contribution**: the chapters engine — extract viewer-comment timestamps,
   cluster them into moments, validate against YouTube's actual rendering rules (0:00
   start, 3+ chapters, 10-second minimum), merge into descriptions idempotently — proved
@@ -153,6 +180,13 @@ Open **/app** (no keys, no account — every step below is the bundled demo):
 7. **Patrol the comments** tab → *"Run the patrol on the bundled demo channel"* — the
    impersonator in the styled-unicode name is flagged with reasons; simulate the hide,
    put it back.
+8. **Premiere co-pilot** tab → *"Replay the bundled premiere (demo)"* — watch questions
+   cluster ("asked 3 times"), the fake-creator scam get auto-hidden mid-stream, the
+   spike banner fire when chat lights up, then *Skip to the end* for the debrief with
+   its clip list.
+9. Back on the report: the sentiment chart under the themes, **Your superfans** with
+   badges and receipts, the globe in *Speak their language*, and **State of the
+   Audience** → *Preview it* — the whole report as one email.
 
 Then `npm run judge` in the repo: typecheck, 145 tests (unit + route-level integration
 with mocked Google), production build.

@@ -1,11 +1,24 @@
 export interface LLMConfig {
-  provider: "openrouter" | "openai";
+  provider: "openrouter" | "openai" | "local";
   baseUrl: string;
   apiKey: string;
   model: string;
 }
 
 export function getLLMConfig(env: Record<string, string | undefined> = process.env): LLMConfig | null {
+  // A local OpenAI-compatible server (Ollama, llama.cpp, LM Studio) costs no
+  // tokens and sends comments to nobody. An explicit base URL outranks cloud
+  // keys so a machine with both configured stays local.
+  if (env.LLM_BASE_URL) {
+    return {
+      provider: "local",
+      baseUrl: env.LLM_BASE_URL.replace(/\/$/, ""),
+      // Ollama and llama.cpp accept any bearer token; a real one can be set
+      // for gateways that need it.
+      apiKey: env.LLM_API_KEY || "local",
+      model: env.LLM_MODEL || "qwen2.5:7b-instruct",
+    };
+  }
   if (env.OPENROUTER_API_KEY) {
     return {
       provider: "openrouter",
