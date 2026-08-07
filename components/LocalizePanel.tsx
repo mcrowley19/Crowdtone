@@ -93,7 +93,7 @@ export function LocalizePanel({
 
   const undo = useCallback(async () => {
     if (result?.status === "simulated") {
-      setUndone("Simulated undo — the demo publish is reverted; YouTube was never touched.");
+      setUndone("Simulated undo. The demo publish is reverted; YouTube was never touched.");
       return;
     }
     if (!result?.undo) return;
@@ -124,30 +124,19 @@ export function LocalizePanel({
 
   return (
     <section className="report">
-      <h2>Speak their language</h2>
-      <p className="deck">
-        Localized titles and descriptions — YouTube shows each viewer the version in their language
-      </p>
-
-      <LanguageGlobe countries={countries} />
-
-      {!localizations && (
-        <>
-          <p className="lede">
-            {countries.length > 0
-              ? `This video's audience watches from ${countries
-                  .slice(0, 4)
-                  .map((c) => c.country)
-                  .join(", ")} and beyond, but its packaging only exists in one language. Draft it in theirs.`
-              : "Most videos never fill in YouTube's localized metadata, because Studio buries it one language at a time. Draft the translations in one pass."}
-          </p>
-          <div className="thumbactions">
+      <div className="panelhead">
+        <h2>Speak their language</h2>
+        <span className="prov">YouTube serves each viewer their own language</span>
+        {!localizations && (
+          <span className="panelacts">
             <button className="go" onClick={draft} disabled={loading}>
               {loading ? "Translating…" : "Draft the translations"}
             </button>
-          </div>
-        </>
-      )}
+          </span>
+        )}
+      </div>
+
+      <LanguageGlobe countries={countries} />
 
       {error && <div className="errorline">{error}</div>}
 
@@ -217,18 +206,18 @@ export function LocalizePanel({
             {isDemo ? (
               armed ? (
                 <button className="go danger" onClick={() => publish(true)} disabled={applying}>
-                  {applying ? "Simulating…" : `Yes — simulate publishing ${chosenCount}`}
+                  {applying ? "Simulating…" : `Yes, simulate publishing ${chosenCount}`}
                 </button>
               ) : (
                 <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
-                  Simulated publish (demo) — {chosenCount} language{chosenCount === 1 ? "" : "s"}
+                  Simulated publish (demo): {chosenCount} language{chosenCount === 1 ? "" : "s"}
                 </button>
               )
             ) : !connected ? (
               <span className="deckwarn">Connect your channel above to publish these.</span>
             ) : armed ? (
               <button className="go danger" onClick={() => publish(true)} disabled={applying}>
-                {applying ? "Publishing…" : `Yes — publish ${chosenCount} to YouTube now`}
+                {applying ? "Publishing…" : `Yes, publish ${chosenCount} to YouTube now`}
               </button>
             ) : (
               <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
@@ -243,13 +232,13 @@ export function LocalizePanel({
             <p className="deckarmed">
               {isDemo ? (
                 <>
-                  This is the bundled demo dataset, so the publish is <b>simulated</b> — nothing is
+                  This is the bundled demo dataset, so the publish is <b>simulated</b>. Nothing is
                   sent to YouTube.
                 </>
               ) : (
                 <>
                   This adds localized metadata to <b>{video.title}</b> on YouTube. The original title
-                  and description are untouched — localizations sit alongside them, and undo removes
+                  and description are untouched. Localizations sit alongside them, and undo removes
                   them.
                 </>
               )}

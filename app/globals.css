@@ -1,5 +1,5 @@
 /*
- * AudienceSignal — poster/tabloid layout.
+ * Crowdtone — poster/tabloid layout.
  * Display face: Impact (the thumbnail font — on purpose).
  * Body face: Helvetica/Arial. Thick rules, hard offset shadows, one red.
  */
@@ -1025,18 +1025,6 @@ ol.brief .hook b {
   max-width: 62ch;
 }
 
-.lp-tag {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--grey);
-  margin-top: 10px;
-  border-top: 1px solid var(--line);
-  padding-top: 7px;
-}
-
 /* steps */
 
 .lp-steps {
@@ -1092,16 +1080,6 @@ ol.brief .hook b {
   font-size: 15px;
   line-height: 1.6;
   max-width: 52ch;
-}
-
-.lp-aside {
-  margin-top: 34px;
-  padding-left: 18px;
-  border-left: 3px solid var(--red);
-  font-size: 15px;
-  line-height: 1.65;
-  max-width: 66ch;
-  color: #2a2825;
 }
 
 /* facts */
@@ -1213,8 +1191,6 @@ ol.brief .hook b {
 }
 .mastlink:hover span { color: var(--ink); }
 
-.lp-hero-art .lp-slug { margin-bottom: 4px; }
-.lp-art-note { margin-top: 4px; }
 
 /* Without JS the observer never runs, so reveal targets must not stay hidden. */
 .no-js .rv-slide,

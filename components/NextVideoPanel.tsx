@@ -58,9 +58,8 @@ export function NextVideoPanel({ connected }: { connected: boolean }) {
   return (
     <>
       <p className="intro">
-        This one looks at the whole channel, not one video: the last 20 uploads, how each actually
-        performed against the channel's own normal, and what the comment sections keep asking for.
-        Out the other end comes one video, specified well enough to film.
+        Reads the last 20 uploads: how each performed against the channel&rsquo;s own normal, and
+        what the comment sections keep asking for. It then specs one video well enough to film.
       </p>
 
       <form
@@ -71,7 +70,7 @@ export function NextVideoPanel({ connected }: { connected: boolean }) {
         }}
       >
         <label htmlFor="channel-input">
-          {connected ? "Your channel — or paste another one" : "Channel address, @handle, or channel ID"}
+          {connected ? "Your channel, or paste another one" : "Channel address, @handle, or channel ID"}
         </label>
         <div className="queryrow">
           <input
@@ -88,7 +87,7 @@ export function NextVideoPanel({ connected }: { connected: boolean }) {
         </div>
       </form>
       <button className="textlink" onClick={() => run("DEMO")} disabled={loading}>
-        No keys yet? Plan the bundled demo channel.
+        Plan the demo channel
       </button>
 
       {loading && <p className="statusline">Reading the channel, its numbers, and its comment sections</p>}
@@ -229,7 +228,7 @@ export function NextVideoPanel({ connected }: { connected: boolean }) {
 
           <SuperfanList
             fans={data.superfans ?? []}
-            deck="The viewers who keep showing up across the comment sections read for this plan"
+            chip="Across every comment section read for this plan"
           />
 
           <section className="report">
@@ -254,7 +253,7 @@ export function NextVideoPanel({ connected }: { connected: boolean }) {
                     <td>{fmt.format(p.video.viewCount)}</td>
                     <td>{fmt.format(p.viewsPerDay)}</td>
                     <td className={p.outlierScore >= 1.2 ? "up" : p.outlierScore <= 0.7 ? "down" : ""}>
-                      {p.outlierScore ? `${p.outlierScore}×` : "—"}
+                      {p.outlierScore ? `${p.outlierScore}×` : "n/a"}
                     </td>
                   </tr>
                 ))}

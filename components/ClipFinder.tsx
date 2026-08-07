@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { suggestClips, TONE_LABEL } from "@/lib/clips";
 import { buildHandoffFiles } from "@/lib/handoff";
 import type { Comment, VideoMeta } from "@/lib/types";
+import { Panel } from "@/components/Panel";
 
 /**
  * Shorts worth cutting, straight from the timestamps viewers left. Pure
@@ -44,17 +45,13 @@ export function ClipFinder({
   };
 
   return (
-    <section className="report">
-      <h2>Cut these into Shorts</h2>
-      <p className="deck">
-        The moments viewers timestamped — the free, ground-truth highlight reel
-      </p>
+    <Panel title="Cut these into Shorts" chip="Moments viewers timestamped">
       <div className="clipgrid">
         {clips.map((c, i) => (
           <div className="cliprow" key={c.startSeconds}>
             <div className="cliprange">{c.range}</div>
             <div className="clipbody">
-              <b>{TONE_LABEL[c.tone]}</b> — {c.mentions} comment
+              <b>{TONE_LABEL[c.tone]}</b>: {c.mentions} comment
               {c.mentions === 1 ? " points" : "s point"} here.
               <div className="devidence">{c.quote}&rdquo;</div>
               <div className="clipactions">
@@ -63,7 +60,7 @@ export function ClipFinder({
                 </a>
                 <button
                   className="textlink"
-                  onClick={() => copy(i, `${c.range} — ${TONE_LABEL[c.tone]}: "${c.quote}"`)}
+                  onClick={() => copy(i, `${c.range}: ${TONE_LABEL[c.tone]}: "${c.quote}"`)}
                 >
                   {copied === i ? "Copied" : "Copy the cut notes"}
                 </button>
@@ -74,15 +71,9 @@ export function ClipFinder({
       </div>
       <div className="thumbactions">
         <button className="go" onClick={downloadHandoff}>
-          Download the editor handoff pack
+          Editor pack: markers CSV · EDL · captions
         </button>
       </div>
-      <p className="drationale" style={{ margin: "10px 0 0" }}>
-        Three files: a marker CSV Premiere and Resolve import directly, a CMX3600 EDL with the
-        cuts laid back to back, and a caption pack opening each Short on the viewer quote that
-        earned it. This app doesn&rsquo;t render video — the Data API can&rsquo;t upload Shorts —
-        so it stops honestly at a handoff your editor opens in one step.
-      </p>
-    </section>
+    </Panel>
   );
 }

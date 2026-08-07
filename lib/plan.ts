@@ -216,7 +216,7 @@ function heuristicPlan(
     angle: topRequest
       ? "Answer the single most-repeated request in your comments, start to finish."
       : "Do more of what already outperformed on this channel.",
-    hook: topRequest ? `You asked for this one — ${topRequest.slice(0, 140)}` : "",
+    hook: topRequest ? `You asked for this one: ${topRequest.slice(0, 140)}` : "",
     outline: [
       { beat: "Cold open", detail: "State the question viewers keep asking, word for word." },
       { beat: "Payoff", detail: "Answer it in the first minute, then show the working." },

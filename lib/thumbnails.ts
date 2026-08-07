@@ -160,6 +160,26 @@ export function fallbackBackgroundSvg(variant: number, w = THUMB_W, h = THUMB_H)
 </svg>`;
 }
 
+/**
+ * Mean luminance (0–255) of the region a style lays its text over.
+ *
+ * The region has to be materialised into its own buffer first: sharp's
+ * `stats()` reports on the image it was handed and ignores pipeline
+ * operations, so `sharp(buf).extract(region).stats()` silently measures the
+ * whole frame instead of the region.
+ */
+export async function regionLuminance(
+  background: Buffer,
+  style: OverlayStyle,
+  w = THUMB_W,
+  h = THUMB_H
+): Promise<number> {
+  const sharp = (await import("sharp")).default;
+  const cropped = await sharp(background).extract(textRegionFor(style, w, h)).toBuffer();
+  const [r, g, b] = (await sharp(cropped).stats()).channels;
+  return 0.2126 * (r?.mean ?? 110) + 0.7152 * (g?.mean ?? 110) + 0.0722 * (b?.mean ?? 110);
+}
+
 async function fetchFrame(videoId: string, frame: 1 | 2 | 3): Promise<Buffer | null> {
   for (const url of frameUrlCandidates(videoId, frame)) {
     try {
@@ -196,10 +216,7 @@ export async function generateVariants(videoId: string, texts: string[]): Promis
     // still loses white type on bright ones.
     let luminance = 110;
     try {
-      const region = textRegionFor(style);
-      const stats = await sharp(background).extract(region).stats();
-      const [r, g, b] = stats.channels;
-      luminance = 0.2126 * (r?.mean ?? 110) + 0.7152 * (g?.mean ?? 110) + 0.0722 * (b?.mean ?? 110);
+      luminance = await regionLuminance(background, style);
     } catch {
       // A stats failure only costs adaptivity; the default scrim still works.
     }

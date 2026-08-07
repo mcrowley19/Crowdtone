@@ -37,7 +37,7 @@ function csvField(value: string): string {
 export function buildMarkerCsv(clips: ClipSuggestion[]): string {
   const header = "Marker Name,Description,In,Out,Duration,Marker Type";
   const rows = clips.map((c, i) => {
-    const name = `Short ${i + 1} — ${TONE_LABEL[c.tone]}`;
+    const name = `Short ${i + 1}: ${TONE_LABEL[c.tone]}`;
     const description = `${c.mentions} comment${c.mentions === 1 ? "" : "s"} point here: "${c.quote}"`;
     return [
       csvField(name),
@@ -53,7 +53,7 @@ export function buildMarkerCsv(clips: ClipSuggestion[]): string {
 
 /** Minimal CMX3600 EDL: one event per clip, source timecodes = cut range. */
 export function buildEdl(clips: ClipSuggestion[], videoTitle: string): string {
-  const lines = [`TITLE: ${videoTitle.slice(0, 60)} — AudienceSignal cut list`, "FCM: NON-DROP FRAME", ""];
+  const lines = [`TITLE: ${videoTitle.slice(0, 60)}: Crowdtone cut list`, "FCM: NON-DROP FRAME", ""];
   clips.forEach((c, i) => {
     const n = String(i + 1).padStart(3, "0");
     const srcIn = toTimecode(c.startSeconds);
@@ -64,7 +64,7 @@ export function buildEdl(clips: ClipSuggestion[], videoTitle: string): string {
     const recOut = toTimecode(recStart + (c.endSeconds - c.startSeconds));
     lines.push(`${n}  AX       V     C        ${srcIn} ${srcOut} ${recIn} ${recOut}`);
     lines.push(`* FROM CLIP NAME: ${videoTitle.slice(0, 60)}`);
-    lines.push(`* COMMENT: ${TONE_LABEL[c.tone]} — "${c.quote.slice(0, 120)}"`);
+    lines.push(`* COMMENT: ${TONE_LABEL[c.tone]}: "${c.quote.slice(0, 120)}"`);
     lines.push("");
   });
   return lines.join("\n");
@@ -75,12 +75,12 @@ export function buildCaptionPack(clips: ClipSuggestion[], videoTitle: string): s
   const blocks = clips.map((c, i) => {
     return [
       `SHORT ${i + 1} · ${c.range}`,
-      `Why this moment: ${TONE_LABEL[c.tone].toLowerCase()} — ${c.mentions} comment${c.mentions === 1 ? "" : "s"} point at it.`,
+      `Why this moment: ${TONE_LABEL[c.tone].toLowerCase()}, ${c.mentions} comment${c.mentions === 1 ? "" : "s"} point at it.`,
       `Open the Short on this viewer quote: "${c.quote}"`,
       `Source moment: ${c.watchUrl}`,
     ].join("\n");
   });
-  return [`Caption pack — "${videoTitle}"`, "", blocks.join("\n\n")].join("\n") + "\n";
+  return [`Caption pack: "${videoTitle}"`, "", blocks.join("\n\n")].join("\n") + "\n";
 }
 
 export function buildHandoffFiles(videoTitle: string, videoId: string, clips: ClipSuggestion[]): HandoffFile[] {

@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "No YouTube API key configured on this deployment — try the demo instead.", code: "no_api_key" },
+      { error: "No YouTube API key configured on this deployment. Try the demo instead.", code: "no_api_key" },
       { status: 400 }
     );
   }
@@ -58,9 +58,9 @@ export async function POST(req: NextRequest) {
     if (err instanceof YouTubeApiError) {
       const hint =
         err.code === "quota"
-          ? " YouTube quota exhausted — try again after midnight PT, or use the demo."
+          ? " YouTube quota exhausted. Try again after midnight PT, or use the demo."
           : err.code === "comments_disabled"
-            ? " This video has comments disabled — try another video."
+            ? " This video has comments disabled. Try another video."
             : "";
       return NextResponse.json({ error: err.message + hint, code: err.code }, { status: err.status });
     }

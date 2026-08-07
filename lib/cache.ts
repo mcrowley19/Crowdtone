@@ -14,7 +14,7 @@ const SAFE_ID = /^[A-Za-z0-9_-]{1,32}$/;
 // deployed. /tmp survives between invocations that reuse a warm instance, which is
 // exactly the repeat-run case the cache exists to serve.
 const DEFAULT_CACHE_DIR = process.env.VERCEL
-  ? path.join("/tmp", "audiencesignal-cache")
+  ? path.join("/tmp", "crowdtone-cache")
   : path.join(process.cwd(), "data", "cache");
 
 export function cachePathFor(videoId: string, baseDir = DEFAULT_CACHE_DIR): string {

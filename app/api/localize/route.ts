@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       id: "set_localizations",
       kind: "set_localizations",
       label: `Publish the packaging in ${pack.localizations.map((l) => l.languageName).join(", ")}`,
-      rationale: "Bundled demo translations — on a real video these are drafted by the model from your Analytics geography.",
+      rationale: "Bundled demo translations. On a real video these are drafted by the model from your Analytics geography.",
       before: "Title and description exist only in the original language.",
       after: pack.localizations.map((l) => `${l.languageName}: “${l.title}”`).join("\n"),
       payload: {
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Translating metadata needs an LLM key (OPENROUTER_API_KEY or OPENAI_API_KEY) — the keyword heuristic can't write Spanish.",
+          "Translating metadata needs an LLM key (OPENROUTER_API_KEY or OPENAI_API_KEY). The keyword heuristic can't write Spanish.",
         code: "no_llm",
       },
       { status: 400 }
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       draft.localizations = draft.localizations.filter((l) => l.language.split("-")[0] !== base);
       if (draft.localizations.length === 0) {
         return NextResponse.json(
-          { error: "Every target language matched the video's own language — nothing to localize." },
+          { error: "Every target language matched the video's own language, so there is nothing to localize." },
           { status: 400 }
         );
       }
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
       rationale:
         countries.length > 0
           ? "These are the languages this video's own audience watches in, from its Analytics geography."
-          : "The biggest YouTube audiences beyond this video's language — Analytics wasn't available to narrow it.",
+          : "The biggest YouTube audiences beyond this video's language, since Analytics wasn't available to narrow it.",
       before: "Title and description exist only in the original language.",
       after: draft.localizations.map((l) => `${l.languageName}: “${l.title}”`).join("\n"),
       payload: {
@@ -111,6 +111,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error("Localization draft failed:", err);
-    return NextResponse.json({ error: "Translation failed — try again." }, { status: 502 });
+    return NextResponse.json({ error: "Translation failed. Try again." }, { status: 502 });
   }
 }

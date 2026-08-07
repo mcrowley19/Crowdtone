@@ -115,7 +115,7 @@ export function ActionDeck({
     if (result.status === "simulated") {
       setUndone((prev) => ({
         ...prev,
-        [result.id]: "Simulated undo — the demo publish is reverted; YouTube was never touched.",
+        [result.id]: "Simulated undo. The demo publish is reverted; YouTube was never touched.",
       }));
       try {
         localStorage.removeItem(`as_demo_publish_${result.id}`);
@@ -152,30 +152,29 @@ export function ActionDeck({
 
   return (
     <section className="report" id="do-it">
-      <h2>Do it</h2>
-      <p className="deck">
-        The same findings, written as changes this tool can publish for you
-      </p>
-
-      {!actions && (
-        <>
-          <p className="lede">
-            AudienceSignal drafts the finished copy — a new title, chapters mined from the timestamps
-            viewers left, a pinned-style comment, replies to the questions people actually asked, and a
-            new thumbnail — then applies whichever ones you tick.
-          </p>
-          <div className="thumbactions">
+      <div className="panelhead">
+        <h2>Do it</h2>
+        <span className="prov">Findings, written as publishable changes</span>
+        {!actions && (
+          <span className="panelacts">
             <button className="go" onClick={draft} disabled={loading}>
               {loading ? "Drafting…" : "Draft the changes"}
             </button>
-          </div>
-        </>
+          </span>
+        )}
+      </div>
+
+      {!actions && (
+        <p className="lede">
+          Title, chapters mined from viewer timestamps, a pinned comment, replies to the questions
+          people asked, and a new thumbnail. Apply whichever you tick.
+        </p>
       )}
 
       {error && <div className="errorline">{error}</div>}
 
       {actions && actions.length === 0 && (
-        <p className="lede">Nothing worth changing on this video — the comments aren't asking for it.</p>
+        <p className="lede">Nothing worth changing on this video. The comments aren't asking for it.</p>
       )}
 
       {actions && actions.length > 0 && (
@@ -183,14 +182,14 @@ export function ActionDeck({
           <p className="drationale">
             {voice ? (
               <>
-                <b>Replies drafted in your voice</b> — learned from {voice.sampleSize} of the
+                <b>Replies drafted in your voice</b>, learned from {voice.sampleSize} of the
                 creator&rsquo;s own replies, then enforced in code: emoji habits, typical length,
                 and sign-offs are measured, not guessed. ({voice.summary})
               </>
             ) : (
               <>
                 No past replies from this creator in the fetched comments, so replies are drafted
-                in a neutral voice — connect and reply once, and future drafts learn your style.
+                in a neutral voice. Connect and reply once, and future drafts learn your style.
               </>
             )}
           </p>
@@ -265,11 +264,11 @@ export function ActionDeck({
             {isDemo ? (
               armed ? (
                 <button className="go danger" onClick={() => send(true)} disabled={applying}>
-                  {applying ? "Simulating…" : `Yes — simulate publishing ${chosenCount}`}
+                  {applying ? "Simulating…" : `Yes, simulate publishing ${chosenCount}`}
                 </button>
               ) : (
                 <button className="go" onClick={arm} disabled={chosenCount === 0}>
-                  Simulated publish (demo) — {chosenCount} change{chosenCount === 1 ? "" : "s"}
+                  Simulated publish (demo): {chosenCount} change{chosenCount === 1 ? "" : "s"}
                 </button>
               )
             ) : !connected ? (
@@ -278,7 +277,7 @@ export function ActionDeck({
               </span>
             ) : armed ? (
               <button className="go danger" onClick={() => send(true)} disabled={applying}>
-                {applying ? "Publishing…" : `Yes — publish ${chosenCount} to YouTube now`}
+                {applying ? "Publishing…" : `Yes, publish ${chosenCount} to YouTube now`}
               </button>
             ) : (
               <button className="go" onClick={arm} disabled={chosenCount === 0}>
@@ -306,7 +305,7 @@ export function ActionDeck({
           )}
           {postedComment && (
             <p className="deckarmed">
-              Note: YouTube's Data API has no endpoint for pinning a comment — that one click still has
+              Note: YouTube's Data API has no endpoint for pinning a comment, so that one click still has
               to happen in Studio.
             </p>
           )}

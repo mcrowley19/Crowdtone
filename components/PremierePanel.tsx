@@ -85,10 +85,9 @@ export function PremierePanel() {
   return (
     <>
       <p className="intro">
-        During a premiere or livestream, the chat moves faster than any human can triage. The
-        co-pilot reads it as it comes: surfacing the questions worth answering on air, hiding the
-        scam bots the moment they appear, and timestamping the seconds chat lights up — which
-        become your Shorts cut list before the stream even ends.
+        Reads live chat as it comes: surfaces the questions worth answering on air, hides scam bots
+        as they appear, and timestamps the seconds chat lights up, which is your Shorts cut list before the
+        stream ends.
       </p>
 
       {elapsed === null && (
@@ -97,10 +96,8 @@ export function PremierePanel() {
             Replay the bundled premiere (demo)
           </button>
           <p className="drationale" style={{ marginTop: 10 }}>
-            A recorded chat from the demo channel&rsquo;s premiere, replayed at {SPEED}× — the
-            triage, question clustering, and spike detection are the exact code a live stream
-            would run; only the chat transport is bundled. Reading a real premiere requires the
-            live chat API and a stream that is actually on air.
+            Recorded chat replayed at {SPEED}×. Triage, clustering, and spike detection are the
+            live code. Only the chat transport is bundled.
           </p>
         </>
       )}
@@ -122,7 +119,7 @@ export function PremierePanel() {
 
           {liveSpike && !ended && (
             <div className="spikebanner">
-              Chat is running {liveSpike.ratio}× its normal speed right now — mark{" "}
+              Chat is running {liveSpike.ratio}× its normal speed right now. Mark{" "}
               {formatTimestamp(liveSpike.atSeconds)} for the clip reel.
             </div>
           )}
@@ -141,7 +138,7 @@ export function PremierePanel() {
                     )}
                     {m.kind === "scam" && (
                       <div className="premreasons">
-                        {restored.has(m.id) ? "Put back — visible to viewers." : `Auto-hidden (simulated): ${m.reasons.join(" · ")}`}{" "}
+                        {restored.has(m.id) ? "Put back, visible to viewers." : `Auto-hidden (simulated): ${m.reasons.join(" · ")}`}{" "}
                         <button className="textlink" onClick={() => toggleRestore(m.id)}>
                           {restored.has(m.id) ? "Hide it again" : "Put it back"}
                         </button>
@@ -173,7 +170,7 @@ export function PremierePanel() {
                 <p className="drationale">Nothing hidden yet.</p>
               ) : (
                 <p className="drationale">
-                  {hidden.length - restored.size} hidden of {hidden.length} flagged — same detector
+                  {hidden.length - restored.size} hidden of {hidden.length} flagged, same detector
                   as Comment Patrol, reversible above.
                 </p>
               )}
@@ -184,7 +181,7 @@ export function PremierePanel() {
             <section className="report">
               <h2>The stream, debriefed</h2>
               <p className="deck">
-                Written the second the premiere ends — {recap.messagesSeen} messages triaged
+                Written the second the premiere ends: {recap.messagesSeen} messages triaged
               </p>
               <div className="planblock">
                 <h3>Questions the room asked</h3>
@@ -210,7 +207,7 @@ export function PremierePanel() {
                 <ul className="quotelist plain">
                   {recap.hidden.map((m) => (
                     <li key={m.id}>
-                      <b>{m.author}</b> — {m.reasons.join(" · ")}
+                      <b>{m.author}</b>: {m.reasons.join(" · ")}
                     </li>
                   ))}
                 </ul>
@@ -218,7 +215,7 @@ export function PremierePanel() {
               <p className="drationale">
                 All of this is deterministic: the scam detector is Comment Patrol&rsquo;s, question
                 grouping is keyword clustering, and a &ldquo;moment&rdquo; is a window where chat
-                beat its own median pace 2.5× — the stream is its own baseline.
+                beat its own median pace 2.5×. The stream is its own baseline.
               </p>
             </section>
           )}

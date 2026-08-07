@@ -16,46 +16,55 @@ const AUTH_ERRORS: Record<string, string> = {
   access_denied: "Sign-in was cancelled.",
 };
 
+export function authErrorMessage(code: string): string {
+  return AUTH_ERRORS[code] ?? `Sign-in failed: ${code}`;
+}
+
+/**
+ * Write access, stated in a chip. Connected shows whose channel is on the
+ * hook; disconnected shows the one button that changes that.
+ */
 export function ConnectBar({
   connection,
-  authError,
   onDisconnect,
 }: {
   connection: Connection | null;
-  authError: string | null;
   onDisconnect: () => void;
 }) {
   if (!connection) return null;
 
+  if (connection.connected) {
+    return (
+      <div className="connectbar">
+        <span className="cdot on" aria-hidden />
+        <span className="ctext" title={`Connected as ${connection.channelTitle}. Changes can be published`}>
+          <b>{connection.channelTitle}</b>
+        </span>
+        <button className="textlink" onClick={onDisconnect}>
+          Disconnect
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="connectbar">
-      {connection.connected ? (
-        <>
-          <span className="cdot on" aria-hidden />
-          <span className="ctext">
-            Connected as <b>{connection.channelTitle}</b> — AudienceSignal can publish changes to this
-            channel's videos.
-          </span>
-          <button className="textlink" onClick={onDisconnect}>
-            Disconnect
-          </button>
-        </>
-      ) : (
-        <>
-          <span className="cdot" aria-hidden />
-          <span className="ctext">
-            {connection.configured
-              ? "Read-only. Connect your channel to let AudienceSignal make the changes instead of just listing them."
-              : "Read-only: no Google OAuth client is configured on this deployment, so changes can be previewed but not published."}
-          </span>
-          {connection.configured && (
-            <a className="connectbtn" href="/api/auth/start">
-              Connect YouTube channel
-            </a>
-          )}
-        </>
+      <span className="cdot" aria-hidden />
+      <span
+        className="ctext"
+        title={
+          connection.configured
+            ? "Read-only. Connect your channel to publish changes instead of just listing them."
+            : "Read-only: no Google OAuth client is configured on this deployment."
+        }
+      >
+        Read-only
+      </span>
+      {connection.configured && (
+        <a className="connectbtn" href="/api/auth/start">
+          Connect channel
+        </a>
       )}
-      {authError && <div className="cerror">{AUTH_ERRORS[authError] ?? `Sign-in failed: ${authError}`}</div>}
     </div>
   );
 }

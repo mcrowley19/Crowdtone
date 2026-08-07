@@ -296,7 +296,7 @@ export async function setModerationStatus(
     return commentIds.map((commentId) => ({
       commentId,
       status: "dry_run",
-      message: `Would be ${verb} — nothing was sent to YouTube.`,
+      message: `Would be ${verb}. Nothing was sent to YouTube.`,
     }));
   }
 

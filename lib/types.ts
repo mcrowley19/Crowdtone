@@ -38,6 +38,12 @@ export interface Theme {
 export interface ClusterResult {
   themes: Theme[];
   summary: string;
+  /**
+   * How many comments each tier actually classified. The model tier is
+   * batched and capped; the keyword scan covers whatever is left, so these
+   * two always sum to the full set that was read.
+   */
+  coverage?: { total: number; byModel: number };
 }
 
 export interface VideoIdea {
@@ -73,7 +79,7 @@ export interface ThumbnailVariant {
   frameSource: "yt-still" | "generated";
 }
 
-/* ---- actions: the things AudienceSignal can do to a video, not just say ---- */
+/* ---- actions: the things Crowdtone can do to a video, not just say ---- */
 
 export type ActionKind =
   | "retitle"

@@ -56,9 +56,10 @@ export function clusterHeuristically(comments: Comment[]): ClusterResult {
   return {
     themes,
     summary:
-      `Keyword scan of ${total} comments matched ${matched} to a theme; ` +
-      `the loudest signal is ${top.name} (${top.count} comments). ` +
+      `Keyword scan of ${total.toLocaleString()} comments matched ${matched.toLocaleString()} to a theme; ` +
+      `the loudest signal is ${top.name} (${top.count.toLocaleString()} comments). ` +
       `Configure an LLM key for deeper clustering.`,
+    coverage: { total, byModel: 0 },
   };
 }
 
@@ -86,7 +87,7 @@ export function heuristicAnalysis(comments: Comment[], videoTitle: string): Anal
       estimated_interest: confusion.length > 2 ? "high" : "medium",
     },
     {
-      title: `I read every comment on "${videoTitle}" — here's my response`,
+      title: `I read every comment on "${videoTitle}": here's my response`,
       hook: "The comments on my last video got spicy. Time to respond.",
       evidence_quotes: [...complaints.slice(0, 2), ...requests.slice(3, 4)].filter(Boolean),
       estimated_interest: "medium",
@@ -118,7 +119,7 @@ export function heuristicAnalysis(comments: Comment[], videoTitle: string): Anal
   if (fixes.length === 0) {
     fixes.push({
       issue: "No strong complaint signal detected",
-      fix: "Double down on what worked — pin the top praise comment and ask viewers what to cover next.",
+      fix: "Double down on what worked. Pin the top praise comment and ask viewers what to cover next.",
       evidence_quote: quotesFor(clusters, "praise")[0] ?? "",
     });
   }

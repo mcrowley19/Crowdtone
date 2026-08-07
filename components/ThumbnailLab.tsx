@@ -1,4 +1,5 @@
 import type { ThumbnailVariant, VideoMeta } from "@/lib/types";
+import { Panel } from "@/components/Panel";
 
 export function ThumbnailLab({
   video,
@@ -14,31 +15,24 @@ export function ThumbnailLab({
   onGenerate: () => void;
 }) {
   return (
-    <section className="report">
-      <h2>Thumbnail rematch</h2>
-      <p className="deck">Current thumbnail vs three redraws that answer the top complaint</p>
-      <p className="lede">
-        Complaint being addressed: &ldquo;{topComplaint}&rdquo;
-      </p>
-      <div className="thumbactions">
+    <Panel
+      title="Thumbnail rematch"
+      chip="Backgrounds: YouTube preview stills"
+      actions={
         <button className="go" onClick={onGenerate} disabled={loading}>
-          {loading
-            ? "Drawing…"
-            : variants.length
-              ? "Redraw variants"
-              : "Draw 3 variants from YouTube's preview stills"}
+          {loading ? "Drawing…" : variants.length ? "Redraw" : "Draw 3 variants"}
         </button>
-        <p className="drationale" style={{ margin: "8px 0 0" }}>
-          Backgrounds are the preview stills YouTube publishes for every public video —
-          real imagery from the video, though YouTube picks the three moments, not us.
-        </p>
-      </div>
+      }
+    >
+      <p className="lede">
+        Answering: &ldquo;{topComplaint}&rdquo;
+      </p>
       <div className="thumbrow">
         <figure>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={video.thumbnailUrl} alt="Current thumbnail" />
           <figcaption>
-            <b>Current.</b> As published on YouTube
+            <b>Current.</b> As published
           </figcaption>
         </figure>
         {variants.map((v, i) => (
@@ -47,11 +41,11 @@ export function ThumbnailLab({
             <img src={v.dataUrl} alt={`Variant ${i + 1}: ${v.text}`} />
             <figcaption>
               <b>Variant {i + 1}.</b> &ldquo;{v.text}&rdquo; &middot;{" "}
-              {v.frameSource === "yt-still" ? `YouTube preview still ${i + 1}` : "drawn background"}
+              {v.frameSource === "yt-still" ? `still ${i + 1}` : "drawn background"}
             </figcaption>
           </figure>
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }

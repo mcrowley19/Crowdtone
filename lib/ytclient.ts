@@ -10,11 +10,11 @@ function toAuthError(status: number, body: any): YouTubeApiError {
     return new YouTubeApiError(message, "quota", status);
   }
   if (status === 401) {
-    return new YouTubeApiError("Your YouTube sign-in expired — connect again.", "invalid_key", 401);
+    return new YouTubeApiError("Your YouTube sign-in expired. Connect again.", "invalid_key", 401);
   }
   if (status === 403) {
     return new YouTubeApiError(
-      message || "YouTube refused the change — check that this channel owns the video.",
+      message || "YouTube refused the change. Check that this channel owns the video.",
       "invalid_key",
       403
     );

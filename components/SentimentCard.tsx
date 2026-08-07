@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { sentimentTimeline, type SentimentBucket } from "@/lib/sentiment";
 import type { Comment } from "@/lib/types";
+import { Panel } from "@/components/Panel";
 
 const W = 800;
 const H = 220;
@@ -29,22 +30,14 @@ export function SentimentCard({ comments }: { comments: Comment[] }) {
   const step = plotW / buckets.length;
   const barW = Math.min(48, step * 0.6);
 
-  const mood =
-    overall.score > 0.12 ? "warm" : overall.score < -0.12 ? "rough" : "mixed";
   const hovered: SentimentBucket | null = hover === null ? null : buckets[hover];
 
   return (
-    <section className="report">
-      <h2>How the room feels</h2>
-      <p className="deck">
-        Every comment scored by a deterministic lexicon — no model, same input, same chart
-      </p>
-
+    <Panel
+      title="How the room feels"
+      chip={timeline.datedBuckets ? "Lexicon · no model · by date" : "Lexicon · no model · thread order"}
+    >
       <div className="statrow">
-        <div>
-          <span>Overall</span>
-          <b className={mood === "rough" ? "down" : mood === "warm" ? "up" : ""}>{mood}</b>
-        </div>
         <div>
           <span>Positive</span>
           <b>{overall.positive}</b>
@@ -111,15 +104,7 @@ export function SentimentCard({ comments }: { comments: Comment[] }) {
         )}
       </svg>
 
-      {hovered?.quote ? (
-        <div className="devidence">{hovered.quote}&rdquo;</div>
-      ) : (
-        <p className="drationale">
-          {timeline.datedBuckets
-            ? "Bars are slices of the comment date range. Hover one for its counts and its most polarized comment."
-            : "Comment dates were too tight to chart by time, so bars follow thread order instead."}
-        </p>
-      )}
-    </section>
+      {hovered?.quote && <div className="devidence">{hovered.quote}&rdquo;</div>}
+    </Panel>
   );
 }

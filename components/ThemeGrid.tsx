@@ -1,4 +1,5 @@
 import type { ClusterResult, ThemeName } from "@/lib/types";
+import { Panel } from "@/components/Panel";
 
 const LABELS: Record<ThemeName, string> = {
   praise: "Praise",
@@ -7,20 +8,24 @@ const LABELS: Record<ThemeName, string> = {
   confusion: "Confusion",
 };
 
+/**
+ * The model tier is batched and capped, so the chip states how much of the
+ * set it actually reached rather than implying it read all of it.
+ */
+function provenance(clusters: ClusterResult, source: string): string {
+  const { total = 0, byModel = 0 } = clusters.coverage ?? {};
+  if (source !== "llm" || byModel === 0) return "Keyword scan";
+  if (byModel >= total) return "Clustered by model";
+  return `${byModel.toLocaleString()} of ${total.toLocaleString()} clustered by model`;
+}
+
 export function ThemeGrid({ clusters, source }: { clusters: ClusterResult; source: string }) {
   const total = clusters.themes.reduce((n, t) => n + t.count, 0);
   const maxCount = Math.max(1, ...clusters.themes.map((t) => t.count));
 
   return (
-    <section className="report">
-      <h2>What the comments say</h2>
-      <p className="deck">
-        {source === "llm"
-          ? "Clustered by language model"
-          : "Matched by keyword scan · add an LLM key for deeper clustering"}
-      </p>
-      <p className="lede">{clusters.summary}</p>
-      <div style={{ marginTop: 14 }}>
+    <Panel title="What the comments say" chip={provenance(clusters, source)}>
+      <div style={{ marginTop: 4 }}>
         {clusters.themes.map((t) => (
           <div className={`themeband${t.name === "complaint" ? " hot" : ""}`} key={t.name}>
             <div className="tfacts">
@@ -45,6 +50,6 @@ export function ThemeGrid({ clusters, source }: { clusters: ClusterResult; sourc
           </div>
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }

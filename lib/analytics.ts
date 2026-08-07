@@ -7,14 +7,14 @@ import { YouTubeApiError } from "./youtube";
  * YouTube Analytics API v2 — the numbers Studio shows a creator but the Data
  * API doesn't carry: second-by-second audience retention, traffic sources,
  * and watch geography. Only works for the connected channel's own videos,
- * which is exactly where AudienceSignal's writes are allowed anyway.
+ * which is exactly where Crowdtone's writes are allowed anyway.
  */
 
 const ANALYTICS_BASE = "https://youtubeanalytics.googleapis.com/v2/reports";
 
 export class AnalyticsScopeError extends Error {
   constructor(
-    message = "Your sign-in predates analytics support — disconnect and connect again to grant it."
+    message = "Your sign-in predates analytics support. Disconnect and connect again to grant it."
   ) {
     super(message);
     this.name = "AnalyticsScopeError";
@@ -162,11 +162,11 @@ export function joinDipsWithMentions(
 export function dipEditAction(dip: RetentionDip): string {
   if (dip.mentions) {
     return (
-      `Pin a correction or reply at ${dip.timestamp} answering "${dip.mentions.quote.slice(0, 120)}" — ` +
+      `Pin a correction or reply at ${dip.timestamp} answering "${dip.mentions.quote.slice(0, 120)}", ` +
       `and add a chapter just before it so viewers can navigate instead of leaving.`
     );
   }
-  return `Rewatch ${dip.timestamp} ±15s — no comment explains this drop, so the answer is in the footage. Tighten or cut the segment in the next edit.`;
+  return `Rewatch ${dip.timestamp} ±15s. No comment explains this drop, so the answer is in the footage. Tighten or cut the segment in the next edit.`;
 }
 
 export interface VideoAnalytics {

@@ -1,10 +1,9 @@
 import type { VideoIdea } from "@/lib/types";
+import { Panel } from "@/components/Panel";
 
 export function BriefCard({ ideas }: { ideas: VideoIdea[] }) {
   return (
-    <section className="report">
-      <h2>What to make next</h2>
-      <p className="deck">Three ideas, ranked by how loudly the comments ask</p>
+    <Panel title="What to make next" chip="Ranked by how loudly the comments ask">
       <ol className="brief">
         {ideas.map((idea, i) => (
           <li key={i}>
@@ -29,6 +28,6 @@ export function BriefCard({ ideas }: { ideas: VideoIdea[] }) {
           </li>
         ))}
       </ol>
-    </section>
+    </Panel>
   );
 }

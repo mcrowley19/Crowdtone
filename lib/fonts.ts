@@ -39,7 +39,7 @@ async function setup(): Promise<void> {
   const fontDir = await firstExistingFontDir();
   if (!fontDir) return; // fall back to system fonts rather than breaking rendering
 
-  const confDir = path.join("/tmp", "audiencesignal-fontconfig");
+  const confDir = path.join("/tmp", "crowdtone-fontconfig");
   const cacheDir = path.join("/tmp", "fontconfig-cache");
   const conf = `<?xml version="1.0"?>
 <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">

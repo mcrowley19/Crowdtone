@@ -65,7 +65,7 @@ describe("fallbackBackgroundSvg", () => {
   });
 });
 
-import { scrimOpacityFor, textRegionFor } from "@/lib/thumbnails";
+import { regionLuminance, scrimOpacityFor, textRegionFor, THUMB_H, THUMB_W } from "@/lib/thumbnails";
 
 describe("luminance-aware scrims", () => {
   it("weights the veil by how bright the frame is under the text", () => {
@@ -88,5 +88,30 @@ describe("luminance-aware scrims", () => {
     expect(box.top).toBe(0); // top-left
     const center = textRegionFor("big-center");
     expect(center.left).toBeGreaterThan(0); // middle
+  });
+
+  // sharp's stats() reports on the image it was handed and ignores pipeline
+  // operations, so a chained .extract().stats() measures the whole frame and
+  // every style gets the same number. Half-black, half-white catches that.
+  it("reads only the region, not the whole frame", async () => {
+    const sharp = (await import("sharp")).default;
+    const split = await sharp(
+      Buffer.from(
+        `<svg width="${THUMB_W}" height="${THUMB_H}" xmlns="http://www.w3.org/2000/svg">
+           <rect width="${THUMB_W}" height="${THUMB_H / 2}" fill="#ffffff"/>
+           <rect y="${THUMB_H / 2}" width="${THUMB_W}" height="${THUMB_H / 2}" fill="#000000"/>
+         </svg>`
+      )
+    )
+      .png()
+      .toBuffer();
+
+    const top = await regionLuminance(split, "callout-box"); // upper-left
+    const bottom = await regionLuminance(split, "gradient-bar"); // bottom band
+
+    expect(top).toBeGreaterThan(240); // sits on the white half
+    expect(bottom).toBeLessThan(60); // sits on the black half
+    expect(scrimOpacityFor("callout-box", top)).toBeGreaterThan(0);
+    expect(scrimOpacityFor("gradient-bar", bottom)).toBeLessThan(0.85);
   });
 });

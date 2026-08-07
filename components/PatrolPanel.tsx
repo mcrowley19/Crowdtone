@@ -86,7 +86,7 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
     if (results[commentId]?.status === "simulated") {
       setRestored((prev) => ({
         ...prev,
-        [commentId]: "Simulated restore — the demo comment is back; YouTube was never touched.",
+        [commentId]: "Simulated restore. The demo comment is back; YouTube was never touched.",
       }));
       return;
     }
@@ -123,11 +123,9 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
   return (
     <>
       <p className="intro">
-        The comments you&rsquo;d delete if you had time to read them all. Patrol reads the comment
-        sections of your recent uploads and flags the impersonators wearing your channel&rsquo;s name,
-        the &ldquo;message me on WhatsApp&rdquo; lures, the crypto bait, and the paste-bots — then hides
-        the ones you tick, in bulk, through YouTube&rsquo;s own moderation endpoint. Every hidden
-        comment can be put back.
+        Flags impersonators, WhatsApp lures, crypto bait, and paste-bots across your recent
+        uploads, then hides the ones you tick through YouTube&rsquo;s moderation endpoint. Every
+        hidden comment can be put back.
       </p>
 
       <div className="thumbactions">
@@ -135,13 +133,13 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
           {loading ? "Scanning…" : "Patrol my channel"}
         </button>
         <button className="textlink" onClick={() => scan(true)} disabled={loading}>
-          No channel connected? Run the patrol on the bundled demo channel.
+          Run the demo channel
         </button>
       </div>
       {!connected && (
         <p className="statusline">
-          Connect your channel above to patrol your own comments — the demo below shows the full
-          sweep on a fictional channel with seeded scams.
+          Connect a channel to patrol your own comments. The demo runs a full sweep on a fictional
+          channel with seeded scams.
         </p>
       )}
 
@@ -161,7 +159,7 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
             </p>
 
             {flagged.length === 0 && (
-              <p className="lede">Nothing worth hiding — this comment section is clean.</p>
+              <p className="lede">Nothing worth hiding. This comment section is clean.</p>
             )}
 
             {flagged.length > 0 && (
@@ -236,16 +234,16 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
                   {data.demo ? (
                     armed ? (
                       <button className="go danger" onClick={() => moderate(true)} disabled={applying}>
-                        {applying ? "Simulating…" : `Yes — simulate hiding ${chosenCount}`}
+                        {applying ? "Simulating…" : `Yes, simulate hiding ${chosenCount}`}
                       </button>
                     ) : (
                       <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
-                        Simulated hide (demo) — {chosenCount} comment{chosenCount === 1 ? "" : "s"}
+                        Simulated hide (demo): {chosenCount} comment{chosenCount === 1 ? "" : "s"}
                       </button>
                     )
                   ) : armed ? (
                     <button className="go danger" onClick={() => moderate(true)} disabled={applying}>
-                      {applying ? "Hiding…" : `Yes — hide ${chosenCount} from YouTube now`}
+                      {applying ? "Hiding…" : `Yes, hide ${chosenCount} from YouTube now`}
                     </button>
                   ) : (
                     <button className="go" onClick={() => setArmed(true)} disabled={chosenCount === 0}>
@@ -257,12 +255,12 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
                   <p className="deckarmed">
                     {data.demo ? (
                       <>
-                        These are the bundled demo comments, so the hide is <b>simulated</b> —
+                        These are the bundled demo comments, so the hide is <b>simulated</b>.
                         nothing is sent to YouTube.
                       </>
                     ) : (
                       <>
-                        This sets each ticked comment to <b>rejected</b> on YouTube — viewers stop
+                        This sets each ticked comment to <b>rejected</b> on YouTube, so viewers stop
                         seeing it immediately. Every one gets a &ldquo;put it back&rdquo; button
                         afterwards.
                       </>
@@ -271,7 +269,7 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
                 )}
                 {applied && (
                   <p className="deckarmed">
-                    Hidden comments are rejected, not deleted — restoring one republishes it exactly
+                    Hidden comments are rejected, not deleted. Restoring one republishes it exactly
                     as it was.
                   </p>
                 )}
@@ -281,14 +279,14 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
             {cleared.length > 0 && (
               <div className="clearedlog">
                 <button className="textlink" onClick={() => setShowCleared((v) => !v)}>
-                  {showCleared ? "Hide" : "Show"} the false-positive diary — {cleared.length} flagged
+                  {showCleared ? "Hide" : "Show"} the false-positive diary: {cleared.length} flagged
                   comment{cleared.length === 1 ? "" : "s"} the model cleared
                 </button>
                 {showCleared && (
                   <ul className="quotelist plain">
                     {cleared.map((c) => (
                       <li key={c.comment.id}>
-                        <b>{c.comment.author}</b> — &ldquo;{c.comment.text.slice(0, 140)}&rdquo;
+                        <b>{c.comment.author}</b>: &ldquo;{c.comment.text.slice(0, 140)}&rdquo;
                         <span className="qsrc">
                           Pattern-matched as {c.reasons.map((r) => REASON_LABEL[r].toLowerCase()).join(", ")};
                           cleared because: {c.explanation}
@@ -298,7 +296,7 @@ export function PatrolPanel({ connected }: { connected: boolean }) {
                   </ul>
                 )}
                 <p className="drationale" style={{ margin: "6px 0 0" }}>
-                  Every heuristic hit the model overturns is logged here with its reason — bulk hide
+                  Every heuristic hit the model overturns is logged here with its reason, so bulk hide
                   is a decision you can audit, not a black box.
                 </p>
               </div>

@@ -25,7 +25,7 @@ export async function ensureFreshSession(
   origin: string
 ): Promise<{ session: Session; changed: boolean }> {
   if (session.expiresAt > Date.now()) return { session, changed: false };
-  if (!session.refreshToken) throw new NotConnectedError("Your YouTube sign-in expired — connect again.");
+  if (!session.refreshToken) throw new NotConnectedError("Your YouTube sign-in expired. Connect again.");
   const config = getOAuthConfig(origin);
   if (!config) throw new NotConnectedError("OAuth is not configured on this deployment.");
   let tokens;
@@ -36,7 +36,7 @@ export async function ensureFreshSession(
     // the user revoked access, or — while the OAuth client is unverified —
     // Google expired it after 7 days. Either way the fix is to connect again,
     // so say that rather than reporting a YouTube outage.
-    throw new NotConnectedError("Your YouTube sign-in has expired — connect again.");
+    throw new NotConnectedError("Your YouTube sign-in has expired. Connect again.");
   }
   return {
     session: {

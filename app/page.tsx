@@ -2,329 +2,345 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { RevealObserver } from "@/components/Reveal";
 
-/*
- * Concept: "The Front Page" — the tool reads comment sections, so its landing
- * page is set like the front page of a paper that just went to press. Same
- * poster identity as the app itself: cream stock, one red, Impact display,
- * structure from rules rather than cards.
- *
- * Motion: "gone to press." The page assembles the way a paper is set — rules
- * draw themselves across the column, headline slugs drop in from behind the
- * baseline, section labels slide out along their rules, and the black band's
- * words ink in under the scroll like a press rolling over the line. Entrance
- * only, no scroll-jacking, everything guarded for reduced motion.
- */
+const TITLE = "Crowdtone: turn a YouTube comment section into your next video";
+const DESCRIPTION =
+  "Crowdtone reads up to 1,000 comments on any public YouTube video and writes back a plan: comment themes with quotes, retention drop-offs explained by viewers, three next-video ideas, a fix list, redrawn thumbnails, a Shorts cut list, and translated packaging. Connect your channel and it publishes the changes.";
 
 export const metadata: Metadata = {
-  title: "AudienceSignal — the comment section already wrote your next video",
-  description:
-    "Paste a public YouTube video. AudienceSignal reads its comments and writes back a plan — themes, next-video ideas, fixes, redrawn thumbnails, retention dips explained by comments, a Shorts cut list — then, if you connect your channel, publishes the changes, translates your packaging, and sweeps the scams out of your comments.",
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    title: TITLE,
+    description: DESCRIPTION,
+    siteName: "Crowdtone",
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Crowdtone" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og.jpg"],
+  },
 };
 
-const OUTPUTS = [
+const FIGURES: [string, string][] = [
+  ["1,000", "comments read per video"],
+  ["11", "reports, each with the quote behind it"],
+  ["0", "API keys needed to run the demo"],
+  ["216", "tests covering the pipeline"],
+];
+
+const OUTPUTS: { name: string; what: string; mode?: boolean }[] = [
   {
     name: "Comment themes",
-    what: "Every comment sorted into praise, complaints, requests and confusion, with counts and the most-liked verbatim quotes under each.",
-    note: "Counts, not vibes",
+    what: "Every comment sorted into praise, complaints, requests and confusion, with counts and the most-liked quotes under each.",
   },
   {
-    name: "Next Video Brief",
-    what: "Three video ideas ranked by how loudly the comments ask for them. Each one arrives with a title, an opening hook, and the quotes proving viewers want it.",
-    note: "Titles and hooks",
+    name: "Room sentiment",
+    what: "Every comment scored by a fixed lexicon, all 1,000 of them, so the same thread always draws the same chart.",
   },
   {
-    name: "Fix This Video",
-    what: "Things worth doing to the video that is already published: retitle it, pin a correction, add chapters. Each backed by the comment that prompted it.",
-    note: "Doable today",
+    name: "Retention dips",
+    what: "Your sharpest drop-offs marked on the curve, each matched to the comment that explains why viewers left there.",
   },
   {
-    name: "Thumbnail Lab",
-    what: "Three thumbnail variants composited from the preview stills YouTube publishes for your video, overlaid with text that answers the loudest complaint, shown beside the thumbnail you published.",
-    note: "YouTube's own stills",
+    name: "Next-video brief",
+    what: "Three ideas ranked by how loudly the comments ask, each with a title, an opening hook, and the quotes proving demand.",
   },
   {
-    name: "Do it",
-    what: "The same findings written as finished copy and published for you: a new title, chapters mined from the timestamps viewers left, a comment answering the top confusion, replies to the questions people asked, the new thumbnail. You tick what you want, see the exact diff, confirm, and can undo.",
-    note: "Changes, not advice",
+    name: "Fix list",
+    what: "Changes worth making to the video you already published, every one tied to the comment that prompted it.",
   },
   {
-    name: "The numbers behind it",
-    what: "For your own videos, the YouTube Analytics API joins the picture: the audience-retention curve with its sharpest drop-offs marked. When viewers timestamped that exact moment in the comments, the quote that explains the dip sits right under it. Plus traffic sources, watch geography, and subscribers gained.",
-    note: "Retention × comments",
+    name: "Thumbnail rematch",
+    what: "Three variants composited from YouTube's own preview stills, overlaid with a line answering the loudest complaint.",
   },
   {
-    name: "Cut these into Shorts",
-    what: "The moments viewers timestamped are the moments they rewatched and quoted. Each becomes a ready-to-cut clip spec: a start and end time, why it works, and the comment to open the Short with.",
-    note: "The free highlight reel",
+    name: "Shorts cut list",
+    what: "The moments viewers timestamped, with in and out points and an editor pack of markers, an EDL, and captions.",
   },
   {
-    name: "Speak their language",
-    what: "Your Analytics say where the audience actually is. AudienceSignal translates the title and description into those languages and publishes them as YouTube localizations, so a viewer in São Paulo sees your video packaged in Portuguese.",
-    note: "Published, not pasted",
+    name: "Translated packaging",
+    what: "Title and description rendered into the languages your analytics show, published as YouTube localizations.",
   },
   {
-    name: "Comment Patrol",
-    what: "A sweep of your recent uploads for the comments every channel gets: impersonators wearing your name in a fancy-unicode font, WhatsApp and crypto lures, giveaway bots, cross-video paste spam. Tick the ones to hide and they are moderated in bulk, reversibly.",
-    note: "Scams out, in bulk",
+    name: "Superfans",
+    what: "The viewers worth replying to today, ranked by arithmetic on likes, questions and timestamps rather than a model's guess.",
+  },
+  {
+    name: "Publish queue",
+    what: "Every finding written as finished copy: title, chapters, pinned comment, replies, thumbnail. Tick it, read the diff, confirm, undo.",
+  },
+  {
+    name: "Audience digest",
+    what: "The whole report folded into one email you could send weekly, composed in code from figures the report already proved.",
   },
   {
     name: "Plan the next one",
-    what: "Channel-wide: the last twenty uploads scored against your own median views a day, the comment sections of the recent and the outperforming ones, and out of it one video — title, spoken hook, beat-by-beat outline, description, tags, runtime, publish date — with the numbers and quotes behind each.",
-    note: "One video, filmable",
+    what: "Channel-wide: twenty uploads scored against your own median views a day, ending in one video specified well enough to film.",
+    mode: true,
+  },
+  {
+    name: "Comment patrol",
+    what: "A sweep of recent uploads for impersonators, WhatsApp lures, crypto bait and paste-bots, hidden in bulk and reversibly.",
+    mode: true,
+  },
+  {
+    name: "Premiere co-pilot",
+    what: "Live chat triaged as it arrives: questions worth answering on air, scam bots hidden, and the seconds chat spikes timestamped.",
+    mode: true,
   },
 ];
 
-const STEPS = [
-  ["Read", "Pulls the video's metadata and up to 200 top-level comments through the YouTube Data API. Public data, no account needed."],
-  ["Cluster", "A language model sorts every comment into the four themes and writes a summary of what the audience is collectively saying."],
-  ["Draft", "Further passes turn those clusters into next-video ideas, a fix list, thumbnail overlay lines, and the finished copy of each change."],
-  ["Redraw", "YouTube's own preview stills of the video are fetched and composited with the overlay text, so the report ends in pictures rather than advice."],
-  ["Publish", "Connect your channel and the changes you tick are written to YouTube: title, description, chapters, thumbnail, localized metadata, comments and replies, and the scams swept out of your comment sections. Each one previewable first and undoable after."],
+const STEPS: [string, string][] = [
+  ["Read", "Video metadata and up to 1,000 top-level comments through the YouTube Data API, which costs ten of the 10,000 free quota units a day. Public data, no account required."],
+  ["Cluster", "The comments are batched and a language model sorts each batch into the four themes. With no key configured, a keyword scan does the same job."],
+  ["Draft", "Those clusters become next-video ideas, a fix list, thumbnail lines, and the finished copy of every proposed change."],
+  ["Redraw", "YouTube's published preview stills are fetched and composited with the overlay text, so the report ends in pictures."],
+  ["Publish", "Connect your channel and the changes you tick are written to YouTube, each previewable as a diff first and undoable after."],
 ];
 
-const BAND =
-  "The comments say what to fix, what to film next, and which scams to sweep. This reads them, shows the receipts, and does the work.";
-
-function BandWords() {
-  const words = BAND.split(" ");
-  return (
-    <p className="lp-band-inner" aria-label={BAND}>
-      {words.map((word, i) => (
-        <span
-          key={i}
-          className="w"
-          aria-hidden
-          style={{ ["--i" as string]: ((i / words.length) * 0.69).toFixed(3) }}
-        >
-          {word}
-          {i < words.length - 1 ? " " : ""}
-        </span>
-      ))}
-    </p>
-  );
-}
-
-function Slug({ children }: { children: string }) {
-  return (
-    <div className="lp-slug" data-reveal>
-      <i aria-hidden />
-      <span>{children}</span>
-    </div>
-  );
-}
+const FACTS: [string, string][] = [
+  ["Reading needs no account", "Video metadata and top-level comments arrive through the YouTube Data API as public data. No viewer accounts, ever."],
+  ["The demo runs on zero keys", "A bundled 50-comment dataset drives the whole pipeline, so the tool is reviewable without credentials."],
+  ["Thumbnails use YouTube's own stills", "YouTube publishes three preview stills of every public video, so variants composite real frames. No yt-dlp, no ffmpeg. The demo video is fictional, so the samples above sit on a stand-in frame."],
+  ["Nothing is stored", "Fetched comments are cached briefly to spare API quota. Your sign-in lives in one signed cookie, and signing out revokes it with Google."],
+  ["Writing is opt-in and scoped", "Publishing needs a Google sign-in and a second confirmation. Every write is checked against the channel you connected."],
+  ["The chapter engine is open source", "The timestamp parser that mines chapters from comments ships separately as youtube-chapter-kit, MIT licensed with its own tests."],
+];
 
 export default function Landing() {
   return (
-    <>
-      <header className="lp-nav">
-        <div className="lp-nav-inner">
-          <Link href="/" className="lp-word">
-            Audience<span>Signal</span>
+    <div className="ct">
+      <header className="ct-nav">
+        <div className="ct-nav-in">
+          <Link href="/" className="ct-mark">
+            Crowd<span>tone</span>
           </Link>
-          <nav className="lp-nav-links">
+          <nav className="ct-nav-links">
+            <a href="#report">The report</a>
             <a href="#outputs">What it makes</a>
             <a href="#how">How it works</a>
-            <a href="#honest">The fine print</a>
+            <a href="#honest">Fine print</a>
           </nav>
-          <Link href="/app" className="lp-btn lp-btn-sm">
+          <Link href="/app" className="ct-btn">
             Open the tool
           </Link>
         </div>
       </header>
 
-      <main className="lp">
-        <section className="lp-hero-poster">
-          <div className="lp-hero-text">
-            <h1>
-              <span className="mline">
-                <span>The comment section</span>
-              </span>
-              <span className="mline">
-                <span>already wrote your</span>
-              </span>
-              <span className="mline">
-                <span className="lp-red">next video.</span>
-              </span>
-            </h1>
-            <p className="lp-lede">
-              A video lands, hundreds of comments arrive, and you scroll. Viewers say
-              plainly what confused them, what they want next, and where the title
-              oversold it. AudienceSignal reads all of it, shows the receipts, and makes
-              the changes.
-            </p>
-            <div className="lp-cta">
-              <Link href="/app" className="lp-btn">
-                Run the live demo
-              </Link>
-              <a href="#how" className="lp-btn lp-btn-ghost">
-                How it works
-              </a>
+      <main>
+        <section className="ct-hero">
+          <div className="ct-hero-art">
+            <div className="ct-hero-card">
+              <h1>
+                <span className="mline">
+                  <span>The comment section</span>
+                </span>
+                <span className="mline">
+                  <span>already wrote your</span>
+                </span>
+                <span className="mline">
+                  <span className="ct-red">next video.</span>
+                </span>
+              </h1>
+              <p className="ct-lede">
+                Crowdtone reads up to 1,000 comments on any public YouTube video and writes back
+                a plan: what to fix, what to film next, and a thumbnail that answers the loudest
+                complaint. Connect your channel and it publishes the changes for you.
+              </p>
+              <div className="ct-cta">
+                <Link href="/app" className="ct-btn ct-btn-lg">
+                  Run the demo
+                </Link>
+                <a href="#report" className="ct-btn ct-btn-lg ct-btn-ghost">
+                  See the report
+                </a>
+              </div>
             </div>
-            <p className="lp-note">
-              The demo needs no keys and no account. It runs the whole pipeline on a
-              bundled 50-comment dataset.
-            </p>
           </div>
         </section>
 
-        <section className="lp-rematch">
-          <div className="lp-rematch-copy">
-            <Slug>Thumbnail rematch</Slug>
-            <p className="lp-lede">
-              Paste a video address and every claim comes back with a viewer quote as
-              evidence. Connect your channel and it publishes the fixes: retitles,
-              chapters, thumbnails, replies, translated packaging, and a bulk sweep of
-              the scam comments impersonating you.
-            </p>
-            <p className="lp-note lp-art-note">
-              From the bundled demo dataset. On a real video these are composited from
-              the preview stills YouTube publishes for it.
-            </p>
-          </div>
-          <figure>
-            <span className="lp-frame">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/demo-thumb.svg"
-                alt="The published thumbnail from the demo dataset: a laptop on a dark background with the words 30 DAYS LATER."
-                width={1280}
-                height={720}
-              />
-            </span>
-            <figcaption>
-              <b>Published.</b> What the viewer saw
-            </figcaption>
-          </figure>
-          <figure>
-            <span className="lp-frame">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/sample-callout-box.jpg"
-                alt="A redrawn thumbnail: a red callout box reading THE HONEST VERSION."
-                width={1280}
-                height={720}
-                loading="lazy"
-              />
-            </span>
-            <figcaption>
-              <b>Redrawn.</b> Answering the top complaint, that the title oversold the
-              video
-            </figcaption>
-          </figure>
-        </section>
-
-        <section className="lp-band" data-scrollwords>
-          <BandWords />
-          <span className="lp-credit">
-            NYT composing room, 1942 · Library of Congress
-          </span>
-        </section>
-
-        <section id="outputs" className="lp-sec">
-          <Slug>What comes back</Slug>
-          <h2 className="rv-slide" data-reveal>
-            Ten things, and the evidence for each
-          </h2>
-          <dl className="lp-index rv-rule" data-reveal>
-            {OUTPUTS.map((o) => (
-              <div key={o.name} className="lp-index-row">
-                <dt className="rv-slide" data-reveal>
-                  <em>{o.name}</em>
-                </dt>
-                <dd className="rv-ink" data-reveal>
-                  <p>{o.what}</p>
-                  <span className="lp-tag">{o.note}</span>
-                </dd>
+        <section className="ct-figures">
+          <div className="ct-figures-in">
+            {FIGURES.map(([n, label]) => (
+              <div key={label}>
+                <b>{n}</b>
+                <span>{label}</span>
               </div>
             ))}
-          </dl>
-        </section>
-
-        <section id="how" className="lp-sec lp-sec-alt">
-          <Slug>How it works</Slug>
-          <h2 className="rv-slide" data-reveal>
-            Five passes, about a minute
-          </h2>
-          <ol className="lp-steps rv-rule" data-reveal>
-            {STEPS.map(([name, body]) => (
-              <li key={name}>
-                <b>{name}</b>
-                <p>{body}</p>
-              </li>
-            ))}
-          </ol>
-          <p className="lp-aside rv-ink" data-reveal>
-            Every model response is validated against a strict schema before it reaches
-            the page. When a response fails, or a free model times out, that section
-            falls back to a keyword analyser on its own, so the report degrades one
-            section at a time instead of collapsing.
-          </p>
-        </section>
-
-        <section id="honest" className="lp-sec">
-          <Slug>The fine print</Slug>
-          <h2 className="rv-slide" data-reveal>
-            What this actually is
-          </h2>
-          <ul className="lp-facts rv-rule" data-reveal>
-            <li>
-              <b>Reading needs no account.</b> Video metadata and top-level comments come
-              through the YouTube Data API as public data. Nothing private, no viewer
-              accounts, ever.
-            </li>
-            <li>
-              <b>Runs on a free model.</b> This deployment is wired to a free hosted model,
-              so an analysis takes roughly a minute rather than a few seconds. Quality
-              tracks the model, and the fallback analyser covers the gaps.
-            </li>
-            <li>
-              <b>Thumbnails use YouTube&rsquo;s own stills.</b> YouTube publishes three preview stills of every
-              public video at predictable addresses, so the variants are composited from
-              the actual video. No yt-dlp, no ffmpeg.
-            </li>
-            <li>
-              <b>Nothing is kept.</b> Fetched comments are cached briefly to spare API
-              quota and are not stored permanently. Your sign-in lives in one signed
-              cookie, not a database, and signing out revokes it with Google.
-            </li>
-            <li>
-              <b>Writing is opt-in, and yours.</b> Publishing a change requires signing
-              in with Google and a second, deliberate confirmation. Every write is checked
-              against the channel you connected, so the tool can only ever change your own
-              videos, and most changes can be undone from the same screen.
-            </li>
-          </ul>
-        </section>
-
-        <section className="lp-close" data-reveal>
-          <h2 className="rv-slide" data-reveal>
-            The audience is<br />already talking.
-          </h2>
-          <div className="lp-cta rv-ink" data-reveal>
-            <Link href="/app" className="lp-btn">
-              Open the tool
-            </Link>
-            <a href="#outputs" className="lp-btn lp-btn-ghost">
-              What comes back
-            </a>
           </div>
-          <p className="lp-note rv-ink" data-reveal>
-            Works without any keys on the bundled dataset. Add a YouTube API key to analyse
-            a live video.
-          </p>
-          <span className="lp-credit">
-            Crowd watching the playograph, World Series, 1911 · Library of Congress
-          </span>
+        </section>
+
+        <div className="ct-wrap">
+          <section id="report" className="ct-sec">
+            <h2 className="rv-slide" data-reveal>
+              What the report shows for one video
+            </h2>
+            <p className="ct-sub rv-ink" data-reveal>
+              One video, six views. The strip across the top holds the loudest signal, the mood of
+              the room, and the count of changes waiting, so the state of the audience reads at a
+              glance before you open anything.
+            </p>
+            <span className="ct-shot rv-ink" data-reveal>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/shot-report.jpg"
+                alt="The Crowdtone report on a demo video, showing the figure strip, the section rail, and comments grouped into praise and complaints with verbatim quotes."
+                width={1512}
+                height={786}
+              />
+            </span>
+            <p className="ct-cap">
+              <b>Signals.</b> 50 comments sorted into four themes, counted, and quoted verbatim
+            </p>
+          </section>
+
+          <section className="ct-sec ct-sec-tight">
+            <h2 className="rv-slide" data-reveal>
+              Retention: where viewers left, and why
+            </h2>
+            <div className="ct-shots">
+              <figure>
+                <span className="ct-shot rv-ink" data-reveal>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/shot-retention.jpg"
+                    alt="The retention view: an audience retention curve with two drop-off points marked in red, and the viewer comment explaining the first one printed underneath."
+                    width={1512}
+                    height={786}
+                    loading="lazy"
+                  />
+                </span>
+                <p className="ct-cap">
+                  <b>Drop-offs.</b> Each dip labelled with the comment that names that timestamp
+                </p>
+              </figure>
+              <div>
+                <p className="ct-sub" style={{ marginTop: 0 }}>
+                  The YouTube Analytics API gives the curve. The comment section gives the reason.
+                  Crowdtone joins them at the second, then drafts the correction to pin and the
+                  chapter to add so viewers navigate instead of leaving.
+                </p>
+                <div className="ct-cta">
+                  <Link href="/app" className="ct-btn">
+                    Open the tool
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="ct-sec ct-sec-tight">
+            <h2 className="rv-slide" data-reveal>
+              Thumbnails redrawn from YouTube&rsquo;s own stills
+            </h2>
+            <div className="ct-rematch">
+              <figure>
+                <span className="ct-frame rv-ink" data-reveal>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/demo-thumb.jpg"
+                    alt="The published thumbnail from the demo dataset: a laptop lit in purple and blue, captioned AFTER 30 DAYS in white and INSANE. in yellow."
+                    width={1280}
+                    height={720}
+                    loading="lazy"
+                  />
+                </span>
+                <p className="ct-cap">
+                  <b>Published.</b> What the viewer saw
+                </p>
+              </figure>
+              <figure>
+                <span className="ct-frame rv-ink" data-reveal>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/sample-callout-box.jpg"
+                    alt="The same frame redrawn by Crowdtone: a red callout box in the top-left reading THE HONEST VERSION."
+                    width={1280}
+                    height={720}
+                    loading="lazy"
+                  />
+                </span>
+                <p className="ct-cap">
+                  <b>Redrawn.</b> Answering the top complaint, that the title oversold the video
+                </p>
+              </figure>
+            </div>
+          </section>
+
+          <section id="outputs" className="ct-sec">
+            <h2 className="rv-slide" data-reveal>
+              Fourteen outputs, each with its evidence
+            </h2>
+            <div className="ct-grid rv-ink" data-reveal>
+              {OUTPUTS.map((o) => (
+                <div className="ct-card" key={o.name}>
+                  {o.mode && <span className="ct-tag">Separate mode</span>}
+                  <h3>{o.name}</h3>
+                  <p>{o.what}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section id="how" className="ct-sec">
+            <h2 className="rv-slide" data-reveal>
+              How it works: five passes, about a minute
+            </h2>
+            <ol className="ct-steps rv-ink" data-reveal>
+              {STEPS.map(([name, body]) => (
+                <li key={name}>
+                  <b>{name}</b>
+                  <p>{body}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <section id="honest" className="ct-sec">
+            <h2 className="rv-slide" data-reveal>
+              The fine print: data, keys and permissions
+            </h2>
+            <ul className="ct-facts rv-ink" data-reveal>
+              {FACTS.map(([name, body]) => (
+                <li key={name}>
+                  <b>{name}</b>
+                  {body}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+
+        <section className="ct-close" data-reveal>
+          <div className="ct-close-in">
+            <h2 className="rv-slide" data-reveal>
+              Run it on one comment section
+            </h2>
+            <p className="ct-sub rv-ink" data-reveal style={{ color: "rgba(243,240,233,0.82)" }}>
+              Paste any public YouTube address, or run the bundled dataset with no keys at all.
+            </p>
+            <div className="ct-cta rv-ink" data-reveal>
+              <Link href="/app" className="ct-btn ct-btn-lg">
+                Run the demo
+              </Link>
+              <a href="#outputs" className="ct-btn ct-btn-lg ct-btn-ghost">
+                What it makes
+              </a>
+            </div>
+          </div>
         </section>
       </main>
 
-      <footer className="lp-foot">
-        <div className="lp-foot-inner">
-          <span>AudienceSignal</span>
+      <footer className="ct-foot">
+        <div className="ct-foot-in">
+          <b>Crowdtone</b>
           <span>Turn a comment section into your next video</span>
         </div>
       </footer>
       <RevealObserver />
-    </>
+    </div>
   );
 }

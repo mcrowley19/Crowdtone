@@ -6,6 +6,7 @@ import { sentimentTimeline } from "@/lib/sentiment";
 import type { Superfan } from "@/lib/superfans";
 import type { VideoAnalytics } from "@/lib/analytics";
 import type { Analysis, Comment, VideoMeta } from "@/lib/types";
+import { Panel } from "@/components/Panel";
 
 /**
  * The "State of the Audience" email. Composed in code (lib/digest) from what
@@ -63,27 +64,20 @@ export function DigestCard({
   };
 
   return (
-    <section className="report">
-      <h2>State of the Audience</h2>
-      <p className="deck">The whole report, folded into one email you could send every Monday</p>
+    <Panel title="State of the Audience" chip="Composed in code · nothing sent from here">
       <p className="lede">
         Subject: <b>{digest.subject}</b>
       </p>
       <div className="thumbactions">
         <button className="go" onClick={copy}>
-          {copied ? "Copied, ready to paste" : "Copy the email"}
+          {copied ? "Copied" : "Copy the email"}
         </button>
-        <button onClick={download}>Download as markdown</button>
+        <button onClick={download}>Markdown</button>
         <button className="textlink" onClick={() => setOpen((v) => !v)}>
-          {open ? "Hide the preview" : "Preview it"}
+          {open ? "Hide preview" : "Preview"}
         </button>
       </div>
       {open && <pre className="planpre digestpre">{digest.markdown}</pre>}
-      <p className="drationale">
-        Composed in code from the sections above — the themes, the worst retention dip, your
-        superfans — so every number in the email is one the report already proved. Paste it into
-        any newsletter tool; nothing is sent from here.
-      </p>
-    </section>
+    </Panel>
   );
 }

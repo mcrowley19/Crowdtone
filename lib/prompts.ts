@@ -3,8 +3,8 @@ import { formatTimestamp } from "./chapters";
 import type { Analysis, ClusterResult, Comment, VideoMeta } from "./types";
 
 export const SYSTEM_PROMPT =
-  "You are AudienceSignal, an analyst that turns YouTube comment sections into actionable plans for creators. " +
-  "Always respond with a single valid JSON object matching the requested schema — no markdown, no commentary. " +
+  "You are Crowdtone, an analyst that turns YouTube comment sections into actionable plans for creators. " +
+  "Always respond with a single valid JSON object matching the requested schema. No markdown, no commentary. Never use em dashes in any text you write. " +
   "Every quote you return must be copied verbatim from the provided comments.";
 
 function commentBlock(comments: Comment[]): string {
@@ -43,7 +43,7 @@ export function fixVideoPrompt(clusters: ClusterResult, videoTitle: string): str
     `Each: {"issue": string, "fix": string, "evidence_quote": string}. ` +
     `Return JSON: {"fixes": [ ... ]}\n\n` +
     `Fixes must be concretely actionable on this exact video (title/description edits, pinned comment, ` +
-    `chapters, follow-up clarification, thumbnail change) — not generic advice.\n\n` +
+    `chapters, follow-up clarification, thumbnail change), not generic advice.\n\n` +
     `Video title: "${videoTitle}"\n\nComplaint and confusion themes:\n${JSON.stringify(relevant, null, 2)}`
   );
 }
@@ -61,8 +61,8 @@ export function nextVideoPlanPrompt(
   const demandBlock = demand
     .map((d) => `- [${d.likeCount} likes, on "${d.videoTitle}"] ${d.quote}`)
     .join("\n");
-  const recent = stats.top.map((p) => `- "${p.video.title}" — ${p.outlierScore}× normal`).join("\n");
-  const weak = stats.bottom.map((p) => `- "${p.video.title}" — ${p.outlierScore}× normal`).join("\n");
+  const recent = stats.top.map((p) => `- "${p.video.title}": ${p.outlierScore}× normal`).join("\n");
+  const weak = stats.bottom.map((p) => `- "${p.video.title}": ${p.outlierScore}× normal`).join("\n");
 
   return (
     `Plan the next video for this channel. Decide ONE video to make and specify it well enough that the ` +
@@ -88,7 +88,7 @@ export function nextVideoPlanPrompt(
     `- "outline" is 4-7 beats; "beat" is a 2-4 word section name, "detail" says what happens in it.\n` +
     `- "description" is a ready-to-paste YouTube description, first two lines carrying the search value.\n` +
     `- "thumbnail_text" is max 6 words for the overlay.\n` +
-    `- "avoid" lists what the comments show goes badly on this channel — mistakes not to repeat.\n` +
+    `- "avoid" lists what the comments show goes badly on this channel, meaning mistakes not to repeat.\n` +
     `- "confidence" is how strongly the comment demand supports this specific video.\n` +
     `- Ground the idea in the demand quotes below. Do not propose a topic nobody asked for.\n\n` +
     `Channel: "${channel.title}" (${channel.subscriberCount} subscribers)\n\n` +
@@ -123,7 +123,7 @@ export function actionPlanPrompt(
 
   return (
     `Write the actual changes to publish on this video. Everything you return will be applied to a live ` +
-    `YouTube video by its own creator, so return finished copy in the creator's voice — no placeholders, ` +
+    `YouTube video by its own creator, so return finished copy in the creator's voice, with no placeholders, ` +
     `no square brackets, no "insert X here".\n\n` +
     `Return JSON:\n` +
     `{\n` +
@@ -141,7 +141,7 @@ export function actionPlanPrompt(
     `Label each in 2-5 words describing what happens there, inferred from what viewers said about it.\n` +
     `- "pinned_comment": one comment from the creator that resolves the most repeated confusion. Under 600 characters.\n` +
     `- "replies": answer up to 5 of the numbered viewer questions below. "comment_index" is the number in ` +
-    `that list. Each reply is 1-3 sentences, direct, and answers the actual question — no "great question!".\n` +
+    `that list. Each reply is 1-3 sentences, direct, and answers the actual question, with no "great question!".\n` +
     `- Never promise anything the creator has not said they will do.\n\n` +
     `Current title: "${video.title}"\n` +
     `Current description (first 600 chars):\n${(video.description ?? "(empty)").slice(0, 600)}\n\n` +
@@ -200,7 +200,7 @@ export function localizePrompt(video: VideoMeta, languages: string[]): string {
     `}\n\n` +
     `Rules:\n` +
     `- Provide exactly these language codes: ${languages.join(", ")}.\n` +
-    `- Titles stay under 100 characters and keep the promise of the original — adapt idioms, don't ` +
+    `- Titles stay under 100 characters and keep the promise of the original, adapting idioms, don't ` +
     `translate them word for word.\n` +
     `- Descriptions keep their structure and line breaks. Leave URLs, @handles, #hashtags, timestamps ` +
     `(like 8:14), product names, and numbers untouched.\n` +

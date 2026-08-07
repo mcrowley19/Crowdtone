@@ -236,7 +236,7 @@ export function heuristicActionPlan(ctx: ActionContext): ActionPlanDraft {
   if (topConfusion) {
     draft.pinnedComment = {
       text:
-        `Pinned answer: a lot of you asked about this — "${trimForDiff(topConfusion, 160)}". ` +
+        `Pinned answer: a lot of you asked about this: "${trimForDiff(topConfusion, 160)}". ` +
         `Short version: here's the clarification, and I'll cover it properly in the next video.`,
       why: "Most-repeated confusion in the thread, unanswered.",
     };
@@ -420,7 +420,7 @@ export async function applyAction(
   const base = { id: action.id, kind: action.kind };
 
   if (dryRun) {
-    return { ...base, status: "dry_run", message: "Previewed — nothing was sent to YouTube." };
+    return { ...base, status: "dry_run", message: "Previewed. Nothing was sent to YouTube." };
   }
 
   // Every write, including replies, is gated on the connected channel owning
@@ -483,7 +483,7 @@ export async function applyAction(
       return {
         ...base,
         status: "applied",
-        message: "New thumbnail uploaded — YouTube takes a minute to show it everywhere.",
+        message: "New thumbnail uploaded. YouTube takes a minute to show it everywhere.",
         url: videoUrl(videoId),
         undo: imageDataUrl ? { kind: "restore_thumbnail", videoId, imageDataUrl } : undefined,
       };
@@ -593,7 +593,7 @@ export async function undoAction(accessToken: string, channelId: string, ticket:
       );
       return ticket.localizations
         ? "Previous localizations put back."
-        : "Localizations removed — the video is back to its original language only.";
+        : "Localizations removed. The video is back to its original language only.";
     }
     case "restore_thumbnail": {
       const current = await fetchOwnVideo(accessToken, ticket.videoId);

@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       {
         error:
           reason === "no_api_key"
-            ? "No YouTube API key configured — connect your channel instead."
+            ? "No YouTube API key configured. Connect your channel instead."
             : "Connect your channel, or paste a channel URL.",
         code: "no_api_key",
       },

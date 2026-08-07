@@ -1,10 +1,9 @@
 import type { VideoFix } from "@/lib/types";
+import { Panel } from "@/components/Panel";
 
 export function FixList({ fixes }: { fixes: VideoFix[] }) {
   return (
-    <section className="report">
-      <h2>What to fix on this video</h2>
-      <p className="deck">Changes you can make today, each tied to a comment</p>
+    <Panel title="What to fix on this video" chip="Each tied to a comment">
       <div className="fixgrid">
         {fixes.map((f, i) => (
           <div className="fix" key={i}>
@@ -14,6 +13,6 @@ export function FixList({ fixes }: { fixes: VideoFix[] }) {
           </div>
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }

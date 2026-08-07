@@ -74,8 +74,8 @@ export async function chatJSON(
     Authorization: `Bearer ${config.apiKey}`,
   };
   if (config.provider === "openrouter") {
-    headers["HTTP-Referer"] = "https://github.com/mcrowley19/youtube-automation";
-    headers["X-Title"] = "AudienceSignal";
+    headers["HTTP-Referer"] = "https://github.com/mcrowley19/Crowdtone";
+    headers["X-Title"] = "Crowdtone";
   }
   const res = await fetch(`${config.baseUrl}/chat/completions`, {
     method: "POST",

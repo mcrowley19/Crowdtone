@@ -1,4 +1,4 @@
-# Contributing to AudienceSignal
+# Contributing to Crowdtone
 
 Thanks for wanting to help. The project is deliberately small and readable —
 please keep it that way.

@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { dipEditAction, type VideoAnalytics } from "@/lib/analytics";
 import { formatTimestamp } from "@/lib/chapters";
+import { Panel } from "@/components/Panel";
 
 const fmt = new Intl.NumberFormat("en-US");
 
@@ -19,10 +20,12 @@ export function AnalyticsCard({
   analytics,
   demo,
   durationSeconds,
+  onDraftReply,
 }: {
   analytics: VideoAnalytics;
   demo: boolean;
   durationSeconds: number;
+  onDraftReply?: () => void;
 }) {
   const { retention, totals, trafficSources, countries } = analytics;
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -58,14 +61,10 @@ export function AnalyticsCard({
   );
 
   return (
-    <section className="report">
-      <h2>The numbers behind it</h2>
-      <p className="deck">
-        {demo
-          ? "Demo analytics — a bundled retention curve, run through the real dip detector"
-          : "From the YouTube Analytics API — only the channel's owner can see these"}
-      </p>
-
+    <Panel
+      title="The numbers behind it"
+      chip={demo ? "Bundled curve · real dip detector" : "YouTube Analytics API · owner only"}
+    >
       {totals && (
         <div className="statrow">
           <div>
@@ -151,13 +150,13 @@ export function AnalyticsCard({
             <ul className="diplist">
               {retention.dips.map((d) => {
                 const action = dipEditAction(d);
-                const note = `${d.timestamp} — ${d.dropPercent}% of the audience leaves.\n${
+                const note = `${d.timestamp}: ${d.dropPercent}% of the audience leaves.\n${
                   d.mentions ? `Viewer evidence: "${d.mentions.quote}"\n` : ""
                 }Edit action: ${action}`;
                 return (
                   <li key={d.seconds}>
                     <b>
-                      {d.timestamp} — {d.dropPercent}% of the audience leaves.
+                      {d.timestamp}: {d.dropPercent}% of the audience leaves.
                     </b>{" "}
                     {d.mentions ? (
                       <>
@@ -165,17 +164,17 @@ export function AnalyticsCard({
                         this moment: &ldquo;{d.mentions.quote}&rdquo;
                       </>
                     ) : (
-                      "No comment mentions this moment — the answer is in the footage."
+                      "No comment mentions this moment. The answer is in the footage."
                     )}
                     <span className="dipaction">{action}</span>
                     <span className="clipactions">
                       <button className="textlink" onClick={() => copyNote(d.seconds, note)}>
                         {copiedNote === d.seconds ? "Copied" : "Copy the edit note"}
                       </button>
-                      {d.mentions && (
-                        <a className="textlink" href="#do-it">
-                          Draft the pinned reply below
-                        </a>
+                      {d.mentions && onDraftReply && (
+                        <button className="textlink" onClick={onDraftReply}>
+                          Draft the pinned reply
+                        </button>
                       )}
                     </span>
                   </li>
@@ -183,11 +182,11 @@ export function AnalyticsCard({
               })}
             </ul>
           ) : (
-            <p className="lede">No sharp drop-offs — the audience leaves gradually, not at a moment.</p>
+            <p className="lede">No sharp drop-offs. The audience leaves gradually, not at a moment.</p>
           )}
           {retention.atHalfway !== null && (
             <p className="drationale" style={{ margin: "8px 0 0" }}>
-              {retention.atHalfway}% of the starting audience is still watching at the halfway mark.
+              {retention.atHalfway}% still watching at the halfway mark.
             </p>
           )}
         </div>
@@ -235,6 +234,6 @@ export function AnalyticsCard({
           )}
         </div>
       )}
-    </section>
+    </Panel>
   );
 }

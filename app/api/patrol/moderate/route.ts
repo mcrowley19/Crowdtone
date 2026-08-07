@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
         commentId,
         status: confirm ? ("simulated" as const) : ("dry_run" as const),
         message: confirm
-          ? `Simulated — this demo comment would be ${verb}. Nothing was sent to YouTube.`
-          : `Would be ${verb} — nothing was sent to YouTube.`,
+          ? `Simulated. This demo comment would be ${verb}. Nothing was sent to YouTube.`
+          : `Would be ${verb}. Nothing was sent to YouTube.`,
       })),
     });
   }

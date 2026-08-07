@@ -187,7 +187,7 @@ export function buildPremiereRecap(triaged: TriagedMessage[]): PremiereRecap {
     spikes,
     clipNotes: spikes.map(
       (s) =>
-        `${formatTimestamp(s.atSeconds)} — chat ran ${s.ratio}× its normal speed (${s.count} messages). ` +
+        `${formatTimestamp(s.atSeconds)}: chat ran ${s.ratio}× its normal speed (${s.count} messages). ` +
         `Mid-burst message: “${s.sample}”. Cut from ~${formatTimestamp(Math.max(0, s.atSeconds - 20))}.`
     ),
   };

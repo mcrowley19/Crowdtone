@@ -1,8 +1,8 @@
-# AudienceSignal
+# Crowdtone
 
 **Turn a YouTube comment section into your next video — then let it make the changes.**
 
-[![CI](https://github.com/mcrowley19/youtube-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/mcrowley19/youtube-automation/actions/workflows/ci.yml)
+[![CI](https://github.com/mcrowley19/Crowdtone/actions/workflows/ci.yml/badge.svg)](https://github.com/mcrowley19/Crowdtone/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
 ![Tests](https://img.shields.io/badge/tests-196_passing-black.svg)
 
@@ -10,7 +10,7 @@
 **The tool:** https://youtube-automation-sandy.vercel.app/app — the bundled demo runs with no
 keys and no account.
 
-Creators get hundreds of comments and no actionable plan. AudienceSignal reads the
+Creators get hundreds of comments and no actionable plan. Crowdtone reads the
 comments, decides what to change, and — once you connect your channel — makes the changes.
 
 **Fix a video.** Paste any public video:
@@ -180,8 +180,9 @@ review step, not something the app can skip.
 
 1. Paste a YouTube URL (`watch`, `youtu.be`, `shorts`, … all work) or a bare video ID.
    `examples/demo_video_urls.txt` lists good test videos with rich comment sections.
-2. Click **Analyze** — video metadata loads, up to 200 top comments are fetched via
-   `commentThreads.list`, and the LLM clusters them and drafts the brief (~15s).
+2. Click **Analyze** — video metadata loads, up to 1,000 top comments are fetched via
+   `commentThreads.list` (10 quota units), and the LLM clusters them in batches and
+   drafts the brief.
 3. Click **Generate thumbnails** — the app pulls YouTube's preview stills for the video
    (`i.ytimg.com/vi/<id>/maxres{1,2,3}.jpg`, with sd/hq fallbacks) and composites three
    overlay styles with `sharp`.

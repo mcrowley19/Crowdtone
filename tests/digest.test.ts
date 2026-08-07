@@ -43,7 +43,7 @@ const base = {
 describe("buildAudienceDigest", () => {
   it("builds a dated subject line", () => {
     const digest = buildAudienceDigest(base);
-    expect(digest.subject).toBe("State of the Audience — Tech World — 2026-08-07");
+    expect(digest.subject).toBe("State of the Audience: Tech World, 2026-08-07");
   });
 
   it("carries the theme counts and the top actions with receipts", () => {

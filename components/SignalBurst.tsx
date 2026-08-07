@@ -1,6 +1,6 @@
 /**
  * The deco "signal burst": a quarter-fan of rays and broadcast arcs
- * radiating from the hero's top-left corner — the AudienceSignal wordmark's
+ * radiating from the hero's top-left corner — the Crowdtone wordmark's
  * idea drawn as ornament, in the manner of a 1930s radio poster. Hand-set
  * vector, so it is exactly on palette, weighs about a kilobyte, and needs no
  * license. The arcs sweep themselves in on load; the rays follow, each a

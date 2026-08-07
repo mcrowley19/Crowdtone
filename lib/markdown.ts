@@ -3,7 +3,7 @@ import type { Analysis, VideoMeta } from "./types";
 /** Renders the full analysis as a copy-pasteable markdown summary. */
 export function buildMarkdownSummary(video: VideoMeta, analysis: Analysis, commentCount: number): string {
   const lines: string[] = [];
-  lines.push(`# AudienceSignal — ${video.title}`);
+  lines.push(`# Crowdtone: ${video.title}`);
   lines.push("");
   lines.push(
     `Channel: **${video.channelTitle}** · Comments analyzed: **${commentCount}** · Engine: ${
@@ -29,7 +29,7 @@ export function buildMarkdownSummary(video: VideoMeta, analysis: Analysis, comme
   lines.push("");
   lines.push("## Fix this video");
   for (const f of analysis.fixes) {
-    lines.push(`- **${f.issue}** — ${f.fix}`);
+    lines.push(`- **${f.issue}**: ${f.fix}`);
     if (f.evidence_quote) lines.push(`  - Evidence: "${f.evidence_quote}"`);
   }
   lines.push("");

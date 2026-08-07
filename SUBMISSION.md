@@ -1,4 +1,4 @@
-# AudienceSignal — hackathon submission
+# Crowdtone — hackathon submission
 
 **Live deployment:** https://youtube-automation-sandy.vercel.app
 **Straight to the tool:** https://youtube-automation-sandy.vercel.app/app *(the demo runs
@@ -14,7 +14,7 @@ score: they tell a creator how people *feel* and nothing about what to *do*. And
 tools that do plan content (vidIQ, 1of10, Spotter Studio) charge $16–69/month and still
 hand back a to-do list.
 
-AudienceSignal's premise: the comment section already wrote your next video. Read it
+Crowdtone's premise: the comment section already wrote your next video. Read it
 properly, show the evidence, and then — this is the part that matters — **do the work**.
 
 ## What it does
@@ -109,10 +109,10 @@ refresh, session cookies, the YouTube clients, and the LLM client are hand-rolle
   start, 3+ chapters, 10-second minimum), merge into descriptions idempotently — proved
   useful beyond this app, so we extracted it as
   [`youtube-chapter-kit`](https://github.com/mcrowley19/youtube-chapter-kit): a
-  zero-dependency MIT package with its own 27-test suite and CI, and AudienceSignal is
+  zero-dependency MIT package with its own 27-test suite and CI, and Crowdtone is
   its first consumer. Any creator tool can now use it instead of shipping chapter lists
   YouTube silently refuses to render.
-- **145 vitest tests** — 134 unit plus 11 route-level integration tests that call the
+- **217 vitest tests** — 206 unit plus 11 route-level integration tests that call the
   real handlers with the network mocked at the fetch layer (ownership refusal, dry-run
   no-op, simulated demo publish, verified-live re-read, duplicate-publish 409, exact undo)
   — plus CI (typecheck, suite, production build on every push) and `npm run judge`. MIT
@@ -147,7 +147,7 @@ of it in the first minute without creating anything.
 
 And one piece outlived the hackathon before the hackathon even ended: the comment-mined
 chapters engine is now [`youtube-chapter-kit`](https://github.com/mcrowley19/youtube-chapter-kit),
-an open-source, zero-dependency package any creator tool can use — with AudienceSignal
+an open-source, zero-dependency package any creator tool can use — with Crowdtone
 as its first production consumer.
 
 ## What we learned
@@ -188,7 +188,7 @@ Open **/app** (no keys, no account — every step below is the bundled demo):
    badges and receipts, the globe in *Speak their language*, and **State of the
    Audience** → *Preview it* — the whole report as one email.
 
-Then `npm run judge` in the repo: typecheck, 145 tests (unit + route-level integration
+Then `npm run judge` in the repo: typecheck, 217 tests (unit + route-level integration
 with mocked Google), production build.
 
 ## How it meets the requirements
@@ -213,55 +213,7 @@ plainly that pinning is one click in Studio.
 
 ## Repo
 
-- Code: https://github.com/mcrowley19/youtube-automation (branch:
-  `claude/audiencesignal-youtube-hackathon-cpyayr`)
+- Code: https://github.com/mcrowley19/Crowdtone (branch: `main`)
 - Open-source package extracted from this project:
   https://github.com/mcrowley19/youtube-chapter-kit
 - Setup, environment variables, and architecture notes: [README.md](README.md)
-
-## Demo video script (~2:45)
-
-**0:00 — Cold open, the pitch.** Screen: a real comment section scrolling fast.
-"This video has 1,800 comments. My next video idea, the reason this one underperformed,
-and the exact second people stopped watching are all in here. AudienceSignal reads them —
-and then it does the work."
-
-**0:15 — Paste and analyze.** Paste the URL, click Analyze. While the steps run: "Video,
-then up to 200 comments through the YouTube Data API, then a language model sorts every
-one — with the receipts."
-
-**0:35 — Themes and the brief.** Point at counts and a quote. "Fifteen requests, twelve
-complaints — real quotes, not a summary. And three next-video ideas ranked by how loudly
-the comments ask."
-
-**0:55 — The wow: retention × comments.** Scroll to the curve. "This is my audience
-retention from the Analytics API. It drops ten percent at 8:24 — and here's a comment
-pointing at 8:14 telling me exactly why. Studio shows you the dip; the comments explain
-it. Nothing else joins these."
-
-**1:20 — Shorts cut list + thumbnails.** "The moments viewers timestamped become a
-Shorts editor handoff. And the top complaint becomes a new thumbnail — drawn on YouTube's own preview stills of
-the video, next to the one I published."
-
-**1:40 — Do it, for real.** Draft the changes, show a diff, tick, confirm, and refresh
-the actual YouTube watch page. "New title. Live. Chapters from the timestamps viewers
-left. And every one of these has an undo button."
-
-**2:05 — Speak their language.** "My analytics say a third of my audience isn't
-English-speaking. One click and the title and description exist in Spanish, Hindi, and
-Portuguese — published as real YouTube localizations."
-
-**2:20 — Comment Patrol.** Run the sweep. "Every channel has these — the fake me with
-the WhatsApp number, the crypto bots. Found across all my recent uploads, explained,
-hidden in bulk. Reversibly."
-
-**2:40 — Close.** "From 1,800 comments to a published fix, a filmable plan, and a clean
-comment section — in minutes, on the official APIs, with an undo button. That's
-AudienceSignal."
-
-**Recording notes:** use a video with a mixed comment section or the report reads thin.
-For the publish and patrol segments you need a video on your own channel (writes are
-ownership-checked); an unlisted upload with seeded comments works. Do a practice run
-first so comments are cached and quota can't break the take. Keep `.env.local` and the
-OAuth account picker off camera. Under 3 minutes; upload to YouTube unlisted the day
-before the deadline.

@@ -90,7 +90,7 @@ export function describeStyleProfile(profile: StyleProfile): string {
   traits.push(
     profile.emojiRate >= 0.5
       ? `use at most one emoji, drawn from: ${profile.topEmoji.join(" ")}`
-      : "no emoji — this creator doesn't use them in replies"
+      : "no emoji, this creator doesn't use them in replies"
   );
   if (profile.lowercaseRate >= 0.5) traits.push("casual lowercase openings are their style");
   if (profile.greetingRate >= 0.4) traits.push('often opens with thanks ("thanks!", "good question")');

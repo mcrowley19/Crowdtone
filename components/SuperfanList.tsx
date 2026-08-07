@@ -1,18 +1,17 @@
 "use client";
 
 import type { Superfan } from "@/lib/superfans";
+import { Panel } from "@/components/Panel";
 
 /**
  * The people behind the numbers. Scores are pure arithmetic (lib/superfans);
  * this just puts names, receipts, and reasons on screen.
  */
-export function SuperfanList({ fans, deck }: { fans: Superfan[]; deck: string }) {
+export function SuperfanList({ fans, chip }: { fans: Superfan[]; chip: string }) {
   if (fans.length === 0) return null;
 
   return (
-    <section className="report">
-      <h2>Your superfans</h2>
-      <p className="deck">{deck}</p>
+    <Panel title="Your superfans" chip={chip}>
       <ol className="fanlist">
         {fans.map((fan) => (
           <li key={fan.authorChannelId ?? fan.author}>
@@ -28,11 +27,6 @@ export function SuperfanList({ fans, deck }: { fans: Superfan[]; deck: string })
           </li>
         ))}
       </ol>
-      <p className="drationale">
-        Ranked by showing up (comments, videos touched), being valued by other viewers (likes),
-        and adding substance (questions, timestamps). Computed, not model-guessed — reply to one
-        of them today.
-      </p>
-    </section>
+    </Panel>
   );
 }

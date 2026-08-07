@@ -4,8 +4,9 @@ import type { Comment } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// Clustering runs first, then three calls in parallel: worst case is two
-// sequential LLM timeouts (90s each) plus overhead. Vercel allows 300s.
+// Clustering runs first as batches (6 max, 4 in flight, 60s each, so two waves
+// worst case at 120s), then three section calls in parallel at 90s. That is
+// ~210s of ceiling against the 300s Vercel allows.
 export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {

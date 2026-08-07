@@ -19,7 +19,7 @@ function simulatedMessage(action: ProposedAction): string {
     reply_to_comment: `The reply to ${action.payload?.parentAuthor ?? "the viewer"} would be posted.`,
     set_localizations: `Localized packaging would be published for: ${Object.keys(action.payload?.localizations ?? {}).join(", ")}.`,
   };
-  return `Simulated publish — this is the bundled demo dataset, nothing was sent to YouTube. ${outcome[action.kind] ?? ""}`;
+  return `Simulated publish. This is the bundled demo dataset, nothing was sent to YouTube. ${outcome[action.kind] ?? ""}`;
 }
 
 /**
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
   if (!dryRun && requestId && isDuplicateRequest(requestId)) {
     return NextResponse.json(
-      { error: "This publish was already sent — refusing to send it twice.", code: "duplicate" },
+      { error: "This publish was already sent. Refusing to send it twice.", code: "duplicate" },
       { status: 409 }
     );
   }
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         id: a.id,
         kind: a.kind,
         status: "dry_run" as const,
-        message: "Previewed — nothing was sent to YouTube.",
+        message: "Previewed. Nothing was sent to YouTube.",
       })),
     });
   }

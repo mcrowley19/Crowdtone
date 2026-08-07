@@ -11,7 +11,7 @@ describe("buildMarkdownSummary", () => {
     const analysis = heuristicAnalysis(comments, video.title);
     const md = buildMarkdownSummary(video, analysis, comments.length);
 
-    expect(md).toContain(`# AudienceSignal — ${video.title}`);
+    expect(md).toContain(`# Crowdtone: ${video.title}`);
     expect(md).toContain("## Comment themes");
     expect(md).toContain("## Next video brief");
     expect(md).toContain("## Fix this video");

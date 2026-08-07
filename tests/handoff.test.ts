@@ -52,7 +52,7 @@ describe("buildMarkerCsv", () => {
 describe("buildEdl", () => {
   it("lays clips back to back on the record side", () => {
     const edl = buildEdl(CLIPS, "My Video");
-    expect(edl).toContain("TITLE: My Video — AudienceSignal cut list");
+    expect(edl).toContain("TITLE: My Video: Crowdtone cut list");
     expect(edl).toContain("FCM: NON-DROP FRAME");
     // Event 1: source 4:07→4:57, record 0:00→0:50.
     expect(edl).toContain("001  AX       V     C        00:04:07:00 00:04:57:00 00:00:00:00 00:00:50:00");

@@ -2,7 +2,15 @@ import { parseISODuration } from "./chapters";
 import type { Comment, VideoMeta } from "./types";
 
 const API_BASE = "https://www.googleapis.com/youtube/v3";
-export const MAX_COMMENTS = 200;
+
+/**
+ * commentThreads.list costs 1 quota unit per call and returns up to 100
+ * comments, so 1,000 comments is 10 units of the free 10,000-unit daily
+ * allowance: about 1,000 videos a day on one key. The ceiling here is chosen
+ * for fetch latency and payload size rather than cost, and the pager below
+ * will follow nextPageToken to whatever it is set to.
+ */
+export const MAX_COMMENTS = Math.max(1, Number(process.env.MAX_COMMENTS) || 1000);
 
 const ID_RE = /^[A-Za-z0-9_-]{11}$/;
 

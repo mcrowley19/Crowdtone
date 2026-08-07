@@ -1,0 +1,17 @@
+assets/sample-frame.jpg
+
+An AI-generated image, made for this repo. The person in it is synthetic — not a
+real creator, and not anyone's likeness.
+
+Why it exists: the bundled demo video is fictional, so there are no real YouTube
+stills behind it. This plate stands in as its frame.
+`scripts/make-sample-thumbnails.ts` composites the landing page's sample
+thumbnails over it using lib/thumbnails.ts — the same compositor the app runs on
+the real stills it fetches from i.ytimg.com for an actual video.
+
+  npx tsx scripts/make-sample-thumbnails.ts assets/sample-frame.jpg
+
+The plate is deliberately dark on the left, which is where every overlay style
+puts its text. That also makes it a good check on the adaptive scrim: it
+measures 6–25 luminance under the text, so the veil stays near zero instead of
+muddying an already-dark frame.
